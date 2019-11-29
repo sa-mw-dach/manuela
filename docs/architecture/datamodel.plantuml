@@ -1,0 +1,142 @@
+@startuml
+
+class GitLocation
+GitLocation : String gitURL 
+GitLocation : String path 
+GitLocation : Credentials credentials
+
+package Concepts {
+    abstract class Application
+    Application : ComponentBinding[] binding
+
+    abstract class Component
+    "Component" : Interface[] provided
+    "Component" : Interface[] consumed
+    "Component" : Configuration[] configuration
+
+    abstract class ComponentBinding
+    ComponentBinding : Component provider
+    ComponentBinding : Component consumer
+
+    "Component" --o Application  
+    Application o-- ComponentBinding
+    "Component" -- ComponentBinding
+}
+
+package Git {
+    abstract class GitRepository
+
+    package DeploymentData <<Database>> {
+        class ComponentInstance <<ArgoCD Application>>
+        ComponentInstance : GitLocation componentConfiguration
+
+        class DeploymentTargetDirectory <<Directory>>
+
+        class GitDeploymentRepository
+
+        ComponentInstance --o DeploymentTargetDirectory : lies in >
+        DeploymentTargetDirectory --o GitDeploymentRepository : lies in >
+    } 
+
+    package ConfigurationData <<Database>> {
+        class ComponentConfiguration
+        ComponentConfiguration : Kustomize manifests
+        ComponentConfiguration : GitLocation[] baseConfiguration
+        ComponentConfiguration --> ComponentConfiguration : base >
+
+        class ProvidedInterface <<Service or Ingress>>
+        ProvidedInterface : String hostname
+        ProvidedInterface : String port
+
+        class ConsumedInterface <<ConfigMap>>
+        ConsumedInterface : String hostname
+        ConsumedInterface : String port
+        ConsumedInterface : boolean tls-sni
+
+        class ApplicationDirectory <<Directory>>
+
+        class GitConfigurationRepository
+
+        ComponentConfiguration --o ApplicationDirectory : lies in >
+        ComponentConfiguration o-- ProvidedInterface
+        ComponentConfiguration o-- ConsumedInterface
+
+        ApplicationDirectory --o GitConfigurationRepository : lies in >
+    }
+
+    GitDeploymentRepository --|> GitRepository 
+    GitConfigurationRepository --|> GitRepository
+
+    ComponentInstance -- ComponentConfiguration : points to >
+
+}
+
+package Runtime {
+    class ContainerRegistry
+
+    class ContainerImage
+
+    class DeploymentTarget <<Kubernetes Cluster>>
+    DeploymentTarget : Object metadata
+    DeploymentTarget : String apiEndpoint
+
+    class DeploymentAgent <<Argo CD>>
+    note left: runs on the same k8s\ncluster it deploys to
+
+    class DeploymentAgentConfiguration <<ArgoCD App-of-Apps>>
+    DeploymentAgentConfiguration : GitLocation deploymentRepository
+
+    class RuntimeArtefacts <<k8s manifests>>
+
+
+    DeploymentAgent -- DeploymentAgentConfiguration : is configured through >
+
+    ContainerImage --o ContainerRegistry : lies in >
+
+    RuntimeArtefacts -- DeploymentTarget : runs on >
+    RuntimeArtefacts -- ContainerImage : points to >
+
+    DeploymentTarget -- ContainerRegistry : can pull from >
+    DeploymentTarget -- DeploymentAgent : < deploys to
+    /'DeploymentTarget -- DeploymentAgent : < runs on '/
+}
+
+package Masterdata {
+    class DeploymentTargetMasterdata
+    DeploymentTargetMasterdata : Metadata Name, Geolocation, Owner, ...
+    DeploymentTargetMasterdata : String ingressBaseURL
+    DeploymentTargetMasterdata : String publicAPIEndpoint
+    DeploymentTargetMasterdata : PlacementCriteria placementCriteria
+    DeploymentTargetMasterdata : SizingLimits sizingLimits
+    DeploymentTargetMasterdata : Endpoint[] thirdPartyEndpoints
+    DeploymentTargetMasterdata : SSHJumpHost sshJumpHost
+    DeploymentTargetMasterdata : MaintenanceWindow[] maintenanceWindow
+    DeploymentTargetMasterdata : DevQAProd envType
+
+    class Firewall
+    Firewall : String configAPIEndpoint
+
+    DeploymentTargetMasterdata -- Firewall
+}
+
+ComponentInstance .. Component : represents instantiation of >
+ComponentInstance .. RuntimeArtefacts : rendered as >
+ComponentInstance ..o DeploymentTarget : is deployed to >
+/' ComponentInstance ..o DeploymentTarget : is installed on > '/
+ComponentInstance .. DeploymentAgentConfiguration : < deploys
+
+ComponentConfiguration .. ContainerImage : points to >
+ComponentConfiguration .. Component : configures >
+
+DeploymentAgentConfiguration .. DeploymentTargetDirectory : points to >
+
+DeploymentTargetDirectory .. DeploymentTarget : represents >
+ApplicationDirectory .. Application : represents >
+
+DeploymentTargetMasterdata .. DeploymentTarget : describes >
+DeploymentTargetMasterdata .. DeploymentTargetDirectory
+
+ComponentBinding .. ConsumedInterface
+ComponentBinding .. ProvidedInterface
+
+@enduml
