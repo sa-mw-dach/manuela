@@ -25,12 +25,14 @@ package Concepts {
 
 package Git {
     abstract class GitRepository
+    GitRepository : String gitURL
 
     package DeploymentData <<Database>> {
         class ComponentInstance <<ArgoCD Application>>
         ComponentInstance : GitLocation componentConfiguration
 
         class DeploymentTargetDirectory <<Directory>>
+        DeploymentTargetDirectory : String path
 
         class GitDeploymentRepository
 
@@ -54,6 +56,7 @@ package Git {
         ConsumedInterface : boolean tls-sni
 
         class ApplicationDirectory <<Directory>>
+        ApplicationDirectory : String path
 
         class GitConfigurationRepository
 
