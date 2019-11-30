@@ -1,0 +1,47 @@
+@startuml
+!include metamodel.concepts.plantuml
+!include metamodel.git.plantuml
+!include metamodel.runtime.plantuml
+
+class GitLocation
+GitLocation : String gitURL 
+GitLocation : String path 
+GitLocation : Credentials credentials
+
+namespace Masterdata {
+    class ExecutionEnvironment <<Masterdata>>
+    ExecutionEnvironment : Metadata Name, Geolocation, Owner, ...
+    ExecutionEnvironment : String ingressBaseURL
+    ExecutionEnvironment : String publicAPIEndpoint
+    ExecutionEnvironment : PlacementCriteria placementCriteria
+    ExecutionEnvironment : SizingLimits sizingLimits
+    ExecutionEnvironment : Endpoint[] thirdPartyEndpoints
+    ExecutionEnvironment : SSHJumpHost sshJumpHost
+    ExecutionEnvironment : MaintenanceWindow[] maintenanceWindow
+    ExecutionEnvironment : DevQAProd envType
+    ExecutionEnvironment : Operator[] extensions
+
+    class Firewall <<Masterdata>>
+    Firewall : String configAPIEndpoint
+    Firewall : String managementClusterEndpoint
+
+    ExecutionEnvironment -- Firewall
+}
+
+Concepts.Deployment .. Git.DeploymentData.ComponentDeployment
+Concepts.ComponentBinding .. Git.ConfigurationData.ConsumedInterface
+Concepts.ComponentBinding .. Git.ConfigurationData.ProvidedInterface
+Concepts.ApplicationInstance .. Git.ConfigurationData.ApplicationInstanceOrTemplate 
+
+Git.ConfigurationData.ComponentConfiguration .. Runtime.ContainerImage : points to >
+Git.ConfigurationData.ComponentConfiguration .. Concepts.ComponentInstance : configures >
+
+Git.DeploymentData.ComponentDeployment .. Runtime.RuntimeArtefacts : rendered as >
+'Git.DeploymentData.ComponentDeployment ..o Runtime.ExecutionEnvironment : is deployed to >
+'Git.DeploymentData.ComponentDeployment ..o Runtime.ExecutionEnvironment : is installed on > 
+'Git.DeploymentData.ComponentDeployment .. Runtime.DeploymentAgentConfiguration : < deploys
+
+Runtime.DeploymentAgentConfiguration .. Git.DeploymentData.ExecutionEnvironment : points to >
+
+Masterdata.Firewall .. Runtime.ManagementCluster
+@enduml

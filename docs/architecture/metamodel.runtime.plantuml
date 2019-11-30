@@ -1,0 +1,63 @@
+@startuml
+namespace Runtime {
+    note "Reality\nSystem tries to achieve desired state" as notereality
+
+    ' --- Container Runtime Infra
+    class ContainerRegistry
+
+    class ContainerImage
+
+    ' --- K8s runtime
+    class ExecutionEnvironment <<Kubernetes Cluster>>
+    ExecutionEnvironment : Object metadata
+    ExecutionEnvironment : String apiEndpoint
+    ExecutionEnvironment : Operator[] extenstions
+
+    class DeploymentAgent <<ArgoCD>>
+    note left: runs on the same k8s\ncluster it deploys to
+
+    class DeploymentAgentConfiguration <<ArgoCD Application>>
+    DeploymentAgentConfiguration : GitLocation deploymentRepository
+
+    class Namespace
+    note right: does it represent\nan Application Instance or\na Component Instance?
+    
+    class RuntimeArtefacts <<k8s manifests>>
+
+    ' --- Infra management
+    class Firewall
+    Firewall : String apiEndpoint
+
+    class FirewallConfig <<k8s CustomResource>>
+
+    class FirewallOperator <<Operator>>
+
+    class ManagementCluster <<Kubernetes Cluster>>
+    ManagementCluster : Object metadata
+    ManagementCluster : String apiEndpoint
+    ManagementCluster : Operator[] extenstions
+
+    ' --- Links
+    "Namespace" *-- RuntimeArtefacts  
+    "Namespace" *-- FirewallConfig  
+
+    DeploymentAgent -- DeploymentAgentConfiguration : is configured through >
+
+    ContainerImage --o ContainerRegistry 
+
+    RuntimeArtefacts --o ExecutionEnvironment 
+    RuntimeArtefacts -- ContainerImage : points to >
+
+    ExecutionEnvironment -- ContainerRegistry : can pull from >
+    ExecutionEnvironment -- DeploymentAgent : < deploys to
+    'ExecutionEnvironment -- DeploymentAgent : < runs on 
+    ExecutionEnvironment -- Firewall : is separated by >
+
+    FirewallConfig --o ManagementCluster
+
+    ManagementCluster -- Firewall : manages >
+    ManagementCluster -- DeploymentAgent : < deploys to
+    FirewallOperator --o ManagementCluster
+    FirewallOperator -- FirewallConfig
+}
+@enduml

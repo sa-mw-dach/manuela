@@ -1,0 +1,70 @@
+@startuml
+namespace Git {
+    abstract class GitRepository
+    GitRepository : String gitURL
+
+    namespace DeploymentData <<Database>> {
+        class ComponentDeployment <<ArgoCD Application>>
+        ComponentDeployment : GitLocation componentConfiguration
+        ComponentDeployment : String namespace
+
+        class Namespace <<k8s manifest>>
+        Namespace : String name
+
+        class FirewallConfig <<k8s CustomResource>>
+        FirewallConfig : String namespace
+
+        class ExecutionEnvironment <<Directory>>
+        ExecutionEnvironment : String path
+
+        class NetworkPath <<Directory>>
+        NetworkPath : String path
+
+        class GitDeploymentRepository
+
+        Namespace --o ExecutionEnvironment
+        ComponentDeployment --o ExecutionEnvironment 
+        ExecutionEnvironment --o GitDeploymentRepository 
+
+        Namespace --o NetworkPath 
+        FirewallConfig --o NetworkPath
+        NetworkPath --o GitDeploymentRepository
+    } 
+
+    namespace ConfigurationData <<Database>> {
+        class ComponentConfiguration <<Subdirectory>>
+        ComponentConfiguration : Kustomize manifests
+        ComponentConfiguration : GitLocation[] baseConfiguration
+        ComponentConfiguration --> ComponentConfiguration : base >
+
+        class ProvidedInterface <<Service or Ingress>>
+        ProvidedInterface : String hostname
+        ProvidedInterface : String port
+
+        class ConsumedInterface <<ConfigMap>>
+        ConsumedInterface : String hostname
+        ConsumedInterface : String port
+        ConsumedInterface : boolean tls-sni
+
+        class ApplicationInstanceOrTemplate <<Directory>>
+        ApplicationInstanceOrTemplate : String path
+
+        class GitConfigurationRepository
+
+        ComponentConfiguration --o ApplicationInstanceOrTemplate 
+        
+        ProvidedInterface --o ComponentConfiguration
+        ConsumedInterface --o ComponentConfiguration
+
+        ApplicationInstanceOrTemplate --o GitConfigurationRepository
+    }
+
+    Git.DeploymentData.GitDeploymentRepository --|> GitRepository 
+    Git.ConfigurationData.GitConfigurationRepository --|> GitRepository
+    Git.DeploymentData.ComponentDeployment -- Git.ConfigurationData.ComponentConfiguration : points to >
+
+    note "Digital Twin\nDefines desired state" as notedigitaltwin
+    'ConfigurationData .up. notedigitaltwin
+    'DeploymentData .left. notedigitaltwin
+}
+@enduml

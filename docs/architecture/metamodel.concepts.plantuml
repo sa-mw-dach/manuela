@@ -1,0 +1,38 @@
+@startuml
+namespace Concepts {
+    abstract class Application
+    Application : ComponentBinding[] binding
+
+    abstract class Component
+    "Component" : Interface[] provided
+    "Component" : Interface[] consumed
+    "Component" : Configuration[] configuration
+
+    abstract class ComponentBinding
+    ComponentBinding : Component provider
+    ComponentBinding : Component consumer
+
+    abstract class ComponentInstance
+
+    abstract class ApplicationInstance
+
+    abstract class ExecutionEnvironment
+
+    abstract class NetworkPath
+
+    abstract class Deployment
+
+    "Component" -- ComponentBinding
+    "Component" --o Application
+    ComponentBinding --o Application
+
+    ComponentInstance --o ApplicationInstance
+    Application -left- ApplicationInstance
+    "Component" -- ComponentInstance
+
+    ExecutionEnvironment -right- NetworkPath
+
+    ExecutionEnvironment -- ComponentInstance
+    (ComponentInstance,ExecutionEnvironment) .. Deployment
+}
+@enduml
