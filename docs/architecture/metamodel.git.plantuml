@@ -1,5 +1,9 @@
 @startuml
 namespace Git {
+    note "Digital Twin\nDefines desired state\nTracks changes across time" as notedigitaltwin
+    'Git.ConfigurationData .up. notedigitaltwin
+    'Git.DeploymentData .left. notedigitaltwin
+
     abstract class GitRepository
     GitRepository : String gitURL
 
@@ -8,11 +12,11 @@ namespace Git {
         ComponentDeployment : GitLocation componentConfiguration
         ComponentDeployment : String namespace
 
+        class NetworkPathConfigDeployment <<ArgoCD Application>>
+        NetworkPathConfigDeployment : String namespace
+
         class Namespace <<k8s manifest>>
         Namespace : String name
-
-        class FirewallConfig <<k8s CustomResource>>
-        FirewallConfig : String namespace
 
         class ExecutionEnvironment <<Directory>>
         ExecutionEnvironment : String path
@@ -22,13 +26,17 @@ namespace Git {
 
         class GitDeploymentRepository
 
-        Namespace --o ExecutionEnvironment
         ComponentDeployment --o ExecutionEnvironment 
         ExecutionEnvironment --o GitDeploymentRepository 
 
-        Namespace --o NetworkPath 
-        FirewallConfig --o NetworkPath
+        NetworkPathConfigDeployment --o NetworkPath
         NetworkPath --o GitDeploymentRepository
+
+        NetworkPathConfigDeployment -- Namespace
+        ComponentDeployment -- Namespace
+
+        "Namespace" --o ExecutionEnvironment
+        "Namespace" --o NetworkPath
     } 
 
     namespace ConfigurationData <<Database>> {
@@ -46,25 +54,37 @@ namespace Git {
         ConsumedInterface : String port
         ConsumedInterface : boolean tls-sni
 
+        class NetworkPathConfiguration <<Subdirectory>>
+        NetworkPathConfiguration : Kustomize manifests
+        NetworkPathConfiguration : GitLocation[] baseConfiguration
+        NetworkPathConfiguration --> NetworkPathConfiguration : base >
+
+        class FirewallConfig <<k8s CustomResource>>
+
         class ApplicationInstanceOrTemplate <<Directory>>
         ApplicationInstanceOrTemplate : String path
 
         class GitConfigurationRepository
 
         ComponentConfiguration --o ApplicationInstanceOrTemplate 
+        NetworkPathConfiguration --o ApplicationInstanceOrTemplate 
+        FirewallConfig --o NetworkPathConfiguration
         
         ProvidedInterface --o ComponentConfiguration
         ConsumedInterface --o ComponentConfiguration
 
         ApplicationInstanceOrTemplate --o GitConfigurationRepository
+
+'        note "these are deployment specific -\nshouldn't they be deployment data?" as notedeploymentspecific
+'        notedeploymentspecific -- ConsumedInterface
+'        notedeploymentspecific -- ProvidedInterface
+
     }
 
     Git.DeploymentData.GitDeploymentRepository --|> GitRepository 
     Git.ConfigurationData.GitConfigurationRepository --|> GitRepository
     Git.DeploymentData.ComponentDeployment -- Git.ConfigurationData.ComponentConfiguration : points to >
+    Git.DeploymentData.NetworkPathConfigDeployment -- Git.ConfigurationData.NetworkPathConfiguration : points to >
 
-    note "Digital Twin\nDefines desired state" as notedigitaltwin
-    'ConfigurationData .up. notedigitaltwin
-    'DeploymentData .left. notedigitaltwin
 }
 @enduml
