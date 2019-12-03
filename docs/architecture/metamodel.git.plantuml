@@ -8,9 +8,13 @@ namespace Git {
     GitRepository : String gitURL
 
     namespace DeploymentData <<Database>> {
-        class ComponentDeployment <<ArgoCD Application>>
+        class K8sComponentDeployment <<ArgoCD Application>>
+        K8sComponentDeployment : String namespace
+
+        class StandaloneComponentDeployment <<Kustomize Manifest>>
+
+        abstract class ComponentDeployment
         ComponentDeployment : GitLocation componentConfiguration
-        ComponentDeployment : String namespace
 
         class NetworkPathConfigDeployment <<ArgoCD Application>>
         NetworkPathConfigDeployment : String namespace
@@ -25,6 +29,9 @@ namespace Git {
         NetworkPath : String path
 
         class GitDeploymentRepository
+
+        K8sComponentDeployment --|> ComponentDeployment
+        StandaloneComponentDeployment --|> ComponentDeployment
 
         ComponentDeployment --o ExecutionEnvironment 
         ExecutionEnvironment --o GitDeploymentRepository 
@@ -45,14 +52,19 @@ namespace Git {
         ComponentConfiguration : GitLocation[] baseConfiguration
         ComponentConfiguration --> ComponentConfiguration : base >
 
-        class ProvidedInterface <<Service or Ingress>>
+        class ProvidedInterface <<Service or Route/Ingress>>
         ProvidedInterface : String hostname
         ProvidedInterface : String port
 
         class ConsumedInterface <<ConfigMap>>
         ConsumedInterface : String hostname
         ConsumedInterface : String port
-        ConsumedInterface : boolean tls-sni
+        ConsumedInterface : boolean tlssni
+
+        note top of ConsumedInterface: mounted to individual file under\n/etc/components/<componentname>/
+        note "port are integers but ConfigMaps prefer Strings" as noteintasstring
+        noteintasstring -- ConsumedInterface 
+        noteintasstring -- ProvidedInterface
 
         class NetworkPathConfiguration <<Subdirectory>>
         NetworkPathConfiguration : Kustomize manifests
