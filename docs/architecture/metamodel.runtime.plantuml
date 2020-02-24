@@ -20,7 +20,7 @@ namespace Runtime {
     DeploymentAgentConfiguration : GitLocation deploymentRepository
 
     class Namespace
-    note right: does it represent\nan Application Instance or\na Component Instance?
+    note right: represents an Component Instance
     
     class RuntimeArtefacts <<k8s manifests>>
 

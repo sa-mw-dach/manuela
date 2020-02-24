@@ -19,9 +19,6 @@ namespace Git {
         class NetworkPathConfigDeployment <<ArgoCD Application>>
         NetworkPathConfigDeployment : String namespace
 
-        class Namespace <<k8s manifest>>
-        Namespace : String name
-
         class ExecutionEnvironment <<Directory>>
         ExecutionEnvironment : String path
 
@@ -38,12 +35,6 @@ namespace Git {
 
         NetworkPathConfigDeployment --o NetworkPath
         NetworkPath --o GitDeploymentRepository
-
-        NetworkPathConfigDeployment -- Namespace
-        ComponentDeployment -- Namespace
-
-        "Namespace" --o ExecutionEnvironment
-        "Namespace" --o NetworkPath
     } 
 
     namespace ConfigurationData <<Database>> {
@@ -51,6 +42,9 @@ namespace Git {
         ComponentConfiguration : Kustomize manifests
         ComponentConfiguration : GitLocation[] baseConfiguration
         ComponentConfiguration --> ComponentConfiguration : base >
+
+        class Namespace <<k8s manifest>>
+        Namespace : String name
 
         class ProvidedInterface <<Service or Route/Ingress>>
         ProvidedInterface : String hostname
@@ -66,6 +60,8 @@ namespace Git {
         noteintasstring -- ConsumedInterface 
         noteintasstring -- ProvidedInterface
 
+        class GitOpsCompatibleSecret <<Encrypted or KMS Reference>>
+
         class NetworkPathConfiguration <<Subdirectory>>
         NetworkPathConfiguration : Kustomize manifests
         NetworkPathConfiguration : GitLocation[] baseConfiguration
@@ -78,10 +74,14 @@ namespace Git {
 
         class GitConfigurationRepository
 
+        "Namespace" --o ComponentConfiguration
+        "Namespace" --o NetworkPathConfiguration
+
         ComponentConfiguration --o ApplicationInstanceOrTemplate 
         NetworkPathConfiguration --o ApplicationInstanceOrTemplate 
         FirewallConfig --o NetworkPathConfiguration
         
+        GitOpsCompatibleSecret --o ComponentConfiguration 
         ProvidedInterface --o ComponentConfiguration
         ConsumedInterface --o ComponentConfiguration
 
@@ -97,6 +97,9 @@ namespace Git {
     Git.ConfigurationData.GitConfigurationRepository --|> GitRepository
     Git.DeploymentData.ComponentDeployment -- Git.ConfigurationData.ComponentConfiguration : points to >
     Git.DeploymentData.NetworkPathConfigDeployment -- Git.ConfigurationData.NetworkPathConfiguration : points to >
+
+    Git.DeploymentData.K8sComponentDeployment -- Git.ConfigurationData.Namespace : points to >
+    Git.DeploymentData.NetworkPathConfigDeployment --  Git.ConfigurationData.Namespace : points to >
 
 }
 @enduml
