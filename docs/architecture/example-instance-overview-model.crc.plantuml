@@ -1,0 +1,52 @@
+@startuml
+
+title CRC Example: Instance Overview 
+
+object line_dashboard_application.yaml
+line_dashboard_application.yaml : type = yaml
+line_dashboard_application.yaml : kind = argo_app
+line_dashboard_application.yaml : sourcepath =  config/instances/manuela-crc/line_dashboard
+
+
+object machine_sensor_application.yaml
+machine_sensor_application.yaml : type = yaml
+machine_sensor_application.yaml : kind = argo_app
+machine_sensor_application.yaml : sourcepath =  config/instances/manuela-crc/machine_sensor
+
+
+object messaging_application.yaml
+messaging_application.yaml : type = yaml
+messaging_application.yaml : kind = argo_appmachine_sensor_application.yaml
+messaging_application.yaml : sourcepath =  config/instances/manuela-crc/messaging
+
+object manuela_crc
+manuela_crc : type = dir
+manuela_crc : path = config/instances
+
+manuela_crc o-- line_dashboard_application.yaml
+manuela_crc o-- machine_sensor_application.yaml
+manuela_crc o-- messaging_application.yaml
+
+object line_dashboard
+line_dashboard : type = dir
+line_dashboard : path = instances/manuela-crc
+line_dashboard_application.yaml *-- line_dashboard
+
+object machine_sensor
+machine_sensor : type = dir
+machine_sensor : path = instances/manuela-crc
+
+machine_sensor_application.yaml *-- machine_sensor
+
+object messaging
+messaging : type = dir
+messaging : path = instances/manuela-crc
+
+messaging_application.yaml *-- messaging
+
+manuela_crc o-- line_dashboard
+manuela_crc o-- machine_sensor
+manuela_crc o-- messaging
+
+
+@enduml

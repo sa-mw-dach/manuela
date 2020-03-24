@@ -1,0 +1,134 @@
+@startuml
+
+title CRC Example: Instance and Templates details for the Messaging component
+
+object instances
+instances : type = dir
+instances : path = config
+
+object manuela_crc
+manuela_crc : type = dir
+manuela_crc : path = config/instances
+instances o-- manuela_crc : subdir
+
+object templates
+templates : type = dir
+templates : path = config
+
+
+object manuela_messaging
+manuela_messaging : name = messaging
+manuela_messaging : type = dir
+manuela_messaging : path = config/templates/manuela
+templates o-- manuela_messaging : subdir
+
+
+object kustomization.yaml_ctm
+kustomization.yaml_ctm : type = yaml
+kustomization.yaml_ctm : kind = Kustomization
+manuela_messaging o-- kustomization.yaml_ctm : contains
+
+
+object amq_broker.yaml
+manuela_messaging o-- amq_broker.yaml : contains
+kustomization.yaml_ctm .. amq_broker.yaml : resource
+
+object amq_operator_subscription.yaml  
+manuela_messaging o-- amq_operator_subscription.yaml : contains
+kustomization.yaml_ctm .. amq_operator_subscription.yaml : resource
+
+object messaging_configmap.yaml  
+manuela_messaging o-- messaging_configmap.yaml : contains
+kustomization.yaml_ctm .. messaging_configmap.yaml : resource
+
+
+object messaging_svc.yaml
+manuela_messaging o-- messaging_svc.yaml : contains
+kustomization.yaml_ctm .. messaging_svc.yaml : resource
+
+object messaging_deployment.yaml
+manuela_messaging o-- messaging_deployment.yaml : contains
+kustomization.yaml_ctm .. messaging_deployment.yaml : resource
+
+
+object manuela_openshift_messaging
+manuela_openshift_messaging : name = messaging    
+manuela_openshift_messaging : type = dir
+manuela_openshift_messaging : path =  config/templates
+templates o-- manuela_openshift_messaging : subdir
+
+object kustomization.yaml_ctmom
+kustomization.yaml_ctmom : type = yaml
+kustomization.yaml_ctmom : kind = Kustomization
+kustomization.yaml_ctmom : bases = templates/manuela/messaging
+kustomization.yaml_ctmom *-- kustomization.yaml_ctm : bases
+
+manuela_openshift_messaging o-- kustomization.yaml_ctmom : contains
+
+object messaging_is.yaml
+messaging_is.yaml : type = yaml
+messaging_is.yaml : kind = ImageStream
+manuela_openshift_messaging o-- messaging_is.yaml : contains
+kustomization.yaml_ctmom .. messaging_is.yaml : resource
+
+object messaging_route.yaml
+messaging_route.yaml : type = yaml
+messaging_route.yaml : kind = Route
+manuela_openshift_messaging o-- messaging_route.yaml : contains
+kustomization.yaml_ctmom .. messaging_route.yaml : resource
+
+
+object manuela_openshift_test_messaging  
+manuela_openshift_test_messaging : name = messaging
+manuela_openshift_test_messaging : type = dir
+manuela_openshift_test_messaging : path =  config/templates
+templates o-- manuela_openshift_test_messaging : subdir
+
+object kustomization.yaml_ctmotm
+kustomization.yaml_ctmotm : type = yaml
+kustomization.yaml_ctmotm : kind = Kustomization
+kustomization.yaml_ctmotm : bases = templates/manuela_openshift/messaging
+kustomization.yaml_ctmotm *-- kustomization.yaml_ctmom : bases
+
+manuela_openshift_test_messaging o-- kustomization.yaml_ctmotm : contains
+
+
+object messaging_application.yaml
+messaging_application.yaml : type = yaml
+messaging_application.yaml : kind = argo_app
+messaging_application.yaml : sourcepath =  config/instances/manuela-crc/messaging
+
+manuela_crc o-- messaging_application.yaml : contains
+
+
+object messaging
+messaging : type = dir
+messaging : path = instances/manuela-crc
+
+messaging_application.yaml .. messaging : ref
+manuela_crc o-- messaging : subdir
+
+
+object kustomization.yaml
+kustomization.yaml : type = yaml
+kustomization.yaml : kind = Kustomization
+kustomization.yaml : bases = templates/manuela_openshift-test/messaging
+kustomization.yaml *-- kustomization.yaml_ctmotm : bases
+
+messaging o-- kustomization.yaml : contains
+
+object messaging_namespace.yaml
+messaging o-- messaging_namespace.yaml : contains  
+
+object messaging_operatorgroup.yaml
+messaging o-- messaging_operatorgroup.yaml : contains  
+
+object route.yaml
+route.yaml : type = yaml
+route.yaml : kind = Route
+messaging o-- route.yaml : contains
+kustomization.yaml .. route.yaml : resource
+
+route.yaml *-- messaging_route.yaml : patchesStrategicMerge
+
+@enduml
