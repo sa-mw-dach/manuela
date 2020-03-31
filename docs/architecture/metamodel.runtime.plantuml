@@ -20,17 +20,19 @@ namespace Runtime {
     DeploymentAgentConfiguration : GitLocation deploymentRepository
 
     class Namespace
-    note right: represents an Component Instance
     
     class RuntimeArtefacts <<k8s manifests>>
 
     ' --- Infra management
     class Firewall
-    Firewall : String apiEndpoint
+    Firewall : Object apiEndpoint
+    Firewall : Object accessSecret
 
-    class FirewallConfig <<k8s CustomResource>>
+    class FirewallRule <<k8s CustomResource>>
 
     class FirewallOperator <<Operator>>
+    FirewallOperator : Object apiEndpoint
+    FirewallOperator : Object accessSecret
 
     class ManagementCluster <<Kubernetes Cluster>>
     ManagementCluster : Object metadata
@@ -39,7 +41,6 @@ namespace Runtime {
 
     ' --- Links
     "Namespace" *-- RuntimeArtefacts  
-    "Namespace" *-- FirewallConfig  
 
     DeploymentAgent -- DeploymentAgentConfiguration : is configured through >
 
@@ -53,11 +54,12 @@ namespace Runtime {
     'ExecutionEnvironment -- DeploymentAgent : < runs on 
     ExecutionEnvironment -- Firewall : is separated by >
 
-    FirewallConfig --o ManagementCluster
+    FirewallRule --o ManagementCluster
 
     ManagementCluster -- Firewall : manages >
     ManagementCluster -- DeploymentAgent : < deploys to
     FirewallOperator --o ManagementCluster
-    FirewallOperator -- FirewallConfig
+    FirewallOperator -- FirewallRule
+    FirewallOperator -- Firewall: manages >
 }
 @enduml
