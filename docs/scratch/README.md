@@ -16,213 +16,7 @@ This doc is a temporary notebook for crafting the 1st version of the installatio
 
 # How to set up the Demo
 
-## Installing ArgoCD on OpenShift
-
-Source: [https://blog.openshift.com/introduction-to-gitops-with-openshift/](https://blog.openshift.com/introduction-to-gitops-with-openshift/)
-
-In order to deploy ArgoCD on OpenShift 4 you can go ahead and follow the following steps as a cluster admin:
-
-### Deploy ArgoCD components on OpenShift
-
-#### Deploy ArgoCD
-
-# Create a new namespace for ArgoCD components
-
-**oc new-project argocd**
-
-# Grant access to manuela-team:
-
-**oc policy add-role-to-group admin manuela-team**
-
-# Apply the ArgoCD Install Manifest
-
-#oc -n argocd apply -f [https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml)
-
-**oc apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v1.4.2/manifests/install.yaml**
-
-# Get the ArgoCD Server password
-
-**ARGOCD_SERVER_PASSWORD=$(oc -n argocd get pod -l "app.kubernetes.io/name=argocd-server" -o jsonpath='{.items[*].metadata.name}')**
-
-**echo $ARGOCD_SERVER_PASSWORD**
-
-#### Patch ArgoCD Server Deployment so we can expose it using an OpenShift Route
-
-# Patch ArgoCD Server so no TLS is configured on the server (--insecure)
-
-**PATCH='{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"argocd-server"}],"containers":[{"command":["argocd-server","--insecure","--staticassets","/shared/app"],"name":"argocd-server"}]}}}}'**
-
-**oc -n argocd patch deployment argocd-server -p $PATCH**
-
-# Expose the ArgoCD Server using an Edge OpenShift Route so TLS is used for incoming connections
-
-**oc -n argocd create route edge argocd-server --service=argocd-server --port=http --insecure-policy=Redirect**
-
-#### Deploy ArgoCD Cli Tool (optional)
-
-# Download the argocd binary, place it under /usr/local/bin and give it execution permissions
-
-#sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.2.2/argocd-linux-amd64 -o /usr/local/bin/argocd
-
-**sudo curl -L ****https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd-linux-amd64 -o /usr/local/bin/argocd**
-
-**sudo chmod +x /usr/local/bin/argocd**
-
-#### Update ArgoCD Server Admin Password 
-
-##### using argocd CLI
-
-# Get ArgoCD Server Route Hostname
-
-ARGOCD_ROUTE=$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
-
-# Login with the current admin password
-
-argocd --insecure --grpc-web login ${ARGOCD_ROUTE}:443 --username admin --password ${ARGOCD_SERVER_PASSWORD}
-
-# Update admin's password
-
-argocd --insecure --grpc-web --server ${ARGOCD_ROUTE}:443 account update-password --current-password ${ARGOCD_SERVER_PASSWORD} --new-password admin
-
-##### using OC CLI
-
-**oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'**
-
-Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server
-
-#### Check pods and routes
-
-**oc get pods**
-
-NAME                                             READY   STATUS    RESTARTS   AGE
-
-argocd-application-controller-7b96cb74dd-lst94   1/1     Running   0          12m
-
-argocd-dex-server-58f5b5b44f-cfsw5               1/1     Running   0          12m
-
-argocd-redis-868b8cb57f-dc6fl                    1/1     Running   0          12m
-
-argocd-repo-server-5bf79d67f4-hvnwx              1/1     Running   0          12m
-
-argocd-server-888f8b6b8-scvll                    1/1     Running   0          7m16s
-
-**oc get routes**
-
-NAME            HOST/PORT                               PATH   SERVICES        PORT   TERMINATION     WILDCARD
-
-argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   http   edge/Redirect   None
-
-#### Login into Argo web UI
-
-E.g.. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications) 
-
-User: admin 
-
-Password: admin
-
-OCP3 Cluster: [https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/](https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/)
-
-### To-do: Check/test ArgoCD Operator
-
-[https://github.com/argoproj-labs/argocd-operator/blob/master/docs/usage.md](https://github.com/argoproj-labs/argocd-operator/blob/master/docs/usage.md)
-
-![image alt text](image_0.png)
-
-### To-do: Test Installation of Argo CD which requires only namespace level privileges
-
-[https://github.com/argoproj/argo-cd/tree/master/manifests](https://github.com/argoproj/argo-cd/tree/master/manifests)
-
-## Prepare Container Images by building and Deploying Manuela-Dev
-
-### Check out manuela-dev repository
-
-**cd ~git clone ****[https://github.com/sa-mw-dach/manuela-dev.gi**t](https://github.com/sa-mw-dach/manuela-dev.git)
-
-### Build Manuela Containers in iotdemo namespace
-
-Build manuela app on clusters so that imagestreams and images in local registry exist
-
-**cd ~/manuela-dev/components**
-
-#### Adjust the ConfigMaps to the target environment
-
-diff --git a/components/iot-frontend/manifests/iot-frontend-configmap.yaml b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
-
-index dac9161..363152e 100644
-
---- a/components/iot-frontend/manifests/iot-frontend-configmap.yaml
-
-+++ b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
-
-@@ -5,7 +5,7 @@ metadata:
-
- data:
-
-   config.json: |-
-
-     {
-
--        "websocketHost": "http://iot-consumer-iotdemo.apps.ocp4.stormshift.coe.muc.redhat.com",
-
-+        "websocketHost": "http://iot-consumer-iotdemo.apps.ocp3.stormshift.coe.muc.redhat.com",
-
-         "websocketPath": "/api/service-web/socket",
-
-         "SERVER_TIMEOUT": 20000
-
-     }
-
-\ No newline at end of file
-
-#### Adjust the Quay Secret
-
-Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organization/manuela?tab=robots)
-
-Copy to .dockerconfigjson from the robo account "manuela-build" to the clipboard
-
-Paste it to the manuela-dev/components/iot-demo-secrets.yaml into the <<replace_me_with_value_from_quay.io_robo_account>>
-
-#### Trigger Build & Deploy on Dev Cluster
-
-# run the following commands twice since the first invocation will partially fail due to the AMQbroker CRD taking a while to be available
-
-**oc apply -k .**
-
-**oc apply -k .**
-
-## Configure ArgoCD deployment agent
-
-The following clones the manuela-gitops repo into your home directory. if you choose to put it somewhere else, you need to adapt all following commands accordingly.
-
-**cd ~**
-
-**git clone ****[git@github.co**m](mailto:git@github.com)**:sa-mw-dach/manuela-gitops.git**
-
-**cd ~/manuela-gitops/meta/**
-
-# choose your target execution environment, this example uses ocp3
-
-**oc apply -n argocd -f argocd-<yourtargetenv>.yaml**
-
-application.argoproj.io/ocp3 created
-
-To remove:
-
-**oc delete -n argocd -f argocd-<yourtargetenv>.yaml**
-
-application.argoproj.io "ocp3" deleted
-
-## Set up CI/CD Pipeline
-
-### Deploy OpenShift Pipelines aka Tekton via Operator
-
-OCP V4.2+: 
-
-Either follow instructions to deploy Tekton via operator here: [https://github.com/openshift/pipelines-tutorial/blob/master/install-operator.md](https://github.com/openshift/pipelines-tutorial/blob/master/install-operator.md) or create it declaratively:
-
-**cd ~/manuela-dev/infrastructure/openshift-pipelines**
-
-**oc apply -k .**
+**!!!moved to documentation!!!**
 
 ### Instantiate Manuela-CI project
 
@@ -1033,7 +827,8 @@ The picture below illustrates the GitOps concepts in context of a factory edge u
 
 2. Execution Environments Deployment Data: The execution environment [execenv-ocp1](https://github.com/sa-mw-dach/manuela-gitops/tree/master/deployment/execenv-ocp1) has multiple manifests. An Argo application and a namespace. The [namespace yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/deployment/execenv-ocp1/manuela-crc-machine-sensor-namespace.yaml) configures the target namespace for the machine sensor. The machine sensor deployment is managed via the Argo application [manuela-crc-machine-sensor-application.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/deployment/execenv-ocp1/manuela-crc-machine-sensor-application.yaml) which uses a dedicated git repo and path ([config/instances/manuela-crc/machine-sensor](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/instances/manuela-crc/machine-sensor)) for the desired application instance of the machine sensor. By creating these manifests in the execution environment directory, the application is deployed. This means that the application instance configuration can be prepared, reviewed and approved before the actual deployment takes place.
 
-3. Application Instance: In the current scenario, it is evident that many similar machine sensors in multiple execution environments need to be configured, deployed and managed. [Kustomize](https://kustomize.io/) simplifies the configuration of multiple machine sensors, because [Kustomize](https://kustomize.io/) is a template-free way to customize OpenShift application configuration. The Kustomize manifest [kustomization.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/kustomization.yaml) points to a [basis directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) for the machine sensor deployment configuration. The config map [service-client-messaging-configmap.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/service-client-messaging-configmap.yaml) in the instance directory specifies settings for the concrete sensor for this application instance.. In specific scenarios, the same application instance can be deployed to multiple execution environments - e.g. a globally load balanced application which creates the same endpoints / serves the same URLs in multiple clusters. 
+3. Application Instance: In the current scenario, it is evident that many similar machine sensors in multiple execution environments need to be configured, deployed and managed. [Kustomize](https://kustomize.io/) simplifies the configuration of multiple machine sensors, because [Kustomize](https://kustomize.io/) is a template-free way to customize OpenShift application configuration. 
+The Kustomize manifest [kustomization.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/kustomization.yaml) points to a [basis directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) for the machine sensor deployment configuration. The config map [service-client-messaging-configmap.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/service-client-messaging-configmap.yaml) in the instance directory specifies settings for the concrete sensor for this application instance.. In specific scenarios, the same application instance can be deployed to multiple execution environments - e.g. a globally load balanced application which creates the same endpoints / serves the same URLs in multiple clusters. 
 
 4. Application Template: The [template directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) contains all required manifests for the machine sensor:  The [configmap](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/service-client-messaging-configmap.yaml) with settings for the MQTT endpoint, the [deployment config for the pod](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/machine-sensor-dc.yaml) and the [image stream](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/machine-sensor-is.yaml). Thanks to the kustomize functionality, there can be multiple levels of application templates: A production configuration can be based on a development configuration, etc...
 
@@ -1049,7 +844,8 @@ The picture below illustrates the GitOps concepts in context of a factory edge u
 
 * ocp1 (Argo CRD:  application) is a "deployment agent configuration" >  Source: deployment/execenv-ocp1
 
-* Configmap: execenv-ocp1-placeholder-configmap. (*) *Placeholder only so that there is always some content for ArgoCD that can be synced even though nothing is deployed.
+* Configmap: execenv-ocp1-placeholder-configmap. (*) 
+*Placeholder only so that there is always some content for ArgoCD that can be synced even though nothing is deployed.
 
 * Namespace: manuela-crc-machine-sensor: Namespace for the machine sensor 
 
