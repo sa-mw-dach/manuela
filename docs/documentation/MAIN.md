@@ -24,9 +24,9 @@ IoT Edge with 5G, Machine Learning, OpenShift Multi-Cluster, Application Integra
 ## Chapter structure
 # Glossary
 # Prerequisites and basic setup
-* First target environments are Stormshift and CRC
+First target environments are Stormshift and CRC
 ## OpenShift 
-* OCP 4.2+ is installed and running
+OCP 4.2+ is installed and running
 ## Argo CD
 ### Installing ArgoCD on OpenShift
 
@@ -37,30 +37,20 @@ In order to deploy ArgoCD on OpenShift 4.x you can go ahead and follow the follo
 #### Deploy ArgoCD components on OpenShift
 
 ##### Deploy ArgoCD
-
 Create a new namespace for ArgoCD components
-
 ```bash
 oc new-project argocd
 ```
-
 Grant access to manuela-team:
-
 ```bash
 oc policy add-role-to-group admin manuela-team
 ```
-
 Apply the ArgoCD Install Manifest
-
 ```bash
 oc -n argocd apply -f [https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml)
-
-
 oc apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v1.4.2/manifests/install.yaml**
 ```
-
 Get the ArgoCD Server password
-
 ```bash
 ARGOCD_SERVER_PASSWORD=$(oc -n argocd get pod -l "app.kubernetes.io/name=argocd-server" -o jsonpath='{.items[*].metadata.name}')**
 echo $ARGOCD_SERVER_PASSWORD**
@@ -68,7 +58,6 @@ echo $ARGOCD_SERVER_PASSWORD**
 #### Patch ArgoCD Server Deployment so we can expose it using an OpenShift Route
 
 Patch ArgoCD Server so no TLS is configured on the server (--insecure)
-
 ```bash
 PATCH='{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"argocd-server"}],"containers":[{"command":["argocd-server","--insecure","--staticassets","/shared/app"],"name":"argocd-server"}]}}}}'
 oc -n argocd patch deployment argocd-server -p $PATCH
@@ -80,7 +69,6 @@ oc -n argocd create route edge argocd-server --service=argocd-server --port=http
 #### Deploy ArgoCD Cli Tool (optional)
 
 Download the argocd binary, place it under /usr/local/bin and give it execution permissions
-
 ```bash
 #sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.2.2/argocd-linux-amd64 -o /usr/local/bin/argocd
 sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd-linux-amd64 -o /usr/local/bin/argocd
@@ -127,9 +115,7 @@ argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   h
 E.g.. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications) 
 
 User: admin 
-
 Password: admin
-
 OCP3 Cluster: [https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/](https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/)
 
 #### To-do: Check/test ArgoCD Operator
