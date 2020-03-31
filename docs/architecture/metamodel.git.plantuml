@@ -8,16 +8,17 @@ namespace Git {
     GitRepository : String gitURL
 
     namespace DeploymentData <<Database>> {
-        class K8sComponentDeployment <<ArgoCD Application>>
-        K8sComponentDeployment : String namespace
+        class K8sComponentDeployment <<symlink>>
+        K8sComponentDeployment : String directoryLocation
+
 
         class StandaloneComponentDeployment <<Kustomize Manifest>>
+        note bottom of StandaloneComponentDeployment: currently not used/in scope
 
         abstract class ComponentDeployment
-        ComponentDeployment : GitLocation componentConfiguration
 
-        class NetworkPathConfigDeployment <<ArgoCD Application>>
-        NetworkPathConfigDeployment : String namespace
+        class FirewallRule <<symlink>>
+        FirewallRule : String directoryLocation
 
         class ExecutionEnvironment <<Directory>>
         ExecutionEnvironment : String path
@@ -33,7 +34,7 @@ namespace Git {
         ComponentDeployment --o ExecutionEnvironment 
         ExecutionEnvironment --o GitDeploymentRepository 
 
-        NetworkPathConfigDeployment --o NetworkPath
+        FirewallRule --o NetworkPath
         NetworkPath --o GitDeploymentRepository
     } 
 
@@ -62,30 +63,31 @@ namespace Git {
 
         class GitOpsCompatibleSecret <<Encrypted or KMS Reference>>
 
-        class NetworkPathConfiguration <<Subdirectory>>
-        NetworkPathConfiguration : Kustomize manifests
-        NetworkPathConfiguration : GitLocation[] baseConfiguration
-        NetworkPathConfiguration --> NetworkPathConfiguration : base >
+        class K8sComponentDeployment <<ArgoCD Application>>
+        K8sComponentDeployment : String namespace
+        K8sComponentDeployment : GitLocation componentConfiguration
 
-        class FirewallConfig <<k8s CustomResource>>
+        class FirewallRule <<k8s CustomResource>>
 
         class ApplicationInstanceOrTemplate <<Directory>>
         ApplicationInstanceOrTemplate : String path
 
         class GitConfigurationRepository
 
-        "Namespace" --o ComponentConfiguration
-        "Namespace" --o NetworkPathConfiguration
-
         ComponentConfiguration --o ApplicationInstanceOrTemplate 
-        NetworkPathConfiguration --o ApplicationInstanceOrTemplate 
-        FirewallConfig --o NetworkPathConfiguration
+        FirewallRule --o ApplicationInstanceOrTemplate
         
+        K8sComponentDeployment --o ComponentConfiguration 
+        "Namespace" --o ComponentConfiguration
         GitOpsCompatibleSecret --o ComponentConfiguration 
         ProvidedInterface --o ComponentConfiguration
         ConsumedInterface --o ComponentConfiguration
 
+        GitOpsCompatibleSecret --o ApplicationInstanceOrTemplate 
         ApplicationInstanceOrTemplate --o GitConfigurationRepository
+
+        K8sComponentDeployment -- Namespace : points to >
+
 
 '        note "these are deployment specific -\nshouldn't they be deployment data?" as notedeploymentspecific
 '        notedeploymentspecific -- ConsumedInterface
@@ -95,11 +97,10 @@ namespace Git {
 
     Git.DeploymentData.GitDeploymentRepository --|> GitRepository 
     Git.ConfigurationData.GitConfigurationRepository --|> GitRepository
-    Git.DeploymentData.ComponentDeployment -- Git.ConfigurationData.ComponentConfiguration : points to >
-    Git.DeploymentData.NetworkPathConfigDeployment -- Git.ConfigurationData.NetworkPathConfiguration : points to >
+'    Git.DeploymentData.ComponentDeployment -- Git.ConfigurationData.ComponentConfiguration : points to >
+    Git.DeploymentData.FirewallRule -- Git.ConfigurationData.FirewallRule : points to >
 
-    Git.DeploymentData.K8sComponentDeployment -- Git.ConfigurationData.Namespace : points to >
-    Git.DeploymentData.NetworkPathConfigDeployment --  Git.ConfigurationData.Namespace : points to >
+    Git.DeploymentData.K8sComponentDeployment -- Git.ConfigurationData.K8sComponentDeployment : points to >
 
 }
 @enduml

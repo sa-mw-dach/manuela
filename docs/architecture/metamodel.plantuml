@@ -35,15 +35,13 @@ Concepts.ApplicationInstance .. Git.ConfigurationData.ApplicationInstanceOrTempl
 
 Git.ConfigurationData.ComponentConfiguration .. Runtime.ContainerImage : points to >
 Git.ConfigurationData.ComponentConfiguration .. Concepts.ComponentInstance : configures >
+Git.ConfigurationData.ComponentConfiguration .. Runtime.RuntimeArtefacts : rendered as >
 
-Git.DeploymentData.ComponentDeployment .. Runtime.RuntimeArtefacts : rendered as >
 'Git.DeploymentData.ComponentDeployment ..o Runtime.ExecutionEnvironment : is deployed to >
 'Git.DeploymentData.ComponentDeployment ..o Runtime.ExecutionEnvironment : is installed on > 
 'Git.DeploymentData.ComponentDeployment .. Runtime.DeploymentAgentConfiguration : < deploys
-Git.DeploymentData.NetworkPathConfigDeployment .. Runtime.FirewallConfig : rendered as >
+'Git.DeploymentData.NetworkPathConfigDeployment .. Runtime.FirewallRule : rendered as >
 
 Runtime.DeploymentAgentConfiguration .. Git.DeploymentData.ExecutionEnvironment : points to >
 Runtime.DeploymentAgentConfiguration .. Git.DeploymentData.NetworkPath : points to >
-
-Masterdata.Firewall .. Runtime.ManagementCluster
 @enduml
