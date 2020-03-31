@@ -1,7 +1,5 @@
 # MANUela
-![Alt text](../../images/logo.png)
-
-[[TOC]]
+![MANUela Logo](../../images/logo.png)
 # Preface
 This project is build and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well. 
 
