@@ -4,7 +4,7 @@
 # Preface
 This project is build and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well. 
 
-There are also further Manuela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo. 
+There are also further MANUela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo. 
 You can check them out in this Github directory https://github.com/sa-mw-dach .
 
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
@@ -136,7 +136,7 @@ Check out manuela-dev repository
 cd ~
 git clone ****[https://github.com/sa-mw-dach/manuela-dev.gi**t](https://github.com/sa-mw-dach/manuela-dev.git)
 ```
-#### Build Manuela Containers in iotdemo namespace
+#### Build MANUela Containers in iotdemo namespace
 
 Build manuela app on clusters so that imagestreams and images in local registry exist
 ```bash
@@ -209,7 +209,7 @@ oc apply -k .
 ```
 
 
-### Instantiate Manuela-CI project
+### Instantiate MANUela CI project
 ```bash
 cd ~/manuela-dev/tekton
 oc apply -k .
@@ -239,16 +239,15 @@ Paste it to the .dockerconfigjson attribute in the yaml:
 vi quay-build-secret.yaml
 oc apply -k .
 ```
-## CodeReady Workspaces as Cloud IDE for ManuELA-dev
+## CodeReady Workspaces as Cloud IDE for manuela-dev
 
 ### Setting up CRW
 
 The Kubernetes artifacts to set up CRW are located in the manuela-dev git repository.
-
-**cd ~/manuela-dev/infrastructure/crw**
-
-**oc apply -k .**
-
+```bash
+cd ~/manuela-dev/infrastructure/crw
+oc apply -k .
+```
 This will create the following: 
 
 1. Create a new project manuela-crw in the current logged in OCP
@@ -270,28 +269,21 @@ CRW should be available after about 3-5 minutes.
 ### Login to CRW
 
 Look for the Route with the name **codeready:**
-
-**oc project manuela-crw**
-
-**oc get routes**
-
-![image alt text](image_1.png)
+```bash
+oc project manuela-crw
+oc get routes
+```
+![image alt text](images/image_1.png)
 
 To verify deployment, you can login to CRW: [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/)
 
 Use your OpenShift Account (OpenShift OAuth is enabled). But you could also skip this step and test it by directly creating your workspace:
 
-### Create your ManuELA Cloud IDE workspace
+### Create your MANUela Cloud IDE workspace
 
-To start developing with manuela-dev, please go to the manuela-dev git repository ([https://github.com/sa-mw-dach/manuela-dev.git](https://github.com/sa-mw-dach/manuela-dev.git)) 
+To start developing with manuela-dev, please go to the manuela-dev git repository ([https://github.com/sa-mw-dach/manuela-dev.git](https://github.com/sa-mw-dach/manuela-dev.git)) and follow the instructions of the Readme document. 
 
-and follow the instructions of the Readme document. 
-
-Please click on the link:
-
-[https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git)
-
-to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
+Please click on the this link [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git) to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
 
 By clicking the link above, CRW will start searching for a devfile.yaml in the root of the git repository…
 
@@ -307,20 +299,17 @@ If not:
 
     * From the CRW Workspaces, Choose the Configure Action:
 
-    * ![image alt text](image_2.png)
+    * ![image alt text](images/image_2.png)
 
-    * Stop the workspace: ![image alt text](image_3.png)
+    * Stop the workspace: ![image alt text](images/image_3.png)
 
-    * In the Devfile Section,  add the "components:" section from this file: [https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml](https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml)![image alt text](image_4.png)
+    * In the Devfile Section,  add the "components:" section from this file: [https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml](https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml)![image alt text](images/image_4.png)
 
-### Local ManuELA development with CRW
+### Local MANUela development with CRW
 
 The devfile sets up a CRW workspace with currently 3 runtime components:
-
 * AMQ 7.5 message broker
-
 * Java (SpringBoot) container for iot-software-sensor
-
 * NodeJS container for iot-consumer
 
 TODO: 
@@ -329,210 +318,148 @@ TODO:
 
 ### Set Up pfSense Firewall VM
 
-Downloaded pfSense ISO (CD/DVD) Image from: [https://www.pfsense.org/download/](https://www.pfsense.org/download/)
+Download pfSense ISO (CD/DVD) image from: [https://www.pfsense.org/download/](https://www.pfsense.org/download/)
 
-Uploaded the ISO image to [https://rhev.stormshift.coe.muc.redhat.com/](https://rhev.stormshift.coe.muc.redhat.com/)
+Upload the ISO image to [https://rhev.stormshift.coe.muc.redhat.com/](https://rhev.stormshift.coe.muc.redhat.com/)
 
-![image alt text](image_5.png)
+![image alt text](images/image_5.png)
 
 Created 2 new VMs (mpfuetzn-ocp3-pfsense and mpfuetzn-ocp4-pfsense) as follows:
 
-![image alt text](image_6.png)
+![image alt text](images/image_6.png)
 
 Added Network Interfaces as follows:
 
-![image alt text](image_7.png)
+![image alt text](images/image_7.png)
 
 (replace ocp3 for ocp4 in the second machine!)
 
 Attach the CD-ISO image to the VM to boot from for the first time
 
 After install, and after the first reboot (do not forget to remove the CD-ISO Image!) configure as follows:
-
 * NO VLANS
-
 * WAN interface is vtnet1 (aka the ocp3-network)
-
 * LAN interface is vtnet0 (aka the ovirtmgt network)
-
 * LAN now also needs a fix IP and a router: ocp3 has 10.32.111.165/20 as IP and 10.32.111.254 as router, ocp4 has 10.32.111.166/20 as ip and the same router
-
 * WAN gets its IP via DHCP in the range of 172.16.10.???/24
 
 That’s it…
 
 Default password for the appliances is admin/pfsense
 
-For the demo ssh-access needs to additionally be enabled and keys generated, can be done via GUI, or schack the github repository. Because the operator needs to be able to access the pfsense appliance via ansible, and that’s done via ssh…:
+For the demo ssh-access needs to additionally be enabled and keys generated, can be done via GUI, or check the github repository. Because the operator needs to be able to access the pfsense appliance via ansible, and that’s done via ssh…:
 
-# generate keypair
-
-**$ ssh-keygen -f keypair**
+#### Generate keypair
+```bash
+$ ssh-keygen -f keypair
 
 Generating public/private rsa key pair.
-
 Enter passphrase (empty for no passphrase):
-
 Enter same passphrase again:
-
 Your identification has been saved in keypair.
-
 Your public key has been saved in keypair.pub.
-
 The key fingerprint is:
-
 SHA256:e2hUI5thMlfnCCpLW3gS1ClipfGywPYY391+SrO8xx4 vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com
-
 The key's randomart image is:
-
 +---[RSA 2048]----+
-
 |  .o+. .. . .    |
-
 |. o+.oo. o +     |
-
 |.=o.*.* = + .    |
-
 |..=+.B.=.* .     |
-
 | ..oo. .S.       |
-
 |       ..o       |
-
 |        ++oE     |
-
 |       .o.=o.    |
-
 |         =+.     |
-
 +----[SHA256]-----+
 
-$ **cat keypair.pub**
-
+$ cat keypair.pub
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCw5CP4Sj1qp6cLb2Bp6grN59qOUuBrOfz7mc12848TP+PyLtS8KL6GBpb0ySOzEMIJdxhiZNHLiSLzh7mtHH0YXTdErdjD2hK9SOt9OmJrys8po9BLhVvacdRDS0l2BFyxG7gaCU92ZmTJHKtLi2jpOLMFNXl5oSva0u5WL+iYQJhgBCezxCSKhUquxLL9Ua9NThkhb064xzm7Vw0Qx53VY89O6dOX7MFeLM19YT1jfLDJ0CGWNju3dyFbQNNmn/ZquP91DFeV9mTS2lP/H+bd20osDScEzE+c3zeDsP8UmLbOhBsQs6kRXLos58Ag3vjCommULfPnHvTFbgVKbwnh [vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com](mailto:vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com)
-
-# log into pfsense firewall with default username/pw
-
-**$ ssh root@10.32.111.165**
+```
+Log into pfsense firewall with default username/pw
+```bash
+$ ssh root@10.32.111.165
 
 The authenticity of host '10.32.111.165 (10.32.111.165)' can't be established.
-
 ED25519 key fingerprint is SHA256:ZoXQTnMit+NaHMvQbfTPT3/ztn+xkUB7BrVSptxjBvg.
-
-Are you sure you want to continue connecting (yes/no)? **yes**
-
+Are you sure you want to continue connecting (yes/no)? yes
 Warning: Permanently added '10.32.111.165' (ED25519) to the list of known hosts.
-
 Password for root@pfSense.localdomain:
 
 pfSense - Netgate Device ID: 445f648407f99eee6675
 
 *** Welcome to pfSense 2.4.4-RELEASE-p3 (amd64) on pfSense ***
-
  WAN (wan)       -> vtnet1     -> v4/DHCP4: 172.16.10.102/24
-
  LAN (lan)       -> vtnet0     -> v4: 10.32.111.165/20
-
  0) Logout (SSH only)                  9) pfTop
-
  1) Assign Interfaces                 10) Filter Logs
-
  2) Set interface(s) IP address       11) Restart webConfigurator
-
  3) Reset webConfigurator password    12) PHP shell + pfSense tools
-
  4) Reset to factory defaults         13) Update from console
-
  5) Reboot system                     14) Disable Secure Shell (sshd)
-
  6) Halt system                       15) Restore recent configuration
-
  7) Ping host                         16) Restart PHP-FPM
-
  8) Shell
-
 Enter an option: **8**
 
-[2.4.4-RELEASE][root@pfSense.localdomain]/root: **cat >>.ssh/authorized_keys**
+[2.4.4-RELEASE][root@pfSense.localdomain]/root: cat >>.ssh/authorized_keys
 
-**ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCw5CP4Sj1qp6cLb2Bp6grN59qOUuBrOfz7mc12848TP+PyLtS8KL6GBpb0ySOzEMIJdxhiZNHLiSLzh7mtHH0YXTdErdjD2hK9SOt9OmJrys8po9BLhVvacdRDS0l2BFyxG7gaCU92ZmTJHKtLi2jpOLMFNXl5oSva0u5WL+iYQJhgBCezxCSKhUquxLL9Ua9NThkhb064xzm7Vw0Qx53VY89O6dOX7MFeLM19YT1jfLDJ0CGWNju3dyFbQNNmn/ZquP91DFeV9mTS2lP/H+bd20osDScEzE+c3zeDsP8UmLbOhBsQs6kRXLos58Ag3vjCommULfPnHvTFbgVKbwnh vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com**
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCw5CP4Sj1qp6cLb2Bp6grN59qOUuBrOfz7mc12848TP+PyLtS8KL6GBpb0ySOzEMIJdxhiZNHLiSLzh7mtHH0YXTdErdjD2hK9SOt9OmJrys8po9BLhVvacdRDS0l2BFyxG7gaCU92ZmTJHKtLi2jpOLMFNXl5oSva0u5WL+iYQJhgBCezxCSKhUquxLL9Ua9NThkhb064xzm7Vw0Qx53VY89O6dOX7MFeLM19YT1jfLDJ0CGWNju3dyFbQNNmn/ZquP91DFeV9mTS2lP/H+bd20osDScEzE+c3zeDsP8UmLbOhBsQs6kRXLos58Ag3vjCommULfPnHvTFbgVKbwnh vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com**
 
-[2.4.4-RELEASE][root@pfSense.localdomain]/root: **exit**
+[2.4.4-RELEASE][root@pfSense.localdomain]/root: exit
 
 exit
 
 pfSense - Netgate Device ID: 445f648407f99eee6675
 
 *** Welcome to pfSense 2.4.4-RELEASE-p3 (amd64) on pfSense ***
-
  WAN (wan)       -> vtnet1     -> v4/DHCP4: 172.16.10.102/24
-
  LAN (lan)       -> vtnet0     -> v4: 10.32.111.165/20
-
  0) Logout (SSH only)                  9) pfTop
-
  1) Assign Interfaces                 10) Filter Logs
-
  2) Set interface(s) IP address       11) Restart webConfigurator
-
  3) Reset webConfigurator password    12) PHP shell + pfSense tools
-
  4) Reset to factory defaults         13) Update from console
-
  5) Reboot system                     14) Disable Secure Shell (sshd)
-
  6) Halt system                       15) Restore recent configuration
-
  7) Ping host                         16) Restart PHP-FPM
-
  8) Shell
-
 Enter an option: **^D**
-
 Connection to 10.32.111.165 closed.
-
+```
 ### Install & Prepare the firewall operator
 
 Prereq: manuela-dev repo cloned in step [Prepare Container Images by building and Deploying Manuela-Dev](#heading=h.twyt1w9p4m9m) 
 
 Choose a cluster which will act as management cluster of for the firewall and log into it via OC
 
-# prepare a secret for the operator deployment 
+#### Prepare a secret for the operator deployment 
+```bash
+cd ~/manuela-dev/networkpathoperator/firewallrule/
+cp deploy/firewall-inventory-secret-example.yaml deploy/firewall-inventory-secret.yaml
+vi deploy/firewall-inventory-secret.yaml
+```
+Adjust hostname, username, SSH private key for firewall access as created before
 
-**cd ~/manuela-dev/networkpathoperator/firewallrule/**
+#### Deploy operator to new namespace
+```bash
+oc new-project manuela-networkpathoperator
+oc apply -f deploy/firewall-inventory-secret.yaml
+oc apply -k deploy
+```
+Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**.
 
-**cp deploy/firewall-inventory-secret-example.yaml deploy/firewall-inventory-secret.yaml**
+#### Remove the firewall rule 
+```bash
+oc delete -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
+```
+Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is removed appropriately from the firewall **(via firewall UI)**.
 
-**vi deploy/firewall-inventory-secret.yaml**
-
-# adjust hostname, username, SSH private key for firewall access as created before
-
-# deploy operator to new namespace
-
-**oc new-project manuela-networkpathoperator**
-
-**oc apply -f deploy/firewall-inventory-secret.yaml**
-
-**oc apply -k deploy**
-
-# validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall
-
-**(via firewall UI)**
-
-# remove the firewall rule 
-
-**oc delete -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml**
-
-# validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is removed appropriately from the firewall
-
-**(via firewall UI)**
-
-# deploy argocd configuration for the network path
-
-**cd ~/manuela-gitops/meta/**
-
-**oc apply -n argocd -f argocd-nwpath-ocp3-ocp4.yaml**
-
+#### Deploy argocd configuration for the network path
+```bash
+cd ~/manuela-gitops/meta/
+oc apply -n argocd -f argocd-nwpath-ocp3-ocp4.yaml
+```
 
 
 
