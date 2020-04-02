@@ -39,11 +39,11 @@ In order to deploy ArgoCD on OpenShift 4.x you can go ahead and follow the follo
 
 ##### Deploy ArgoCD
 Create a new namespace for ArgoCD components
-```bash
+```
 oc new-project argocd
 ```
 Grant access to manuela-team:
-```bash
+```
 oc policy add-role-to-group admin manuela-team
 ```
 Apply the ArgoCD Install Manifest
@@ -64,7 +64,7 @@ PATCH='{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"argo
 oc -n argocd patch deployment argocd-server -p $PATCH
 ```
 Expose the ArgoCD Server using an Edge OpenShift Route so TLS is used for incoming connections
-```bash
+```
 oc -n argocd create route edge argocd-server --service=argocd-server --port=http --insecure-policy=Redirect
 ```
 #### Deploy ArgoCD Cli Tool (optional)
@@ -350,7 +350,7 @@ Default password for the appliances is admin/pfsense
 For the demo ssh-access needs to additionally be enabled and keys generated, can be done via GUI, or check the github repository. Because the operator needs to be able to access the pfsense appliance via ansible, and that’s done via ssh…:
 
 #### Generate keypair
-```bash
+```
 $ ssh-keygen -f keypair
 
 Generating public/private rsa key pair.
@@ -377,7 +377,7 @@ $ cat keypair.pub
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCw5CP4Sj1qp6cLb2Bp6grN59qOUuBrOfz7mc12848TP+PyLtS8KL6GBpb0ySOzEMIJdxhiZNHLiSLzh7mtHH0YXTdErdjD2hK9SOt9OmJrys8po9BLhVvacdRDS0l2BFyxG7gaCU92ZmTJHKtLi2jpOLMFNXl5oSva0u5WL+iYQJhgBCezxCSKhUquxLL9Ua9NThkhb064xzm7Vw0Qx53VY89O6dOX7MFeLM19YT1jfLDJ0CGWNju3dyFbQNNmn/ZquP91DFeV9mTS2lP/H+bd20osDScEzE+c3zeDsP8UmLbOhBsQs6kRXLos58Ag3vjCommULfPnHvTFbgVKbwnh [vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com](mailto:vagrant@ibm-p8-kvm-03-guest-02.virt.pnr.lab.eng.rdu2.redhat.com)
 ```
 Log into pfsense firewall with default username/pw
-```bash
+```
 $ ssh root@10.32.111.165
 
 The authenticity of host '10.32.111.165 (10.32.111.165)' can't be established.
@@ -429,9 +429,9 @@ Connection to 10.32.111.165 closed.
 ```
 ### Install & Prepare the firewall operator
 
-Prereq: manuela-dev repo cloned in step [Prepare Container Images by building and Deploying Manuela-Dev](#heading=h.twyt1w9p4m9m) 
+Prerequisite: manuela-dev repo cloned in step [Prepare Container Images by building and Deploying Manuela-Dev](#heading=h.twyt1w9p4m9m) 
 
-Choose a cluster which will act as management cluster of for the firewall and log into it via OC
+Choose a cluster which will act as management cluster for the firewall and log into it via OC
 
 #### Prepare a secret for the operator deployment 
 ```bash
@@ -460,11 +460,6 @@ Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firew
 cd ~/manuela-gitops/meta/
 oc apply -n argocd -f argocd-nwpath-ocp3-ocp4.yaml
 ```
-
-
-
-
-
 # Architecture
 ## Demo structure
 ### Components
@@ -472,7 +467,12 @@ oc apply -n argocd -f argocd-nwpath-ocp3-ocp4.yaml
 ### Git Repo structure
 schon mal hier versucht zu verfassen: https://github.com/sa-mw-dach/manuela/tree/master/docs/architecture , ...)
 # Demo setup / cleanup
-# Horizontal Module: Tekton and ArgoCD
-# Vertical Module: Manufacturing
-# Vertical Module: Retail 
-# Vertical Module: Asset Management for Energies
+# Horizontal Modules
+## CodeReady Workspaces
+## Tekton and ArgoCD
+# Vertical Modules
+## Manufacturing
+## Retail 
+## Asset Management for Energies
+## Edge on the train
+## Managing multiple data centers
