@@ -28,6 +28,12 @@ IoT Edge with 5G, Machine Learning, OpenShift Multi-Cluster, Application Integra
 First target environments are Stormshift and CRC
 ## OpenShift 
 OCP 4.2+ is installed and running
+## Check out manuela-dev repository
+Check out manuela-dev repository
+```bash
+cd ~
+git clone https://github.com/sa-mw-dach/manuela-dev.git
+```
 ## Argo CD
 ### Installing ArgoCD on OpenShift
 
@@ -35,9 +41,32 @@ Source: [https://blog.openshift.com/introduction-to-gitops-with-openshift/](http
 
 In order to deploy ArgoCD on OpenShift 4.x you can go ahead and follow the following steps as a cluster admin:
 
-#### Deploy ArgoCD components on OpenShift
+#### Deploy ArgoCD components on OpenShift via Operator
+```bash
+cd ~/manuela-dev/infrastructure
+oc apply -k argocd
+oc apply -k argocd
+oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
+```
 
-##### Deploy ArgoCD
+#### Check pods and routes
+```bash
+oc get pods
+
+NAME                                             READY   STATUS    RESTARTS   AGE
+argocd-application-controller-7b96cb74dd-lst94   1/1     Running   0          12m
+argocd-dex-server-58f5b5b44f-cfsw5               1/1     Running   0          12m
+argocd-redis-868b8cb57f-dc6fl                    1/1     Running   0          12m
+argocd-repo-server-5bf79d67f4-hvnwx              1/1     Running   0          12m
+argocd-server-888f8b6b8-scvll                    1/1     Running   0          7m16s
+
+oc get routes
+
+NAME            HOST/PORT                               PATH   SERVICES        PORT   TERMINATION     WILDCARD
+argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   http   edge/Redirect   None
+```
+
+<!--##### Deploy ArgoCD
 Create a new namespace for ArgoCD components
 ```
 oc new-project argocd
@@ -48,7 +77,6 @@ oc policy add-role-to-group admin manuela-team
 ```
 Apply the ArgoCD Install Manifest
 ```bash
-oc -n argocd apply -f [https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/v1.2.2/manifests/install.yaml)
 oc apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v1.4.2/manifests/install.yaml**
 ```
 Get the ArgoCD Server password
@@ -67,16 +95,17 @@ Expose the ArgoCD Server using an Edge OpenShift Route so TLS is used for incomi
 ```
 oc -n argocd create route edge argocd-server --service=argocd-server --port=http --insecure-policy=Redirect
 ```
+-->
 #### Deploy ArgoCD Cli Tool (optional)
 
 Download the argocd binary, place it under /usr/local/bin and give it execution permissions
 ```bash
-#sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.2.2/argocd-linux-amd64 -o /usr/local/bin/argocd
 sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd-linux-amd64 -o /usr/local/bin/argocd
 sudo chmod +x /usr/local/bin/argocd
 ```
-#### Update ArgoCD Server Admin Password 
 
+#### Update ArgoCD Server Admin Password 
+<!--##### via ArgoCD CLI
 Get ArgoCD Server Route Hostname using argocd CLI
 ```bash
 ARGOCD_ROUTE=$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
@@ -89,28 +118,12 @@ Update admin's password
 ```bash
 argocd --insecure --grpc-web --server ${ARGOCD_ROUTE}:443 account update-password --current-password ${ARGOCD_SERVER_PASSWORD} --new-password admin
 ```
-using OC CLI
+##### using OC CLI -->
 ```bash
-oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'**
+oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
 Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server
 
-#### Check pods and routes
-```bash
-oc get pods
-
-NAME                                             READY   STATUS    RESTARTS   AGE
-argocd-application-controller-7b96cb74dd-lst94   1/1     Running   0          12m
-argocd-dex-server-58f5b5b44f-cfsw5               1/1     Running   0          12m
-argocd-redis-868b8cb57f-dc6fl                    1/1     Running   0          12m
-argocd-repo-server-5bf79d67f4-hvnwx              1/1     Running   0          12m
-argocd-server-888f8b6b8-scvll                    1/1     Running   0          7m16s
-
-oc get routes
-
-NAME            HOST/PORT                               PATH   SERVICES        PORT   TERMINATION     WILDCARD
-argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   http   edge/Redirect   None
-```
 #### Login into Argo web UI
 
 E.g. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications) 
@@ -119,23 +132,13 @@ User: admin, Password: admin
 
 OCP3 Cluster: [https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/](https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/)
 
-#### To-do: Check/test ArgoCD Operator
-
-[https://github.com/argoproj-labs/argocd-operator/blob/master/docs/usage.md](https://github.com/argoproj-labs/argocd-operator/blob/master/docs/usage.md)
-
-![image alt text](images/image_0.png)
 
 #### To-do: Test Installation of Argo CD which requires only namespace level privileges
 
 [https://github.com/argoproj/argo-cd/tree/master/manifests](https://github.com/argoproj/argo-cd/tree/master/manifests)
 
-#### Prepare Container Images by building and Deploying Manuela-Dev
+### Prepare Container Images by building and Deploying Manuela-Dev
 
-Check out manuela-dev repository
-```bash
-cd ~
-git clone ****[https://github.com/sa-mw-dach/manuela-dev.gi**t](https://github.com/sa-mw-dach/manuela-dev.git)
-```
 #### Build MANUela Containers in iotdemo namespace
 
 Build manuela app on clusters so that imagestreams and images in local registry exist
@@ -391,15 +394,15 @@ pfSense - Netgate Device ID: 445f648407f99eee6675
 *** Welcome to pfSense 2.4.4-RELEASE-p3 (amd64) on pfSense ***
  WAN (wan)       -> vtnet1     -> v4/DHCP4: 172.16.10.102/24
  LAN (lan)       -> vtnet0     -> v4: 10.32.111.165/20
- 0) Logout (SSH only)                  9) pfTop
- 1) Assign Interfaces                 10) Filter Logs
- 2) Set interface(s) IP address       11) Restart webConfigurator
- 3) Reset webConfigurator password    12) PHP shell + pfSense tools
- 4) Reset to factory defaults         13) Update from console
- 5) Reboot system                     14) Disable Secure Shell (sshd)
- 6) Halt system                       15) Restore recent configuration
- 7) Ping host                         16) Restart PHP-FPM
- 8) Shell
+ 1) Logout (SSH only)                  9) pfTop
+ 2) Assign Interfaces                 10) Filter Logs
+ 3) Set interface(s) IP address       11) Restart webConfigurator
+ 4) Reset webConfigurator password    12) PHP shell + pfSense tools
+ 5) Reset to factory defaults         13) Update from console
+ 6) Reboot system                     14) Disable Secure Shell (sshd)
+ 7) Halt system                       15) Restore recent configuration
+ 8) Ping host                         16) Restart PHP-FPM
+ 9) Shell
 Enter an option: **8**
 
 [2.4.4-RELEASE][root@pfSense.localdomain]/root: cat >>.ssh/authorized_keys
