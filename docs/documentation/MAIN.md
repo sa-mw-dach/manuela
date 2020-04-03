@@ -122,13 +122,19 @@ argocd --insecure --grpc-web --server ${ARGOCD_ROUTE}:443 account update-passwor
 ```bash
 oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
+
+#### Allow any auth users to be ArgoCD Admins
+```bash
+oc -n argocd patch configmap argocd-rbac-cm -p '{"data":{"policy.default":"role:admin"}}'
+oc delete pods -n argocd --all
+```
 Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server
 
 #### Login into Argo web UI
 
 E.g. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications) 
 
-User: admin, Password: admin
+User: admin, Password: admin - or log in via openshift auth
 
 OCP3 Cluster: [https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/](https://argocd-server-argocd.apps.ocp3.stormshift.coe.muc.redhat.com/)
 
