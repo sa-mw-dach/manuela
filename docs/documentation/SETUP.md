@@ -86,14 +86,22 @@ Create your own gitops repo from ```~/manuela-dev/gitops-repo-example```
 cd ~
 git init manuela-gitops
 cp -R ~/manuela-dev/gitops-repo-example/* manuela-gitops
+cd manuela-gitops
+git add . 
+git commit -m "initial checkin"
 ```
 
 [Publish this new directory to Github](https://help.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line) and note the Github URL.
 
+```bash
+git remote add origin https://github.com/<yourorg>/<yourrepo>.git
+git push -u origin master
+```
+
 Adjust the gitops repo to match your OCP clusters:
 1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name. 
 2. If you intend to demonstrate the firewall operator, do the same for the network paths between the clusters.
-3. In the directory representing the cluster which hosts the CI/CD and Test environment, leave the manuela-tst-all symlink and delete it in the other directories.
+3. In the directory representing the cluster which hosts the CI/CD and Test environment, leave the manuela-tst-all symlink and delete it in the other directories. Adjust the ```spec.source.repoURL``` value to match the gitops repo url.
 4. For each (physical) cluster and for each network path between them, create an ArgoCD application in ```~/manuela-gitops/meta``` based on the sample. Remember to adjust its ```metadata.name``` to match the cluster name, ```spec.source.repoURL``` to point to the GitHub URL and ```spec.source.path``` to point to the directory representing the cluster/networkpath in ```~/manuela-gitops/deployment```.
 5. Adjust the application configuration the configmaps in ```~/manuela-gitops/config/instances/manuela-tst/``` and ```~/manuela-gitops/config/instances/manuela-prod``` to match your environment:
    - Messaging URL for the machine-sensors
@@ -103,7 +111,7 @@ Push the changes to GitHub:
 ```bash
 cd ~/manuela-gitops
 git add .
-git commit -m "initial commit"
+git commit -m "adopted to match demo env"
 git push
 ```
 
@@ -178,10 +186,27 @@ oc apply -k namespaces_and_operator_subscriptions/argocd
 ```
 
 ### Instantiate ArgoCD
-Instantiate ArgoCD and allow its service account to manage the cluster:
+Wait for the ArgoCD operator to be available. 
+
+```bash
+oc get pods -n argocd
+
+NAME                                             READY   STATUS              RESTARTS   AGE
+argocd-operator-65dcf99d75-htjq4                 1/1     Running             0          114s
+```
+
+Then instantiate ArgoCD and allow its service account to manage the cluster:
 ```bash
 oc apply -k infrastructure/argocd
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
+```
+
+Wait for the argocd resources to be created.
+```bash
+oc get secret argocd-secret -n argocd
+
+NAME            TYPE     DATA   AGE
+argocd-secret   Opaque   2      2m12s
 ```
 
 Set the ArgoCD admin password to admin/admin:
@@ -207,9 +232,9 @@ argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   h
 ```
 
 #### Create cluster deployment agent configuration
-This also causes manuela-tst-all testing project to be deployed via ArgocCD.
+This also causes the manuela-tst-all testing project to be deployed via ArgocCD.
 ```bash
-oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
+armanuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
 
 #### Deploy ArgoCD Cli Tool (optional)
@@ -225,7 +250,7 @@ Log in via openshift auth (or use user: admin, password: admin) and validate tha
 
 To get the ArgoCD URL use:
 ```bash
-echo $(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
+echo https://$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
 ```
 
 ### Instantiate Tekton Pipelines
