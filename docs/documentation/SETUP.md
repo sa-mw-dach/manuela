@@ -13,7 +13,6 @@
     - [Custom gitops repository](#Custom-gitops-repository)
   - [Development (Optional)](#Development-Optional)
   - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
-    - [Login to CRW](#Login-to-CRW)
   - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
     - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
     - [Instantiate ArgoCD](#Instantiate-ArgoCD)
@@ -27,7 +26,6 @@
     - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
     - [Set root ssh key](#Set-root-ssh-key)
     - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
-      - [Test the sample firewall rule](#Test-the-sample-firewall-rule)
 
 ## Prerequisites
 
@@ -141,8 +139,6 @@ customCheProperties:
     CHE_LIMITS_WORKSPACE_IDLE_TIMEOUT: '-1'
 ```
 CRW should be available after about 3-5 minutes.
-
-#### Login to CRW
 
 Look for the Route with the name **codeready:**
 ```bash
@@ -396,12 +392,12 @@ oc apply -n manuela-networkpathoperator -f networkpathoperator/firewallrule/depl
 oc apply -k networkpathoperator/firewallrule/deploy
 ```
 
-##### Test the sample firewall rule 
+Test the sample firewall rule:
 ```bash
 oc apply -n manuela-networkpathoperator -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
 ```
 
-Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**.
+Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**. Then remove the firewall rule:
 
 ```bash
 oc delete -n manuela-networkpathoperator -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
