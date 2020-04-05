@@ -234,7 +234,7 @@ argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   h
 #### Create cluster deployment agent configuration
 This also causes the manuela-tst-all testing project to be deployed via ArgocCD.
 ```bash
-armanuela-gitops/meta/argocd-<yourphysicalcluster>
+oc create -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>.yaml
 ```
 
 #### Deploy ArgoCD Cli Tool (optional)
