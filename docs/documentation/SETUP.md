@@ -49,7 +49,7 @@ Two or more OpenShift cluster version 4.3 or later are installed and running. Yo
 
 ### Github account
 
-The demo uses github for the gitops git workflow. You need a github account that can access the chosen gitops repository (see below) and have [Personal Access Token](https://github.com/settings/).
+The demo uses github for the gitops git workflow. You need a github account that can access the chosen gitops repository (see below) and have [Personal Access Token](https://github.com/settings/) with "repo" permissions.
 
 ### Quay instance
 
