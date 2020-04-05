@@ -303,6 +303,17 @@ oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 
 Refer to [Validate gitops repo via ArgoCD web UI](#validate-gitops-repo-via-argocd-web-ui) to validate the ArgoCD setup.
 
+On the physical cluster representing the factory datacenter, ensure that the AMQ Broker CRD is instantiated, so that a rollout of a project containing the AMQ Broker CR will not fail via ArgoCD. If this hasn't happened as part of other steps, do the following:
+
+```bash
+oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
+```
+
+Then wait a little, then:
+```bash
+oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
+```
+
 ## Management Cluster(s) and Firewall VM(s) (Optional)
 
 ### ArgoCD deployment agent configuration
