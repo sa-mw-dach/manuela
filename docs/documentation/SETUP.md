@@ -18,6 +18,7 @@
     - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
     - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
     - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
+    - [Remove manuela-temp-amq namespace](#Remove-manuela-temp-amq-namespace)
   - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
 - [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
 - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
@@ -164,14 +165,14 @@ This will create the following:
 4. Create an actual CheCluster in the namespace manuela-crw with following custom properties:
 ```yaml
 customCheProperties:
-    CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
-    CHE_LIMITS_WORKSPACE_IDLE_TIMEOUT: '-1'
+  CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
+  CHE_LIMITS_WORKSPACE_IDLE_TIMEOUT: '-1'
 ```
 CRW should be available after about 3-5 minutes.
 
 Look for the Route with the name **codeready:**
 ```bash
-echo $(oc -n manuela-crw get route codeready -o jsonpath='{.spec.host}')
+echo https://$(oc -n manuela-crw get route codeready -o jsonpath='{.spec.host}')
 ```
 
 Use your OpenShift Account (OpenShift OAuth is enabled). But you could also skip this step and test it by directly creating your workspace.
@@ -183,6 +184,7 @@ cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/openshift-pipelines
 oc apply -k namespaces_and_operator_subscriptions/manuela-ci
 oc apply -k namespaces_and_operator_subscriptions/argocd
+oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate ArgoCD
@@ -251,6 +253,13 @@ Log in via openshift auth (or use user: admin, password: admin) and validate tha
 To get the ArgoCD URL use:
 ```bash
 echo https://$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
+```
+
+#### Remove manuela-temp-amq namespace
+This namespace was created to kickstart the argocd deployment of manuela-tst-all by making the AMQ Broker CRD known to the cluster. It can now be removed:
+
+```bash
+oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate Tekton Pipelines
