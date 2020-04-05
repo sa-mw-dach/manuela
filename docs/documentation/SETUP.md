@@ -163,7 +163,7 @@ oc apply -k infrastructure/argocd
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
 
-Set the ArgoCD admin password:
+Set the ArgoCD admin password to admin/admin:
 ```bash
 oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
@@ -232,7 +232,7 @@ oc apply -k tekton
 TODO: Run the pipelines to ensure the images build and are pushed & deployed to manuela-tst-all
 
 ### Factory Datacenter & Line Data Server (Mandatory)
-For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster.
+For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
 
 ```bash
 cd ~/manuela-dev
@@ -241,7 +241,7 @@ oc apply -k infrastructure/argocd
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
 
-Also ensure the deployment agent configuration for the respective cluster is present:
+Ensure the deployment agent configuration for the respective cluster is present:
 ```bash
 oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
