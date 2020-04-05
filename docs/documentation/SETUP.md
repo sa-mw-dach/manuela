@@ -6,26 +6,25 @@
   - [Github account](#Github-account)
   - [Quay instance](#Quay-instance)
   - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
-- [Demo Installation](#Demo-Installation)
-  - [Clone manuela-dev](#Clone-manuela-dev)
-  - [Create the gitops repository](#Create-the-gitops-repository)
-    - [Option 1: Use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-Use-existing-githubcomsa-mw-dachmanuela-gitops)
-    - [Option 2: Use custom gitops repository](#Option-2-Use-custom-gitops-repository)
-  - [Development (Optional)](#Development-Optional)
-  - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
-  - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
-    - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
-    - [Instantiate ArgoCD](#Instantiate-ArgoCD)
-      - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
-      - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
-      - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
-    - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
-  - [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
-  - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
-    - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
-    - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
-    - [Set root ssh key](#Set-root-ssh-key)
-    - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
+- [Clone manuela-dev](#Clone-manuela-dev)
+- [Create the gitops repository](#Create-the-gitops-repository)
+  - [Option 1: Use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-Use-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: Use custom gitops repository](#Option-2-Use-custom-gitops-repository)
+- [Development (Optional)](#Development-Optional)
+- [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
+- [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
+  - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
+  - [Instantiate ArgoCD](#Instantiate-ArgoCD)
+    - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
+    - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
+    - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
+  - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
+- [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
+- [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
+  - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
+  - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
+  - [Set root ssh key](#Set-root-ssh-key)
+  - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
 
 ## Prerequisites
 
@@ -61,8 +60,7 @@ Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organ
 
 If you intend to show the firewall operator, you need to run a pfSense firewall in a virtualization environment.
 
-## Demo Installation
-### Clone manuela-dev
+## Clone manuela-dev
 
 This will clone the manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directy, but the subsquent docs assume it to reside in ~/manuela-dev .
 
@@ -71,18 +69,18 @@ cd ~
 git clone https://github.com/sa-mw-dach/manuela-dev.git
 ```
 
-### Create the gitops repository
+## Create the gitops repository
 
 Either you use manuela-gitops from github.com/sa-mw-dach, or create your own.
 
-#### Option 1: Use existing github.com/sa-mw-dach/manuela-gitops
+### Option 1: Use existing github.com/sa-mw-dach/manuela-gitops
 
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela-gitops.git
 ```
 
-#### Option 2: Use custom gitops repository
+### Option 2: Use custom gitops repository
 Create your own gitops repo from ```~/manuela-dev/gitops-repo-example```
 ```bash
 cd ~
@@ -109,7 +107,7 @@ git commit -m "initial commit"
 git push
 ```
 
-### Development (Optional)
+## Development (Optional)
 You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace. 
 
 Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-configmap.yaml``` ConfigMap to the target environment (Note: the software sensor components uses the internal service name to reach the AMQ broker, therefore do not need adjustments):
@@ -141,7 +139,7 @@ oc apply -k namespaces_and_operator_subscriptions/iotdemo
 oc apply -k components
 ```
 
-### CodeReady Workspaces (Optional)
+## CodeReady Workspaces (Optional)
 This provides CodeReady Workspaces as alternative development environment
 
 ```bash
@@ -170,8 +168,8 @@ echo $(oc -n manuela-crw get route codeready -o jsonpath='{.spec.host}')
 
 Use your OpenShift Account (OpenShift OAuth is enabled). But you could also skip this step and test it by directly creating your workspace.
 
-### CI and Test (Mandatory)
-#### Create the namespaces and operators
+## CI and Test (Mandatory)
+### Create the namespaces and operators
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/openshift-pipelines
@@ -179,7 +177,7 @@ oc apply -k namespaces_and_operator_subscriptions/manuela-ci
 oc apply -k namespaces_and_operator_subscriptions/argocd
 ```
 
-#### Instantiate ArgoCD
+### Instantiate ArgoCD
 Instantiate ArgoCD and allow its service account to manage the cluster:
 ```bash
 oc apply -k infrastructure/argocd
@@ -208,13 +206,13 @@ NAME            HOST/PORT                               PATH   SERVICES        P
 argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   http   edge/Redirect   None
 ```
 
-##### Create cluster deployment agent configuration
+#### Create cluster deployment agent configuration
 This also causes manuela-tst-all testing project to be deployed via ArgocCD.
 ```bash
 oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
 
-##### Deploy ArgoCD Cli Tool (optional)
+#### Deploy ArgoCD Cli Tool (optional)
 Download the argocd binary, place it under /usr/local/bin and give it execution permissions
 ```bash
 sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd-linux-amd64 -o /usr/local/bin/argocd
@@ -222,7 +220,7 @@ sudo chmod +x /usr/local/bin/argocd
 ```
 Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server
 
-##### Validate gitops repo via ArgoCD web UI
+#### Validate gitops repo via ArgoCD web UI
 Log in via openshift auth (or use user: admin, password: admin) and validate that at least the cluster deployment agent configuration and manuela-tst-all is present.
 
 To get the ArgoCD URL use:
@@ -230,7 +228,7 @@ To get the ArgoCD URL use:
 echo $(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
 ```
 
-#### Instantiate Tekton Pipelines
+### Instantiate Tekton Pipelines
 Adjust Tekton secrets and configmaps to match your environments.
 ```bash
 cd ~/manuela-dev
@@ -254,7 +252,7 @@ oc apply -k tekton
 
 TODO: Run the pipelines to ensure the images build and are pushed & deployed to manuela-tst-all
 
-### Factory Datacenter & Line Data Server (Mandatory)
+## Factory Datacenter & Line Data Server (Mandatory)
 For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
 
 ```bash
@@ -271,9 +269,9 @@ oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 
 Refer to [Validate gitops repo via ArgoCD web UI](#validate-gitops-repo-via-argocd-web-ui) to validate the ArgoCD setup.
 
-### Management Cluster(s) and Firewall VM(s) (Optional)
+## Management Cluster(s) and Firewall VM(s) (Optional)
 
-#### ArgoCD deployment agent configuration
+### ArgoCD deployment agent configuration
 
 Ensure that ArgoCD is running on and able to manage the management cluster(s). See the instructions for the [Factory Datacenter & Line Data Server](#factory-datacenter--line-data-server-mandatory) for details. Create the deployment agent configuration:
 
@@ -282,7 +280,7 @@ cd ~/manuela-gitops/meta/
 oc apply -n argocd -f argocd-nwpath-<cluster1>-<cluster2>.yaml
 ```
 
-#### Set Up pfSense Firewall VM
+### Set Up pfSense Firewall VM
 
 Download pfSense ISO (CD/DVD) image from [https://www.pfsense.org/download/](https://www.pfsense.org/download/) and upload the ISO image to your virtualization environment, e.g. [https://rhev.stormshift.coe.muc.redhat.com/](https://rhev.stormshift.coe.muc.redhat.com/).
 
@@ -309,7 +307,7 @@ After install, and after the first reboot (do not forget to remove the CD-ISO Im
 
 Default password for the appliances is admin/pfsense
 
-#### Set root ssh key
+### Set root ssh key
 
 For the demo ssh-access needs to additionally be enabled and keys generated, because the operator needs to be able to access the pfsense appliance via ansible. Generate a keypair which will be used to access the demo
 
@@ -390,7 +388,7 @@ pfSense - Netgate Device ID: 445f648407f99eee6675
 Enter an option: **^D**
 Connection to 10.32.111.165 closed.
 ```
-#### Install & Prepare the firewall operator (once per firewall instance)
+### Install & Prepare the firewall operator (once per firewall instance)
 
 Each firewall instance is represented by a namespace in the management cluster. These namespaces have to match the namespaces in the ```~/manuela-gitops/meta/argocd-nwpath-<cluster1>-<cluster2>.yaml``` files. Create the namespace via oc command. Replace manuela-networkpathoperator with your chosen namespace in the subsequent command examples. 
 
