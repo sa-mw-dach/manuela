@@ -6,11 +6,11 @@
   - [Github account](#Github-account)
   - [Quay instance](#Quay-instance)
   - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
-- [Installing the Demo](#Installing-the-Demo)
-  - [Cloning manuela-dev](#Cloning-manuela-dev)
-  - [Creating the gitops repository](#Creating-the-gitops-repository)
-    - [Using github.com/sa-mw-dach/manuela-gitops](#Using-githubcomsa-mw-dachmanuela-gitops)
-    - [Custom gitops repository](#Custom-gitops-repository)
+- [Demo Installation](#Demo-Installation)
+  - [Clone manuela-dev](#Clone-manuela-dev)
+  - [Create the gitops repository](#Create-the-gitops-repository)
+    - [Option 1: Use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-Use-existing-githubcomsa-mw-dachmanuela-gitops)
+    - [Option 2: Use custom gitops repository](#Option-2-Use-custom-gitops-repository)
   - [Development (Optional)](#Development-Optional)
   - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
   - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
@@ -61,8 +61,8 @@ Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organ
 
 If you intend to show the firewall operator, you need to run a pfSense firewall in a virtualization environment.
 
-## Installing the Demo
-### Cloning manuela-dev
+## Demo Installation
+### Clone manuela-dev
 
 This will clone the manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directy, but the subsquent docs assume it to reside in ~/manuela-dev .
 
@@ -71,18 +71,18 @@ cd ~
 git clone https://github.com/sa-mw-dach/manuela-dev.git
 ```
 
-### Creating the gitops repository
+### Create the gitops repository
 
 Either you use manuela-gitops from github.com/sa-mw-dach, or create your own.
 
-#### Using github.com/sa-mw-dach/manuela-gitops
+#### Option 1: Use existing github.com/sa-mw-dach/manuela-gitops
 
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela-gitops.git
 ```
 
-#### Custom gitops repository
+#### Option 2: Use custom gitops repository
 Create your own gitops repo from ```~/manuela-dev/gitops-repo-example```
 ```bash
 cd ~
