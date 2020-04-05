@@ -1,4 +1,33 @@
-# Setup
+# Setup <!-- omit in toc -->
+
+- [Prerequisites](#Prerequisites)
+  - [Logical Environments](#Logical-Environments)
+  - [OpenShift clusters](#OpenShift-clusters)
+  - [Github account](#Github-account)
+  - [Quay instance](#Quay-instance)
+  - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
+- [Installing the Demo](#Installing-the-Demo)
+  - [Cloning manuela-dev](#Cloning-manuela-dev)
+  - [Creating the gitops repository](#Creating-the-gitops-repository)
+    - [Using github.com/sa-mw-dach/manuela-gitops](#Using-githubcomsa-mw-dachmanuela-gitops)
+    - [Custom gitops repository](#Custom-gitops-repository)
+  - [Development (Optional)](#Development-Optional)
+  - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
+    - [Login to CRW](#Login-to-CRW)
+  - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
+    - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
+    - [Instantiate ArgoCD](#Instantiate-ArgoCD)
+      - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
+      - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
+      - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
+    - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
+  - [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
+  - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
+    - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
+    - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
+    - [Set root ssh key](#Set-root-ssh-key)
+    - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
+      - [Test the sample firewall rule](#Test-the-sample-firewall-rule)
 
 ## Prerequisites
 
