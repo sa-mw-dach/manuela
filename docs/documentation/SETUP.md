@@ -110,7 +110,30 @@ git push
 ```
 
 ### Development (Optional)
-You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace. Note: this will kick off a build of all components which will take several minutes.
+You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace. 
+
+Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-configmap.yaml``` ConfigMap to the target environment (Note: the software sensor components uses the internal service name to reach the AMQ broker, therefore do not need adjustments):
+  
+```bash
+diff --git a/components/iot-frontend/manifests/iot-frontend-configmap.yaml b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
+
+index dac9161..363152e 100644
+--- a/components/iot-frontend/manifests/iot-frontend-configmap.yaml
++++ b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
+
+@@ -5,7 +5,7 @@ metadata:
+ data:
+   config.json: |-
+     {
+-        "websocketHost": "http://iot-consumer-iotdemo.apps.ocp4.stormshift.coe.muc.redhat.com",
++        "websocketHost": "http://iot-consumer-iotdemo.apps.ocp3.stormshift.coe.muc.redhat.com",
+         "websocketPath": "/api/service-web/socket",
+         "SERVER_TIMEOUT": 20000
+     }
+\ No newline at end of file
+```
+
+Instantiate the development environment. Note: this will kick off a build of all components which will take several minutes.
 
 ```bash
 cd ~/manuela-dev
