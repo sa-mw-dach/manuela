@@ -49,7 +49,7 @@ Two or more OpenShift cluster version 4.3 or later are installed and running. Yo
 
 ### Github account
 
-The demo uses github for the gitops git workflow. You need a github account that can access the chosen gitops repository (see below).
+The demo uses github for the gitops git workflow. You need a github account that can access the chosen gitops repository (see below) and have [Personal Access Token](https://github.com/settings/).
 
 ### Quay instance
 
@@ -234,8 +234,8 @@ echo $(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
 Adjust Tekton secrets and configmaps to match your environments.
 ```bash
 cd ~/manuela-dev
-export GITHUB_PASSWORD=changeme
-sed "s/cmVwbGFjZW1l/$(echo $GITHUB_PASSWORD|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
+export GITHUB_PERSONAL_ACCESS_TOKEN=changeme
+sed "s/cmVwbGFjZW1l/$(echo $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
 export QUAY_BUILD_SECRET=ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJiV0Z1ZFdWc1lTdGlkV2xzWkRwSFUwczBRVGMzVXpjM1ZFRlpUMVpGVGxWVU9GUTNWRWRVUlZOYU0wSlZSRk5NUVU5VVNWWlhVVlZNUkU1TVNFSTVOVlpLTmpsQk1WTlZPVlpSTVVKTyIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
 sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secrets/quay-build-secret-example.yaml >tekton/secrets/quay-build-secret.yaml
 ```
