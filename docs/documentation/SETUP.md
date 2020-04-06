@@ -6,10 +6,10 @@
   - [Github account](#Github-account)
   - [Quay instance](#Quay-instance)
   - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
-- [Clone manuela-dev](#Clone-manuela-dev)
+- [Fork and clone manuela-dev](#Fork-and-clone-manuela-dev)
 - [Create the gitops repository](#Create-the-gitops-repository)
-  - [Option 1: Use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-Use-existing-githubcomsa-mw-dachmanuela-gitops)
-  - [Option 2: Use custom gitops repository](#Option-2-Use-custom-gitops-repository)
+  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: You set up a new environemnt and use a custom gitops repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
 - [Development (Optional)](#Development-Optional)
 - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
 - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
@@ -61,27 +61,29 @@ Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organ
 
 If you intend to show the firewall operator, you need to run a pfSense firewall in a virtualization environment.
 
-## Clone manuela-dev
+## Fork and clone manuela-dev
 
-This will clone the manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directy, but the subsquent docs assume it to reside in ~/manuela-dev .
+Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
+
+Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsquent docs assume it to reside in ~/manuela-dev .
 
 ```bash
 cd ~
-git clone https://github.com/sa-mw-dach/manuela-dev.git
+git clone https://github.com/<yourorg>/manuela-dev.git
 ```
 
 ## Create the gitops repository
 
-Either you use manuela-gitops from github.com/sa-mw-dach, or create your own.
+Unless you are using the stormshift environment, create a new gitops repository. You can choose a different name, but the subsquent docs assume it to reside in ~/manuela-gitops.
 
-### Option 1: Use existing github.com/sa-mw-dach/manuela-gitops
+### Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops
 
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela-gitops.git
 ```
 
-### Option 2: Use custom gitops repository
+### Option 2: You set up a new environemnt and use a custom gitops repository
 Create your own gitops repo from ```~/manuela-dev/gitops-repo-example```
 ```bash
 cd ~
@@ -263,16 +265,20 @@ oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate Tekton Pipelines
-Adjust Tekton secrets and configmaps to match your environments.
+Adjust Tekton secrets to match your environments.
+
 ```bash
 cd ~/manuela-dev
 export GITHUB_PERSONAL_ACCESS_TOKEN=changeme
 sed "s/cmVwbGFjZW1l/$(echo -n $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
+```
+
+```bash
 export QUAY_BUILD_SECRET=ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJiV0Z1ZFdWc1lTdGlkV2xzWkRwSFUwczBRVGMzVXpjM1ZFRlpUMVpGVGxWVU9GUTNWRWRVUlZOYU0wSlZSRk5NUVU5VVNWWlhVVlZNUkU1TVNFSTVOVlpLTmpsQk1WTlZPVlpSTVVKTyIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
 sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secrets/quay-build-secret-example.yaml >tekton/secrets/quay-build-secret.yaml
 ```
 
-TODO: Adjust Tekton pipeline-resources and pipeline to match your environments.
+TODO: Adjust Tekton configmaps, pipeline-resources and pipeline to match your environments.
 ```bash
 TODO
 ``` 
