@@ -1,4 +1,5 @@
 # Setup <!-- omit in toc -->
+This document describes how to setup the demo.
 
 - [Prerequisites](#Prerequisites)
   - [Logical Environments](#Logical-Environments)
@@ -45,7 +46,7 @@ Management Cluster|Optional|manuela-nwpathoperator|ocp3 + pfSense VM|Cluster hos
 
 ### OpenShift clusters
 
-Two or more OpenShift cluster version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup. 
+Two or more OpenShift cluster version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup.
 
 ### Github account
 
@@ -60,12 +61,13 @@ Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organ
 ### Virtualization environment (Optional)
 
 If you intend to show the firewall operator, you need to run a pfSense firewall in a virtualization environment.
+(We currently use Red Hat Enterprise Virtualization)
 
 ## Fork and clone manuela-dev
 
 Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
 
-Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsquent docs assume it to reside in ~/manuela-dev .
+Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
 
 ```bash
 cd ~
@@ -90,7 +92,7 @@ cd ~
 git init manuela-gitops
 cp -R ~/manuela-dev/gitops-repo-example/* manuela-gitops
 cd manuela-gitops
-git add . 
+git add .
 git commit -m "initial checkin"
 ```
 
@@ -102,7 +104,7 @@ git push -u origin master
 ```
 
 Adjust the gitops repo to match your OCP clusters:
-1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name. 
+1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name.
 2. If you intend to demonstrate the firewall operator, do the same for the network paths between the clusters.
 3. In the directory representing the cluster which hosts the CI/CD and Test environment, leave the manuela-tst-all symlink and delete it in the other directories. Adjust the ```spec.source.repoURL``` value to match the gitops repo url.
 4. For each (physical) cluster and for each network path between them, create an ArgoCD application in ```~/manuela-gitops/meta``` based on the sample. Remember to adjust its ```metadata.name``` to match the cluster name, ```spec.source.repoURL``` to point to the GitHub URL and ```spec.source.path``` to point to the directory representing the cluster/networkpath in ```~/manuela-gitops/deployment```.
@@ -119,10 +121,10 @@ git push
 ```
 
 ## Development (Optional)
-You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace. 
+You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace.
 
 Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-configmap.yaml``` ConfigMap to the target environment (Note: the software sensor components uses the internal service name to reach the AMQ broker, therefore do not need adjustments):
-  
+
 ```bash
 diff --git a/components/iot-frontend/manifests/iot-frontend-configmap.yaml b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
 
@@ -151,7 +153,8 @@ oc apply -k components
 ```
 
 ## CodeReady Workspaces (Optional)
-This provides CodeReady Workspaces as alternative development environment
+### Install CRW (5 Minutes)
+This provides CodeReady Workspaces as alternative development environment.
 
 ```bash
 cd ~/manuela-dev
@@ -159,7 +162,7 @@ oc apply -k namespaces_and_operator_subscriptions/manuela-crw
 oc apply -k infrastructure/crw
 ```
 
-This will create the following: 
+This will create the following:
 
 1. Create a new project manuela-crw in the current logged in OCP
 2. Create an OperatorGroup CR to make the OLM aware of an operator in this namespace
@@ -170,14 +173,89 @@ customCheProperties:
   CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
   CHE_LIMITS_WORKSPACE_IDLE_TIMEOUT: '-1'
 ```
-CRW should be available after about 3-5 minutes.
 
-Look for the Route with the name **codeready:**
+### Check: (5 Minutes)
+CRW should be available after about 3-5 minutes after the previous installation steps.
+First, check that the pods are online:
+```bash
+oc project manuela-crw
+oc get pods
+NAME                                  READY   STATUS    RESTARTS   AGE
+codeready-7898fc5f74-qz7bk            1/1     Running   0          4m59s
+codeready-operator-679f5fbd6b-ldsbq   1/1     Running   0          8m2s
+devfile-registry-58cbd6787f-zdfhb     1/1     Running   0          6m11s
+keycloak-567744bfd6-dx2hs             1/1     Running   0          7m15s
+plugin-registry-6974f58d59-vh5hc      1/1     Running   0          5m43s
+postgres-55ccbdccb-cnnbc              1/1     Running   0          7m48s
+```
+
+Then, check that you can login. Look for the route with the name **codeready:**
 ```bash
 echo https://$(oc -n manuela-crw get route codeready -o jsonpath='{.spec.host}')
 ```
+![image alt text](images/image_1.png)
+Point your browser to the URL and  use your OpenShift Account (OpenShift OAuth is enabled) to login.
+<b>Bookmark that URL</b>
 
-Use your OpenShift Account (OpenShift OAuth is enabled). But you could also skip this step and test it by directly creating your workspace.
+### Create your MANUela Cloud IDE workspace (5 minutes)
+Please click on this link [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git) to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
+
+By clicking the link above, CRW will start searching for a devfile.yaml in the root of the git repository…
+
+The devfile.yaml is the specification of a CodeReady workspace.
+
+After 2-3 minutes you should be able to start coding.
+
+If not:
+
+*  try to reload the page in the browser, or re-create the workspace from the CRW Dashboard.
+
+* If the commands and plugins are missing.
+
+    * From the CRW Workspaces, Choose the Configure Action:
+
+    * ![image alt text](images/image_2.png)
+
+    * Stop the workspace: ![image alt text](images/image_3.png)
+
+    * In the Devfile Section,  add the "components:" and "commands:" section from this file: [https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml](https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml)![image alt text](images/image_4.png)
+
+    * Start the workspace again
+
+    * Make sure the git repo path is "manuela-dev". Sometimes it is "manuela-dev.git", which does not work. If it is with ".git" extension, you can simply right click and rename it.
+
+### Prepare the Workspace for Local Development (10 Minutes)
+The devfile sets up a CRW workspace with all components setup in the local workspace (like you would have on your laptop):
+* AMQ 7.5 message broker
+* Java (SpringBoot) container for iot-software-sensor
+* NodeJS container for iot-consumer
+* angular/ionic container for iot-frontend
+All these components run as separate containers inside the workspace pod.
+
+There are runtimes and commands to help you do development.
+For this to work, the workspace needs to be prepared / initialized, e.g. by downloading required dependencies etc.
+There are commands prepared for this, you just have to execute them:
+On the right hand side, find the user runtimes.
+![image alt text](images/crw_1.png)
+There you find the runtimes and commands. Uou can execute them by clicking on the command. Use the following sequence:
+* amq - make sure it is green, meaning AMQ is running already
+* iot-software-sensor
+  * "run"
+* iot-consumer
+  * "install dependencies"
+  * "start iot-consumer" (don't open the link, not very useful services there)
+* iot-frontend
+  * "install ionic and dependencies". Watch the logs, there might be a question popping up! answer as you like. This step is required only the first time you start the workspace.
+  * "start iot-frontend". This brings up the frontend serving component. Once it is running, you see the popup from crw on how to reach it: ![image alt text](images/crw_2.png)
+  You can either press "OpenLink", or use the next step.
+  * Use "iot-frontend" link to open the "local" running frontend in your browser.
+Voilá! Now you have all components running locally in your workspace!
+
+Logout ouf CRW to be prepared for the demo day:
+* Open the CRW side panel by clicking the yellow ">" on the upper left corner
+* Logout using the panel at the lower left corner in the CRW side panel
+
+
 
 ## CI and Test (Mandatory)
 ### Create the namespaces and operators
@@ -190,7 +268,7 @@ oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate ArgoCD
-Wait for the ArgoCD operator to be available. 
+Wait for the ArgoCD operator to be available.
 
 ```bash
 oc get pods -n argocd
@@ -281,7 +359,7 @@ sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secr
 TODO: Adjust Tekton configmaps, pipeline-resources and pipeline to match your environments.
 ```bash
 TODO
-``` 
+```
 
 Then instantiate the pipelines.
 ```bash
@@ -441,7 +519,7 @@ Connection to 10.32.111.165 closed.
 ```
 ### Install & Prepare the firewall operator (once per firewall instance)
 
-Each firewall instance is represented by a namespace in the management cluster. These namespaces have to match the namespaces in the ```~/manuela-gitops/meta/argocd-nwpath-<cluster1>-<cluster2>.yaml``` files. Create the namespace via oc command. Replace manuela-networkpathoperator with your chosen namespace in the subsequent command examples. 
+Each firewall instance is represented by a namespace in the management cluster. These namespaces have to match the namespaces in the ```~/manuela-gitops/meta/argocd-nwpath-<cluster1>-<cluster2>.yaml``` files. Create the namespace via oc command. Replace manuela-networkpathoperator with your chosen namespace in the subsequent command examples.
 
 ```bash
 oc new-project manuela-networkpathoperator

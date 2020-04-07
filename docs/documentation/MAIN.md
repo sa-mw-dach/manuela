@@ -2,9 +2,9 @@
 
 ![MANUela Logo](../../images/logo.png)
 # Preface
-This project is build and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well. 
+This project is build and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well.
 
-There are also further MANUela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo. 
+There are also further MANUela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo.
 You can check them out in this Github directory https://github.com/sa-mw-dach .
 
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
@@ -18,15 +18,35 @@ CAVEAT: Some of the technologies involved are bleeding edge, and so implementati
 Show an exemplary horizontal solution blueprint for IoT Edge use cases applicable to different verticals.
 ## Intended audience
 Everyone who needs to showcase IoT Edge use cases for the various verticals. New modules or enhancements to existing ones are always welcome.
-## Possible use cases
-IoT Edge with 5G, Machine Learning, OpenShift Multi-Cluster, Application Integration
+The idea is to have a lot of modules / topics covered by an integrated, holistic story line. You could do a single demo with all topics, but that will probably last a day. You always can pick just the topics that are relevant to your current situation and perform only these parts of the demo.
+While you can setup your own demo environment, you can always ask the MANUela team if you could use their existing environment (aka stormshift).
+
+## Topics covered
+- IoT Edge
+- Hybrid Cloud
+- OpenShift Multi-Cluster Management
+- IoT Data Ingest
+- CI/CD - How to build / deploy workload across clouds
+- GitOps - How to move workload across clouds
+- AI/ML- How to train models in the public cloud with data from the private cloud, and bring the executable model back  to on prem.
+
+## Red Hat Technology involved
+- OpenShift V4
+- OpenShift Container Storage V4
+- AMQ (MQTT Message broker)
+- AMQ Streams (Kafka Event Broker, coming soon)
+- Tekton Pipelines
+- ArgoCD
+- Code Ready Workspaces (Development Environment)
+
+
 # Conventions
 ## Naming
 ## Chapter structure
 # Glossary
 # Prerequisites and basic setup
 First target environments are Stormshift and CRC
-## OpenShift 
+## OpenShift
 OCP 4.2+ is installed and running
 ## Check out manuela-dev repository
 Check out manuela-dev repository
@@ -104,7 +124,7 @@ sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd
 sudo chmod +x /usr/local/bin/argocd
 ```
 
-#### Update ArgoCD Server Admin Password 
+#### Update ArgoCD Server Admin Password
 <!--##### via ArgoCD CLI
 Get ArgoCD Server Route Hostname using argocd CLI
 ```bash
@@ -132,7 +152,7 @@ Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to intera
 
 #### Login into Argo web UI
 
-E.g. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications) 
+E.g. [https://argocd-server-argocd.apps-crc.testing/applications](https://argocd-server-argocd.apps-crc.testing/applications)
 
 User: admin, Password: admin - or log in via openshift auth
 
@@ -209,7 +229,7 @@ application.argoproj.io "ocp3" deleted
 
 ### Deploy OpenShift Pipelines aka Tekton via Operator
 
-OCP V4.2+: 
+OCP V4.2+:
 
 Either follow instructions to deploy Tekton via operator here: [https://github.com/openshift/pipelines-tutorial/blob/master/install-operator.md](https://github.com/openshift/pipelines-tutorial/blob/master/install-operator.md) or create it declaratively:
 ```bash
@@ -248,80 +268,37 @@ Paste it to the .dockerconfigjson attribute in the yaml:
 vi quay-build-secret.yaml
 oc apply -k .
 ```
-## CodeReady Workspaces as Cloud IDE for manuela-dev
+## MODULE: Cloud IDE
+This demo modules show how to implement a code change to manuela component using CodeReady Workspaces as Cloud IDE.
+The story is that in the code processing temperature data, we need to add a conversion from celsius to fahrenheit.
 
-### Setting up CRW
 
-The Kubernetes artifacts to set up CRW are located in the manuela-dev git repository.
-```bash
-cd ~/manuela-dev/infrastructure/crw
-oc apply -k .
-```
-This will create the following: 
+### Preparation
+1. Make sure Code Ready Workspace (CRW) is installed as described in the [SETUP](SETUP.md) guide.
+1. The workspace must be setup and prepared. See the setup instructions. If you have a lot of time for the demo, you could do the prep in the demo to explain and show the stuff.
+1. Check that the source code we are going to change is manuela-dev/components/iot-consumer/index.js, line 117  is commented OUT.
 
-1. Create a new project manuela-crw in the current logged in OCP
 
-2. Create an OperatorGroup CR to make the OLM aware of an operator in this namespace
+### Step 1: Login to CRW and open Workspace.
+1. Login to CRW using the bookmark created during setup.
+1. Open the workspace you prepared during the setup
 
-3. Create an CRW Operator Subscription from the latest stable channel -> installs the CRW operator in the namespace manuela-crw
+### Step 2: Show the bug
+1. Open the iot-frontend in the dev environment, check that the bug is visible there
 
-4. Create an actual CheCluster in the namespace manuela-crw with following custom properties:
+### Step 3: Fix the bug
+1. Fix the bug by removing the comments
+1. stop/restart the iot-consumer component
+1. Verify the bug is fixed in the dev environment
 
-    1. customCheProperties:
+### Step 4: Commit and push changes
+### Step 5: Trigger the pipeline
 
-    2.      CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
 
-    3.      CHE_LIMITS_WORKSPACE_IDLE_TIMEOUT: '-1'
 
-CRW should be available after about 3-5 minutes.
 
-### Login to CRW
 
-Look for the Route with the name **codeready:**
-```bash
-oc project manuela-crw
-oc get routes
-```
-![image alt text](images/image_1.png)
-
-To verify deployment, you can login to CRW: [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/)
-
-Use your OpenShift Account (OpenShift OAuth is enabled). But you could also skip this step and test it by directly creating your workspace.
-
-### Create your MANUela Cloud IDE workspace
-
-To start developing with manuela-dev, please go to the manuela-dev git repository ([https://github.com/sa-mw-dach/manuela-dev.git](https://github.com/sa-mw-dach/manuela-dev.git)) and follow the instructions of the Readme document. 
-
-Please click on this link [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git) to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
-
-By clicking the link above, CRW will start searching for a devfile.yaml in the root of the git repository…
-
-The devfile.yaml is the specification of a CodeReady workspace.
-
-After 2-3 minutes you should be able to start coding. 
-
-If not:
-
-*  try to reload the page in the browser, or re-create the workspace from the CRW Dashboard.
-
-* If the commands and plugins are missing.
-
-    * From the CRW Workspaces, Choose the Configure Action:
-
-    * ![image alt text](images/image_2.png)
-
-    * Stop the workspace: ![image alt text](images/image_3.png)
-
-    * In the Devfile Section,  add the "components:" section from this file: [https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml](https://github.com/sa-mw-dach/manuela-dev/blob/master/devfile.yaml)![image alt text](images/image_4.png)
-
-### Local MANUela development with CRW
-
-The devfile sets up a CRW workspace with currently 3 runtime components:
-* AMQ 7.5 message broker
-* Java (SpringBoot) container for iot-software-sensor
-* NodeJS container for iot-consumer
-
-TODO: 
+TODO:
 
 ## Prepare Firewall Operator Demo
 
@@ -438,11 +415,11 @@ Connection to 10.32.111.165 closed.
 ```
 ### Install & Prepare the firewall operator
 
-Prerequisite: manuela-dev repo cloned in step [Prepare Container Images by building and Deploying Manuela-Dev](#heading=h.twyt1w9p4m9m) 
+Prerequisite: manuela-dev repo cloned in step [Prepare Container Images by building and Deploying Manuela-Dev](#heading=h.twyt1w9p4m9m)
 
 Choose a cluster which will act as management cluster for the firewall and log into it via OC
 
-#### Prepare a secret for the operator deployment 
+#### Prepare a secret for the operator deployment
 ```bash
 cd ~/manuela-dev/networkpathoperator/firewallrule/
 cp deploy/firewall-inventory-secret-example.yaml deploy/firewall-inventory-secret.yaml
@@ -458,7 +435,7 @@ oc apply -k deploy
 ```
 Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**.
 
-#### Remove the firewall rule 
+#### Remove the firewall rule
 ```bash
 oc delete -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
 ```
@@ -502,7 +479,7 @@ manuela-ops (Representing the operations group, ProjectAdmin-Role for all prd st
 
 The password for the "Local" users is “manuela”
 
-### Ensure that deployment dir is empty for target execution environments 
+### Ensure that deployment dir is empty for target execution environments
 
 The following example uses the OCP3+OCP4 execution environments, adapt accordingly when deploying to crc.
 
@@ -520,7 +497,7 @@ execenv-ocp4-placeholder-configmap.yaml			manuela-stormshift-machine-sensor-appl
 ```
 The deployment are just symlinks, therefore simply delete the links
 ```bash
-rm execenv-ocp3/manuela-stormshift* 
+rm execenv-ocp3/manuela-stormshift*
 rm execenv-ocp4/manuela-stormshift* undeployed
 rm nwpath-ocp3-ocp4/*
 ```
@@ -531,7 +508,7 @@ cd ~/manuela-gitops/config/instances/manuela-<yourenv>/machine-sensor
 ```
 OSX
 ```bash
-sed -i ''c '/SENSOR_TEMPERATURE_ENABLED/d' machine-sensor-2-configmap.properties 
+sed -i ''c '/SENSOR_TEMPERATURE_ENABLED/d' machine-sensor-2-configmap.properties
 ```
 Linux
 ```bash
@@ -575,7 +552,7 @@ To https://github.com/sa-mw-dach/manuela-gitops.git
 ```
 ### Sync ArgoCD
 
-This should happen automatically, but can be triggered through the ArgoCD UI and/or CLI 
+This should happen automatically, but can be triggered through the ArgoCD UI and/or CLI
 
 ![image alt text](images/image_8.png)
 
@@ -691,7 +668,7 @@ metadata:
 spec:
   host: messaging-manuela-stormshift-messaging.apps.ocp3.stormshift.coe.muc.redhat.com
 ```
-Review kustomization of line-dashboard 
+Review kustomization of line-dashboard
 ```bash
 ls line-dashboard
 
@@ -721,7 +698,7 @@ Explain the individual files and what they represent (namespaces, argoCD applica
 
 GitHub and similar workflows would allow an approval step to be inserted here
 
-Move application deployments to their respective execution envs 
+Move application deployments to their respective execution envs
 ```bash
 cd ~/manuela-gitops/deployment
 ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-line-dashboard-application.yaml execenv-ocp****3
@@ -864,7 +841,7 @@ In this manufacturing ede use case we use ArgoCD as controller. The controller a
 </table>
 
 
-The picture below illustrates the GitOps concepts in context of a factory edge use case. ArgoCD controllers ensure the desired state of the software and middleware components as well as the desired state of the configuration settings. 
+The picture below illustrates the GitOps concepts in context of a factory edge use case. ArgoCD controllers ensure the desired state of the software and middleware components as well as the desired state of the configuration settings.
 
 ![image alt text](images/image_20.png)
 
@@ -872,16 +849,16 @@ The picture below illustrates the GitOps concepts in context of a factory edge u
 
 ![image alt text](images/image_21.png)
 
-1. Deployment Agent Configuration: The argo application manifest [argocd-ocp1.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/meta/argocd-ocp1.yaml) in the [meta directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/meta) describes an "deployment agent configuration". ArgoCD is a specific implementation of a deployment agent. The application manifest points to a git source and the target OpenShift cluster. The git source contains the desired state of a concrete execution environment. In this example it is [deployment/execenv-ocp1](https://github.com/sa-mw-dach/manuela-gitops/tree/master/deployment/execenv-ocp1). 
+1. Deployment Agent Configuration: The argo application manifest [argocd-ocp1.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/meta/argocd-ocp1.yaml) in the [meta directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/meta) describes an "deployment agent configuration". ArgoCD is a specific implementation of a deployment agent. The application manifest points to a git source and the target OpenShift cluster. The git source contains the desired state of a concrete execution environment. In this example it is [deployment/execenv-ocp1](https://github.com/sa-mw-dach/manuela-gitops/tree/master/deployment/execenv-ocp1).
 
 2. Execution Environments Deployment Data: The execution environment [execenv-ocp1](https://github.com/sa-mw-dach/manuela-gitops/tree/master/deployment/execenv-ocp1) has multiple manifests. An Argo application and a namespace. The [namespace yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/deployment/execenv-ocp1/manuela-crc-machine-sensor-namespace.yaml) configures the target namespace for the machine sensor. The machine sensor deployment is managed via the Argo application [manuela-crc-machine-sensor-application.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/deployment/execenv-ocp1/manuela-crc-machine-sensor-application.yaml) which uses a dedicated git repo and path ([config/instances/manuela-crc/machine-sensor](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/instances/manuela-crc/machine-sensor)) for the desired application instance of the machine sensor. By creating these manifests in the execution environment directory, the application is deployed. This means that the application instance configuration can be prepared, reviewed and approved before the actual deployment takes place.
 
-3. Application Instance: In the current scenario, it is evident that many similar machine sensors in multiple execution environments need to be configured, deployed and managed. [Kustomize](https://kustomize.io/) simplifies the configuration of multiple machine sensors, because [Kustomize](https://kustomize.io/) is a template-free way to customize OpenShift application configuration. 
-The Kustomize manifest [kustomization.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/kustomization.yaml) points to a [basis directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) for the machine sensor deployment configuration. The config map [service-client-messaging-configmap.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/service-client-messaging-configmap.yaml) in the instance directory specifies settings for the concrete sensor for this application instance.. In specific scenarios, the same application instance can be deployed to multiple execution environments - e.g. a globally load balanced application which creates the same endpoints / serves the same URLs in multiple clusters. 
+3. Application Instance: In the current scenario, it is evident that many similar machine sensors in multiple execution environments need to be configured, deployed and managed. [Kustomize](https://kustomize.io/) simplifies the configuration of multiple machine sensors, because [Kustomize](https://kustomize.io/) is a template-free way to customize OpenShift application configuration.
+The Kustomize manifest [kustomization.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/kustomization.yaml) points to a [basis directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) for the machine sensor deployment configuration. The config map [service-client-messaging-configmap.yaml](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuela-crc/machine-sensor/service-client-messaging-configmap.yaml) in the instance directory specifies settings for the concrete sensor for this application instance.. In specific scenarios, the same application instance can be deployed to multiple execution environments - e.g. a globally load balanced application which creates the same endpoints / serves the same URLs in multiple clusters.
 
 4. Application Template: The [template directory](https://github.com/sa-mw-dach/manuela-gitops/tree/master/config/templates/manuela/machine-sensor) contains all required manifests for the machine sensor:  The [configmap](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/service-client-messaging-configmap.yaml) with settings for the MQTT endpoint, the [deployment config for the pod](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/machine-sensor-dc.yaml) and the [image stream](https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/templates/manuela/machine-sensor/machine-sensor-is.yaml). Thanks to the kustomize functionality, there can be multiple levels of application templates: A production configuration can be based on a development configuration, etc...
 
-  
+
 
 #### What does the demo deploy?
 
@@ -893,16 +870,16 @@ The Kustomize manifest [kustomization.yaml](https://github.com/sa-mw-dach/manuel
 
 * ocp1 (Argo CRD:  application) is a "deployment agent configuration" >  Source: deployment/execenv-ocp1
 
-* Configmap: execenv-ocp1-placeholder-configmap. (*) 
+* Configmap: execenv-ocp1-placeholder-configmap. (*)
 *Placeholder only so that there is always some content for ArgoCD that can be synced even though nothing is deployed.
 
-* Namespace: manuela-crc-machine-sensor: Namespace for the machine sensor 
+* Namespace: manuela-crc-machine-sensor: Namespace for the machine sensor
 
 * Application: manuela-crc-machine-sensor (Argo CRD) -> Source: config/instances/manuela-crc/machine-sensor
 
-    * Configmap: service-client-messaging: Settings for MQTT Endpoint 
+    * Configmap: service-client-messaging: Settings for MQTT Endpoint
 
-    * Deploymentconfig: machine-sensor: 
+    * Deploymentconfig: machine-sensor:
 
     * Imagestream: machine-sensor
 
@@ -955,7 +932,7 @@ oc apply -k .
 ## Tekton and ArgoCD
 # Vertical Modules
 ## Manufacturing
-## Retail 
+## Retail
 ## Asset Management for Energies
 ## Edge on the train
 ## Managing multiple data centers
