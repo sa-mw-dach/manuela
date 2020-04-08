@@ -268,7 +268,7 @@ Paste it to the .dockerconfigjson attribute in the yaml:
 vi quay-build-secret.yaml
 oc apply -k .
 ```
-## MODULE: Cloud IDE
+## MODULE: Code Change with Cloud IDE
 This demo modules show how to implement a code change to manuela component using CodeReady Workspaces as Cloud IDE.
 The story is that in the code processing temperature data, there is an unnecessary  conversion from celsius to fahrenheit that needs to be removed.
 
