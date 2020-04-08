@@ -226,7 +226,7 @@ If not:
     * Make sure the git repo path is "manuela-dev". Sometimes it is "manuela-dev.git", which does not work. If it is with ".git" extension, you can simply right click and rename it.
 
 ### Prepare the Workspace 
-Duration: 10 Minutes  
+Duration: 15 Minutes  
 The devfile sets up a CRW workspace with all components setup in the local workspace (like you would have on your laptop):
 * AMQ 7.5 message broker
 * Java (SpringBoot) container for iot-software-sensor
@@ -239,7 +239,7 @@ For this to work, the workspace needs to be prepared / initialized, e.g. by down
 There are commands prepared for this, you just have to execute them:
 On the right hand side, find the user runtimes.
 ![image alt text](images/crw_1.png)
-There you find the runtimes and commands. Uou can execute them by clicking on the command. Use the following sequence:
+There you find the runtimes and commands. You can execute them by clicking on the command. Use the following sequence:
 1. amq - make sure it is green, meaning AMQ is running already
 1. iot-software-sensor
     * "run"
@@ -255,6 +255,14 @@ There you find the runtimes and commands. Uou can execute them by clicking on th
     * Use "iot-frontend" link to open the "local" running frontend in your browser.
 
 Voilá! Now you have all components running locally in your workspace.
+
+Make sure you can push to the git repo. Commit a dummy change:  
+![image alt text](images/crw_8.png)
+
+Then push it using the sync button:  
+![image alt text](images/crw_9.png)
+
+You will be asked for your git credentials. If you have 2FA enabled in git, be sure to use your personal access token as password.
 
 Logout ouf CRW to be prepared for the demo day:
 1. Open the CRW side panel by clicking the yellow ">" on the upper left corner
