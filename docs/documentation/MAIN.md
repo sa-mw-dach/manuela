@@ -290,7 +290,7 @@ The story is that in the code processing temperature data, there is an unnecessa
 
 
 ### Step 3: Fix the bug
-1. Fix the bug by adding the comments, dont forget to save!
+1. Fix the bug by adding the comments, dont forget to save if you disabled auto save!
 ![image alt text](images/crw_6.png)
 
 1. The component will be restarted immediatel.
