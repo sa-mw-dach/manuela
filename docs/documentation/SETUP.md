@@ -202,7 +202,7 @@ Point your browser to the URL and  use your OpenShift Account (OpenShift OAuth i
 ### Create workspace 
 Duration: 10 minutes  
 This creates your MANUela Cloud IDE workspace.
-Click on this link [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/factory?url=https://github.com/sa-mw-dach/manuela-dev.git) to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
+Click on this link [https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/f?url=https://github.com/sa-mw-dach/manuela-dev](https://codeready-manuela-crw.apps.ocp3.stormshift.coe.muc.redhat.com/f?url=https://github.com/sa-mw-dach/manuela-dev) to create/clone your manuela-dev workspace in the CRW instance in the Stormshift OCP3 cluster.
 
 By clicking the link above, CRW will start searching for a devfile.yaml in the root of the git repository. The devfile.yaml is the specification of a CodeReady workspace, i.e. what plugins, languages to provide etc.
 
@@ -248,6 +248,7 @@ There you find the runtimes and commands. You can execute them by clicking on th
     * "start iot-consumer" 
 1. iot-frontend
     * "install ionic and dependencies". Watch the logs, there might be a question popping up! answer as you like. This step is required only the first time you start the workspace.
+    * "Update iot-consumer URL config". This command reads the dynamic route for the iot-consumer component and updates the config file in iot-frontend. It prompts for an OpenShift Login. Please login to the local OpenShift with as user who has the permission to execute 'oc get route'. If it does not work, please manually change the route as described in the following step.  
     * Before you can start the frontend, you need to adapt the config to point the iot-consumer. Therefore, open manuela-dev/components/iot-frontend/src/conf/config.json. Replace the websocket path from "localhost" with the URL from the iot-consumer (click on the iot-consumer "link" in the runtimes). Should like like this: ![image alt text](images/crw_3.png)
 
     * "start iot-frontend". This brings up the frontend serving component. Once it is running, you see the popup from crw on how to reach it: ![image alt text](images/crw_2.png)
