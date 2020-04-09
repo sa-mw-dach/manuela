@@ -1,3 +1,9 @@
+<span style="color:red;font-size:32px">
+---- HANDS OF ---- THIS FILE IS CURRENTLY BEING SPLIT  ----  
+---- HANDS OF ---- THIS FILE IS CURRENTLY BEING SPLIT  ----  
+---- HANDS OF ---- THIS FILE IS CURRENTLY BEING SPLIT  ----  
+</span>
+
 # MANUela
 
 ![MANUela Logo](../../images/logo.png)
@@ -285,16 +291,16 @@ The story is that in the code processing temperature data, there is an unnecessa
 1. Open the workspace you prepared during the setup
 
 ### Step 2: Show the bug
-1. Open the iot-frontend in the dev environment, check that the bug is visible there. The temperatures values are way to high, alerts firing all the time:
+1. Open the iot-frontend in the dev environment, check that the bug is visible there. The temperatures values are way to high, alerts firing all the time:  
 ![image alt text](images/crw_5.png)
 
 
 ### Step 3: Fix the bug
-1. Fix the bug by adding the comments, dont forget to save if you disabled auto save!
+1. Fix the bug by adding the comments, don't forget to save if you disabled auto save!  
 ![image alt text](images/crw_6.png)
 
-1. The component will be restarted immediatel.
-1. Verify the bug is fixed in the dev environment (notice the steep step, below the red limit line):
+1. The component will be restarted immediately.
+1. Verify the bug is fixed in the dev environment (notice the steep step, below the red limit line):  
 ![image alt text](images/crw_7.png)
 
 ### Step 4: Commit changes
