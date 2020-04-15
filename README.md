@@ -1,7 +1,7 @@
 
 
 # MANUela
-![MANUela Logo](./docs/documentation/images/logo.png)
+![MANUela Logo](./images/logo.png)
 
 
 MANUfacturing Edge Lightweight Accelerator
@@ -16,7 +16,6 @@ You can check them out in this Github directory https://github.com/sa-mw-dach
 - Start here: [MANUela README](./docs/documentation/README.md)
 - If you can wait, check out the [QUICKSTART](./docs/documentation/QUICKSTART.md)
 - Or jump to the list of [installation & setup instructions and demo flows](./docs/documentation#demo-modules)
-- 
 
 
 ## Your feedback is welcome
