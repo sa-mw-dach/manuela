@@ -13,12 +13,12 @@ You can check them out in this Github directory https://github.com/sa-mw-dach
 
 ## Documentation
 
-- Start here: [MANUela README](./docs/documentation/README.md)
+- Start here: [MANUela Documentation README](./docs/documentation/README.md)
 - If you can wait, check out the [QUICKSTART](./docs/documentation/QUICKSTART.md)
 - Or jump to the list of [installation & setup instructions and demo flows](./docs/documentation#demo-modules)
 
 
 ## Your feedback is welcome
 
-Enter deedback, issues, and enhancement requests here:
+Enter your feedback, issues, and enhancement requests here:
 https://github.com/sa-mw-dach/manuela/issues
