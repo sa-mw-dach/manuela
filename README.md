@@ -8,7 +8,7 @@ This project is build and maintained by a group of solution architects at Red Ha
 
 Your feedback is welcome - enter your feedback, issues, and enhancement requests [here](https://github.com/sa-mw-dach/manuela/issues).
 
-**Red Hatters**: Please track any demo in the [spreadsheet](https://docs.google.com/spreadsheets/d/17846bqUPEbXUmJ2i6KUYJ_k0yiJWmVW4flhKb83WDA4/edit#gid=0) so we can understand how it is used:
+**Red Hatters**: Please track any demo in the [spreadsheet](https://docs.google.com/spreadsheets/d/17846bqUPEbXUmJ2i6KUYJ_k0yiJWmVW4flhKb83WDA4/edit#gid=0) so we can understand how it is used.
 
 
 ## Documentation
@@ -63,8 +63,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
 
 
-## What does the name MANUela stand for?
-**MAN**ufacturing **E**dge **L**ightweight **A**ccelerator
+## Why MANUela?
 There is some strange German humor [behind the scenes](https://www.youtube.com/watch?v=ZiY5FBI_5D8), which neither the author of this text nor other reviewers are able to explain.
 
 
