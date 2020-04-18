@@ -26,6 +26,7 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
     - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
     - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
+    - [Configure rules](#Configure-rules)
     - [Set root ssh key](#Set-root-ssh-key)
     - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
 
@@ -378,6 +379,17 @@ After install, and after the first reboot (do not forget to remove the CD-ISO Im
 * WAN gets its IP via DHCP in the range of 172.16.10.???/24
 
 Default password for the appliances is admin/pfsense
+
+#### Configure rules
+
+The default rules configured might not be suitable to the story being told, i.e. a locked down environment. Per default, all IP4/6 traffic is allowed from LAN to WAN. 
+
+![pfsense default rules](images/pfsense_rules_default.png)
+
+Replace these rules with a "Default deny all" rule blocking IP4+6.
+
+![pfsense with default deny all rules](images/pfsense_rules_empty.png)
+
 
 #### Set root ssh key
 
