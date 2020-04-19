@@ -175,3 +175,25 @@ git commit -m "modify quickstart instance to use iotdemo images"
 
 git push
 ```
+
+Wait for ArgoCD to sync the changed configuration (you can also trigger a sync via the ArgoCD UI).
+
+Validate that the **local images** (image-registry.openshift-image-registry.svc:5000) are configured.
+
+```bash
+oc get deployment line-dashboard -n manuela-quickstart-line-dashboard -o yaml | grep image:
+      - image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-frontend:latest
+
+
+oc get deployment machine-sensor-1 -n manuela-quickstart-machine-sensor -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor:latest
+        
+oc get deployment machine-sensor-2 -n manuela-quickstart-machine-sensor -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor:latest
+        
+        
+oc get deployment messaging -n  manuela-quickstart-messaging -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-consumer:latest
+
+
+```
