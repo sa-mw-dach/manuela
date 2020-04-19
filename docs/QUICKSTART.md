@@ -27,7 +27,8 @@ cd ~
 git clone https://github.com/<organisation>/manuela-gitops.git
 ```
 
-Configure ArgoCD applications to point to your upstream gitops repo
+Configure ArgoCD applications to point to your upstream gitops repo. Note: on OSX, the sed syntax is slightly different, you need to add an extra quotation marks after the -i: ```sed -i "" "s|....```.
+
 ```bash
 cd ~/manuela-gitops
 
