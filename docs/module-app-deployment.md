@@ -105,7 +105,10 @@ In the App Deployment GitOps demo you will deploy the an application over multip
 Same as during [demo prep](#Validate-Application-Namespaces--Components-no-longer-exist-in-OpenShift-and-ArgoCD).
 
 ### Optional: Show current Firewall configuration
-TODO
+
+If the firewall configuration is in scope, show that the firewall configuration currently does not allow outbound traffic.
+
+![only deny all rule](images/pfsense_rules_empty.png)
 
 ### Review GitOps Application Configuration & Deployment approach
 
@@ -296,7 +299,10 @@ Note that the ArgoCD UI doesn’t self refresh, so you need to reload it to see 
 ![image alt text](images/image_16.png)
 
 ### Optional: Show Firewall configuration change
-TODO
+If the firewall configuration is in scope, show that the firewall configuration now allows outbound traffic for http and https.
+
+![only deny all rule](images/pfsense_rules_operator_generated.png)
+
 
 ## Mini Demo recording
 
