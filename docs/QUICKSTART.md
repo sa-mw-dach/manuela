@@ -31,10 +31,12 @@ Configure ArgoCD applications to point to your upstream gitops repo
 ```bash
 cd ~/manuela-gitops
 
-sed -i "" "s|repoURL:.*|repoURL: $(git remote get-url origin)|" meta/argocd-quickstart.yaml\ 
-config/instances/manuela-quickstart/manuela-quickstart-line-dashboard-application.yaml\ 
-config/instances/manuela-quickstart/manuela-quickstart-messaging-application.yaml\ 
-config/instances/manuela-quickstart/manuela-quickstart-machine-sensor-application.yaml
+REPOURL=$(git remote get-url origin | sed "s|git@github.com:|https://github.com/|")
+
+sed -i "s|repoURL:.*|repoURL: $REPOURL|" meta/argocd-quickstart.yaml \
+  config/instances/manuela-quickstart/manuela-quickstart-line-dashboard-application.yaml \
+  config/instances/manuela-quickstart/manuela-quickstart-messaging-application.yaml \
+  config/instances/manuela-quickstart/manuela-quickstart-machine-sensor-application.yaml
 
 git add .
 
@@ -49,9 +51,9 @@ export OCP_WILDCARD_DOMAIN=apps.my.openshift.cluster
 
 cd ~/manuela-gitops/config/instances/manuela-quickstart
 
-sed -i "" "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap.yaml\
-line-dashboard/line-dashboard-route.yaml machine-sensor/machine-sensor-1-configmap.properties\ 
-machine-sensor/machine-sensor-2-configmap.properties messaging/route.yaml
+sed -i  "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap.yaml \
+  line-dashboard/line-dashboard-route.yaml machine-sensor/machine-sensor-1-configmap.properties \
+  machine-sensor/machine-sensor-2-configmap.properties messaging/route.yaml
 
 git add .
 
@@ -161,15 +163,37 @@ Modify the quickstart instance configuration to point to the freshly built image
 ```bash
 cd ~/manuela-gitops/config/instances/manuela-quickstart
 
-sed -i "" -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-consumer|" -e "s|newTag:.*|newTag: latest|" messaging/kustomization.yaml
+sed -i -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-consumer|" -e "s|newTag:.*|newTag: latest|" messaging/kustomization.yaml
 
-sed -i "" -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-frontend|" -e "s|newTag:.*|newTag: latest|" line-dashboard/kustomization.yaml
+sed -i -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-frontend|" -e "s|newTag:.*|newTag: latest|" line-dashboard/kustomization.yaml
 
-sed -i "" -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor|" -e "s|newTag:.*|newTag: latest|" machine-sensor/kustomization.yaml
+sed -i -e "s|newName:.*|newName: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor|" -e "s|newTag:.*|newTag: latest|" machine-sensor/kustomization.yaml
 
 git add .
 
 git commit -m "modify quickstart instance to use iotdemo images"
 
 git push
+```
+
+Wait for ArgoCD to sync the changed configuration (you can also trigger a sync via the ArgoCD UI).
+
+Validate that the **local images** (image-registry.openshift-image-registry.svc:5000) are configured.
+
+```bash
+oc get deployment line-dashboard -n manuela-quickstart-line-dashboard -o yaml | grep image:
+      - image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-frontend:latest
+
+
+oc get deployment machine-sensor-1 -n manuela-quickstart-machine-sensor -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor:latest
+        
+oc get deployment machine-sensor-2 -n manuela-quickstart-machine-sensor -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-software-sensor:latest
+        
+        
+oc get deployment messaging -n  manuela-quickstart-messaging -o yaml | grep image:
+        image: image-registry.openshift-image-registry.svc:5000/iotdemo/iot-consumer:latest
+
+
 ```
