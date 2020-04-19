@@ -49,9 +49,9 @@ export OCP_WILDCARD_DOMAIN=apps.my.openshift.cluster
 
 cd ~/manuela-gitops/config/instances/manuela-quickstart
 
-sed -i "" "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap.yaml\
-line-dashboard/line-dashboard-route.yaml machine-sensor/machine-sensor-1-configmap.properties\ 
-machine-sensor/machine-sensor-2-configmap.properties messaging/route.yaml
+sed -i  "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap.yaml \
+  line-dashboard/line-dashboard-route.yaml machine-sensor/machine-sensor-1-configmap.properties \
+  machine-sensor/machine-sensor-2-configmap.properties messaging/route.yaml
 
 git add .
 
