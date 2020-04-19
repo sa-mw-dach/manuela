@@ -31,7 +31,9 @@ Configure ArgoCD applications to point to your upstream gitops repo
 ```bash
 cd ~/manuela-gitops
 
-sed -i "s|repoURL:.*|repoURL: $(git remote get-url origin)|" meta/argocd-quickstart.yaml \
+REPOURL=$(git remote get-url origin | sed "s|git@github.com:|https://github.com/|")
+
+sed -i "s|repoURL:.*|repoURL: $REPOURL|" meta/argocd-quickstart.yaml \
   config/instances/manuela-quickstart/manuela-quickstart-line-dashboard-application.yaml \
   config/instances/manuela-quickstart/manuela-quickstart-messaging-application.yaml \
   config/instances/manuela-quickstart/manuela-quickstart-machine-sensor-application.yaml
