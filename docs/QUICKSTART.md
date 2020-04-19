@@ -64,12 +64,12 @@ git push
 
 Create "iotdemo" and "argocd" namespaces and required operator subscriptions: 
 ```bash
-oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/257_first_steps/quickstart/01_namespaces_and_operators.yaml
+oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/quickstart/01_namespaces_and_operators.yaml
 ```
 
 Create ArgoCD instance:
 ```bash
-oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/257_first_steps/quickstart/02_argocd.yaml
+oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/quickstart/02_argocd.yaml
 
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
@@ -149,7 +149,7 @@ Wait for ArgoCD to sync the changed configuration (you can also trigger a sync v
 
 Create build configurations and deployments for the components in the ```iotdemo``` namespace:
 ```bash
-oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/257_first_steps/quickstart/03_components.yaml
+oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/quickstart/03_components.yaml
 ```
 
 These build configs point to the [https://github.com/sa-mw-dach/manuela-dev](https://github.com/sa-mw-dach/manuela-dev) repository. Use ```oc edit``` to point them to your own fork of the repository if you wish.
