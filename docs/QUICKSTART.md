@@ -2,19 +2,30 @@
 
 By following these steps you will create your own instance of the manuela gitops repository and use it to deploy and configure an application via GitOps to a single OpenShift cluster, such as CodeReady Containers (CRC).
 
-- [Prequisites](#Prequisites)
-- [Prepare your own instance of the gitops repository](#Prepare-your-own-instance-of-the-gitops-repository)
-- [Prepare Cluster and deploy ArgoCD](#Prepare-Cluster-and-deploy-ArgoCD)
-- [Deploy the Application via GitOps](#Deploy-the-Application-via-GitOps)
-- [Configure the Application via GitOps](#Configure-the-Application-via-GitOps)
-- [Build the Application Components from Source](#Build-the-Application-Components-from-Source)
-- [Modify GitOps repo to deploy your own application components](#Modify-GitOps-repo-to-deploy-your-own-application-components)
+- [Prequisites](#prequisites)
+- [Quickstart deployment](#quickstart-deployment)
+- [Prepare your own instance of the gitops repository](#prepare-your-own-instance-of-the-gitops-repository)
+- [Prepare Cluster and deploy ArgoCD](#prepare-cluster-and-deploy-argocd)
+- [Deploy the Application via GitOps](#deploy-the-application-via-gitops)
+- [Configure the Application via GitOps](#configure-the-application-via-gitops)
+- [Build the Application Components from Source](#build-the-application-components-from-source)
+- [Modify GitOps repo to deploy your own application components](#modify-gitops-repo-to-deploy-your-own-application-components)
 
 ## Prequisites
 
 - **Local Workstation**: You have the ```git``` and ```oc``` command line clients installed
 - **OpenShift Cluster**: You are logged into your cluster as cluster admin in via the ```oc```command line client
 - **GitHub Account**: You are logged into GitHub and can fork public repositories
+
+## Quickstart deployment
+
+Your are going to deploy two manuela instances:
+
+1. A simplified showcase for a production deployment.
+2. An develoment envirenment for buildimg your own conatiner images. 
+
+![Quickstart deployment](./images/Quickstart.png)
+
 
 ## Prepare your own instance of the gitops repository
 
