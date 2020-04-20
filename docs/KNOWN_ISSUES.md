@@ -1,4 +1,4 @@
-#Known Issues
+# Known Issues
 
 ## openshift-pipeline upgrade 0.10 - 0.11
 Upgrading the operator from 0.10 to 0.11 broke the existing pipelines - tasks+pipelines would immediately fail with an error message about serialization. To get back into a working order, we:
