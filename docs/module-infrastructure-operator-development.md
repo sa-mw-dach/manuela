@@ -182,7 +182,7 @@ Note: Adjusting the CRD is not in scope of this demo. It could be adjusted with 
 
 ### Adjust watches.yaml to cascade CR delete to managed resource
 
-Add the following stanza to the existing entry in the watches.yaml file like the [sample](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/watches.yaml). This ensures that the ansible playbook is also run with the variable "state" set to "absent" when the custom resource is deleted. Per default the kubernetes-internal parent-child relations ensure that a delete of the custom resource is cascaded to all its children, but since the resource the operator is managing is not a kubernetes object, an explicit deletion run is required.
+Add the following stanza to the existing entry in the watches.yaml file like the [sample](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/watches.yaml). This ensures that the ansible playbook is also run with the variable "state" set to "absent" when the custom resource is deleted. Per default the kubernetes-internal parent-child relations ensure that a delete of the custom resource is cascaded to all its children, but since the resource the operator is managing is not a kubernetes object, an explicit deletion run is required. [More information in the SDK Docs.](https://github.com/operator-framework/operator-sdk/blob/master/doc/ansible/dev/finalizers.md).
 
 ```yaml
   finalizer:
@@ -190,6 +190,7 @@ Add the following stanza to the existing entry in the watches.yaml file like the
     vars:
       state: absent
 ```
+
 
 
 ### Optional: test the operator locally
