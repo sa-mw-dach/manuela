@@ -38,11 +38,13 @@ Log into your openshift cluster via the oc command line.
 
 ## Demo Execution
 
-These instructions assume you will be rebuilding the FirewallRule operator. Adjust to other scenarios as needed. The demo storyline is as follows:
+These instructions assume you will be building the FirewallRule operator. Adjust to other scenarios as needed. The demo storyline is as follows:
 
 - We will use operator-sdk to create the scaffolding for an ansible-based operator.
 - The scaffolding assumes the operator will manage kubernetes resources in the same cluster. This is not the case, therefore we need to perform some adjustments to add the external resource to the runtime ansibme inventory and execute the playbook against the external resource.
 - We will then write ansible code to apply the data provided in the kubernetes custom resource to the externally managed resource (creation and deletion, no reconciliation if the resource was changed outside the operator).
+
+The instructions are written as if you are developing the operator from scratch. You can also simply clone the [manuela-dev](https://github.com/sa-mw-dach/manuela-dev) repo with the [existing firewall rule operator](https://github.com/sa-mw-dach/manuela-dev/tree/master/networkpathoperator/firewallrule) and follow along, pointing out the relevant code snippets in the existing code.
 
 ### Create project scaffolding
 
