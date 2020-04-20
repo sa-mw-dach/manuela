@@ -19,10 +19,10 @@ By following these steps you will create your own instance of the manuela gitops
 
 ## Quickstart deployment
 
-Your are going to deploy two manuela instances:
+You are going to deploy two manuela instances:
 
-1. A simplified showcase for a production deployment.
-2. An develoment envirenment for buildimg your own conatiner images. 
+1. The simplified showcase for a production deployment.
+2. A development environment for building your own container images.
 
 ![Quickstart deployment](./images/Quickstart.png)
 
