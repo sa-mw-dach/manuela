@@ -58,7 +58,7 @@ cd firewallrule
 
 ### Adjust Dockerfile to include dependencies
 
-Add the following lines in ```build/Dockerfile``` right after the ```FROM``` statement to ensure the openssh-clients and other required RPMs and modules from Ansible Galaxy are present:
+Add the following lines in ```build/Dockerfile``` right after the ```FROM``` statement to ensure the openssh-clients (required for Ansible access to external resources) and other required RPMs and modules from Ansible Galaxy are present:
 
 ```bash
 USER root
