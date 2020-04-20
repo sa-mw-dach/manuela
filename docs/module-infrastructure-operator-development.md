@@ -106,7 +106,7 @@ Also add the following stanza to ```spec.template.spec.volumes``` to make the se
 
 ### Adjust playbook.yaml to load secret data into inventory
 
-Insert the following task before the existing task to ensure that the inventory from the secret is loaded into the ansible runtime.
+Insert the following task before the existing task to ensure that the inventory from the secret is loaded into the ansible runtime. This creates a new group "firewall" in the inventory with the external resource as its only member. You could chose a different group name as well.
 
 ```yaml
 - hosts: localhost
