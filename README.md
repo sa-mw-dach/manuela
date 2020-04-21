@@ -62,6 +62,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - Red Hat Virtualization (Optional, to provide multiple clusters)
 - Open Data Hub for machine learning use cases
 - cloud.redhat.com as preview to multi cluster managment capabilities
+- Runtimes, esp. Quarkus, NodeJS....
 
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
 
