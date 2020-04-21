@@ -1,2 +1,0 @@
-# Pipeline Demo Instructions
-TBD
