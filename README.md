@@ -59,7 +59,8 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - Tekton Pipelines
 - ArgoCD for gitops
 - Code Ready Workspaces (Development Environment)
-- Red Hat Virtualzation (Optional, to provide multiple clusters)
+- Red Hat Virtualization (Optional, to provide multiple clusters)
+- Open Data Hub for machine learning use cases
 - cloud.redhat.com as preview to multi cluster managment capabilities
 
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
