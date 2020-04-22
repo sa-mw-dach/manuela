@@ -67,7 +67,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
 
 
-## Why MANUela?
+## Why the name "MANUela"?
 There is some strange German humor [behind the scenes](https://www.youtube.com/watch?v=ZiY5FBI_5D8), which neither the author of this text nor other reviewers are able to explain.
 
 
