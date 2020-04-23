@@ -218,14 +218,15 @@ sed "s/cmVwbGFjZW1l/$(echo -n $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/sec
 ```
 
 ```bash
+sed "s/ARGOCD_PASSWORD:.*/ARGOCD_PASSWORD: $(oc get secret argocd-cluster -n argocd -o jsonpath='{.data.*}')/" tekton/secrets/argocd-env-secret.yaml
+```
+
+```bash
 export QUAY_BUILD_SECRET=ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJiV0Z1ZFdWc1lTdGlkV2xzWkRwSFUwczBRVGMzVXpjM1ZFRlpUMVpGVGxWVU9GUTNWRWRVUlZOYU0wSlZSRk5NUVU5VVNWWlhVVlZNUkU1TVNFSTVOVlpLTmpsQk1WTlZPVlpSTVVKTyIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
 sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secrets/quay-build-secret-example.yaml >tekton/secrets/quay-build-secret.yaml
 ```
 
-TODO: Adjust Tekton configmaps, pipeline-resources and pipeline to match your environments.
-```bash
-TODO
-```
+TODO: Adjust Tekton pipeline-resources and pipeline to match your environments. This step will hopefully go away with https://github.com/sa-mw-dach/manuela/issues/268 and https://github.com/sa-mw-dach/manuela/issues/269
 
 Then instantiate the pipelines.
 ```bash
