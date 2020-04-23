@@ -218,7 +218,7 @@ sed "s/cmVwbGFjZW1l/$(echo -n $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/sec
 ```
 
 ```bash
-sed "s/ARGOCD_PASSWORD:.*/ARGOCD_PASSWORD: $(oc get secret argocd-cluster -n argocd -o jsonpath='{.data.*}')/" tekton/secrets/argocd-env-secret.yaml
+sed "s/ARGOCD_PASSWORD:.*/ARGOCD_PASSWORD: $(oc get secret argocd-cluster -n argocd -o jsonpath='{.data.*}')/" tekton/secrets/argocd-env-secret-example.yaml >tekton/secrets/argocd-env-secret.yaml
 ```
 
 ```bash
