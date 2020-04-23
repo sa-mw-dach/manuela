@@ -1,7 +1,7 @@
 ![MANUela Logo](./images/logo.png)
 
-# Machine Learning - Preview (draft)<!-- omit in toc -->
-The preview explores various topics:
+# Machine Learning - Preview/POC (draft)<!-- omit in toc -->
+The POC explores various topics:
 - How to deploy Seldon using Open Data Hub (ODH)
 - How to build and deploy an ML Seldon container with a Tekton pipeline
 - How to call the Anomaly Detection Seldon REST web service from the consumer component
@@ -32,7 +32,9 @@ oc apply -f odh-operator-subscription.yaml
 
 ### Enable Anomaly Detection Service
 
-```cd manuela-dev/components/```
+```
+cd manuela-dev/components/
+```
 
 Edit kustomization.yaml and uncomment iot-anomaly-detection/manifests
 
@@ -43,9 +45,11 @@ Edit kustomization.yaml and uncomment iot-anomaly-detection/manifests
 ...
 ```
 
-Apply updated configuration
+Apply updated configuration:
 
-```oc apply -k .```
+```
+oc apply -k .
+```
 
 Wait until  iot-anomaly-detection-1-build  finished 
 
@@ -64,7 +68,11 @@ anomaly-detection-predictor-2f65db5-64fc8b859d-29g99   2/2     Running     0    
 Test Seldon web service:
 
 ```
-curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [50]}}" htps://$(oc get route anomaly-detection -o jsonpath='{.spec.host}')/api/v0.1/predictions
+curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [50]}}" https://$(oc get route anomaly-detection -o jsonpath='{.spec.host}')/api/v0.1/predictions
+```
+
+Expected result:
+```
 {
   "meta": {
     "puid": "lios2vb8nphgbl3u499oq08kol",
@@ -102,10 +110,12 @@ oc start-build iot-consumer --follow
 
 Restart the consumer pod
 
-```oc delete  pods -l app=iot-consumer ```
+```
+oc delete  pods -l app=iot-consumer 
+```
 
 
-Check consumer to see if Anomaly web service is called
+Check the consumer logs to see if Anomaly web service is called
 
 
 ### How to disable ODH and Anomaly detection in iotdemo
@@ -142,6 +152,10 @@ Check if seldon CRD is deployed:
 
 ```
 oc get crds | grep seldon
+```
+
+Expected results:
+```
 seldondeployments.machinelearning.seldon.io                 2020-04-13T10:41:50Z
 ```
 
@@ -185,10 +199,50 @@ https://github.com/sa-mw-dach/manuela-gitops/blob/master/config/instances/manuel
 ```
 
 
-Delete opendatahub Operator from manuela tst
+Delete opendatahub Operator from manuela-tst:
 ```
 oc get ClusterServiceVersion | grep opendatahub-operator
 opendatahub-operator.v0.5.1            Open Data Hub Operator           0.5.1       opendatahub-operator.v0.5.0            InstallReady
 
 oc delete ClusterServiceVersion opendatahub-operator.v0.5.1
 ```
+
+## manuela-stormshift: Bootstrap and configure ODH and Anomaly Detection Service in manuela-stormshift (prod)
+
+We assumme that the Seldon CRD is already deployed (see above).
+
+### Enable ODH and Seldon service
+
+Let's assume you cloned the manuela-gitops repository.
+
+Create a symbolic link to instruct AgroCD to deploy opendatahub.
+
+```
+cd   manuela-gitops/deployment/execenv-ocp3
+ls -l ../../config/instances/manuela-stormshift/manuela-stormshift-opendatahub-application.yaml
+```
+
+
+### Enable Vibration Alert and Vibration Anomaly detection in messaging-configmap of manuela-stormshift
+
+Update the messaging config map:  
+
+Edit manuela-gitops/config/instances/manuela-stormshift/messaging/messaging-configmap.yaml
+```
+  ANOMALY_DETECTION_URL: 'https://anomaly-detection-manuela-stormshift-odh.apps.ocp3.stormshift.coe.muc.redhat.com'
+  VIBRATION_ALERT_ENABLED: 'true'
+  VIBRATION_ANOMALY_ENABLED: 'true'
+  VIBRATION_ANOMALY_PUMP: 'floor-1-line-1-extruder-1pump-2'
+  NODE_TLS_REJECT_UNAUTHORIZED: '0'
+```
+Push the changes to github and wait that ArgoCD picks up the change.
+
+Then, restart the messaging pod:
+
+```
+oc delete  pods -l  app=messaging -n manuela-stormshift-messaging 
+```
+
+Check the messaging log to see if Anomaly web service is called.
+
+
