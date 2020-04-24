@@ -1,34 +1,34 @@
 # Bootstrap <!-- omit in toc -->
 This document describes how to bootstrap (install from scratch) the complete demo. This is separate from and in addition to the [quickstart](QUICKSTART.md) which describes a simplified setup and demo runthrough on a single cluster and the actual demo preparation and execution steps.
 
-- [Prerequisites](#Prerequisites)
-  - [Logical Environments](#Logical-Environments)
-  - [OpenShift clusters](#OpenShift-clusters)
-  - [Github account](#Github-account)
-  - [Quay instance](#Quay-instance)
-  - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
-- [Fork and clone manuela-dev](#Fork-and-clone-manuela-dev)
-- [Create the gitops repository](#Create-the-gitops-repository)
-  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
-  - [Option 2: You set up a new environemnt and use a custom gitops repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
-- [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
-  - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
-  - [Instantiate ArgoCD](#Instantiate-ArgoCD)
-    - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
-    - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
-    - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
-    - [Remove manuela-temp-amq namespace](#Remove-manuela-temp-amq-namespace)
-  - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
-- [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
-- [Optional extensions](#Optional-extensions)
-  - [Development (Optional)](#Development-Optional)
-  - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
-  - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
-    - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
-    - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
-    - [Configure rules](#Configure-rules)
-    - [Set root ssh key](#Set-root-ssh-key)
-    - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
+- [Prerequisites](#prerequisites)
+  - [Logical Environments](#logical-environments)
+  - [OpenShift clusters](#openshift-clusters)
+  - [Github account](#github-account)
+  - [Quay instance](#quay-instance)
+  - [Virtualization environment (Optional)](#virtualization-environment-optional)
+- [Fork and clone manuela-dev](#fork-and-clone-manuela-dev)
+- [Create the gitops repository](#create-the-gitops-repository)
+  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#option-1-you-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: You set up a new environemnt and use a custom gitops repository](#option-2-you-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
+- [CI and Test (Mandatory)](#ci-and-test-mandatory)
+  - [Create the namespaces and operators](#create-the-namespaces-and-operators)
+  - [Instantiate ArgoCD](#instantiate-argocd)
+    - [Create cluster deployment agent configuration](#create-cluster-deployment-agent-configuration)
+    - [Deploy ArgoCD Cli Tool (optional)](#deploy-argocd-cli-tool-optional)
+    - [Validate gitops repo via ArgoCD web UI](#validate-gitops-repo-via-argocd-web-ui)
+    - [Remove manuela-temp-amq namespace](#remove-manuela-temp-amq-namespace)
+  - [Instantiate Tekton Pipelines](#instantiate-tekton-pipelines)
+- [Factory Datacenter & Line Data Server (Mandatory)](#factory-datacenter--line-data-server-mandatory)
+- [Optional extensions](#optional-extensions)
+  - [Development (Optional)](#development-optional)
+  - [CodeReady Workspaces (Optional)](#codeready-workspaces-optional)
+  - [Management Cluster(s) and Firewall VM(s) (Optional)](#management-clusters-and-firewall-vms-optional)
+    - [ArgoCD deployment agent configuration](#argocd-deployment-agent-configuration)
+    - [Set Up pfSense Firewall VM](#set-up-pfsense-firewall-vm)
+    - [Configure rules](#configure-rules)
+    - [Set root ssh key](#set-root-ssh-key)
+    - [Install & Prepare the firewall operator (once per firewall instance)](#install--prepare-the-firewall-operator-once-per-firewall-instance)
 
 ## Prerequisites
 
@@ -211,16 +211,24 @@ oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ### Instantiate Tekton Pipelines
 Adjust Tekton secrets to match your environments.
 
+Github Secret:
 ```bash
 cd ~/manuela-dev
 export GITHUB_PERSONAL_ACCESS_TOKEN=changeme
-sed "s/cmVwbGFjZW1l/$(echo -n $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
+sed "s/token: cmVwbGFjZW1l/token: $(echo -n $GITHUB_PERSONAL_ACCESS_TOKEN|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
+```
+```bash
+cd ~/manuela-dev
+export GITHUB_USER=changeme
+sed "s/user: cmVwbGFjZW1l/user: $(echo -n $GITHUB_USER|base64)/" tekton/secrets/github-example.yaml >tekton/secrets/github.yaml
 ```
 
+ArgoCD Secret:
 ```bash
 sed "s/ARGOCD_PASSWORD:.*/ARGOCD_PASSWORD: $(oc get secret argocd-cluster -n argocd -o jsonpath='{.data.*}')/" tekton/secrets/argocd-env-secret-example.yaml >tekton/secrets/argocd-env-secret.yaml
 ```
 
+Quay Build Secret:
 ```bash
 export QUAY_BUILD_SECRET=ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJiV0Z1ZFdWc1lTdGlkV2xzWkRwSFUwczBRVGMzVXpjM1ZFRlpUMVpGVGxWVU9GUTNWRWRVUlZOYU0wSlZSRk5NUVU5VVNWWlhVVlZNUkU1TVNFSTVOVlpLTmpsQk1WTlZPVlpSTVVKTyIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
 sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secrets/quay-build-secret-example.yaml >tekton/secrets/quay-build-secret.yaml
