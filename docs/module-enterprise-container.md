@@ -1,4 +1,4 @@
-![MANUela Logo](./images/logo.png)
+registry![MANUela Logo](./images/logo.png)
 
 # Enterprise Container  <!-- omit in toc -->
 This document describes how to prepare & execute the enterprise container demo module.
@@ -12,9 +12,10 @@ The demo environment(s) have been [bootstrapped](BOOTSTRAP.md).
 
 ## Demo Execution
 
-1. Show [Slide#32](https://docs.google.com/presentation/d/1XRQ_mn8VBWQkYkouFtYs21gCGLxtWJCPLstybYY8cE4/edit#slide=id.g7dca648235_0_806) and elaborate on the role of the image registry
+1. Show [Slide#32](https://docs.google.com/presentation/d/1XRQ_mn8VBWQkYkouFtYs21gCGLxtWJCPLstybYY8cE4/edit#slide=id.g7dca648235_0_806) and elaborate on the role of the image registry:
+![Enterprise Registry](./images/registry_1.png)
 
-1. Show quay.io and the [manuela repo](https://quay.io/organization/manuela) there
+2. Show quay.io and the [manuela repo](https://quay.io/organization/manuela) there
 Highlight container security scanning in quay
 
 1. Show an image stream in the “remote” cluster (e.g. for [line-dashboard](https://console-openshift-console.apps.ocp3.stormshift.coe.muc.redhat.com/k8s/ns/manuela-stormshift-line-dashboard/imagestreams/line-dashboard))
