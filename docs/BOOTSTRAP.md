@@ -1,34 +1,35 @@
 # Bootstrap <!-- omit in toc -->
 This document describes how to bootstrap (install from scratch) the complete demo. This is separate from and in addition to the [quickstart](QUICKSTART.md) which describes a simplified setup and demo runthrough on a single cluster and the actual demo preparation and execution steps.
 
-- [Prerequisites](#prerequisites)
-  - [Logical Environments](#logical-environments)
-  - [OpenShift clusters](#openshift-clusters)
-  - [Github account](#github-account)
-  - [Quay instance](#quay-instance)
-  - [Virtualization environment (Optional)](#virtualization-environment-optional)
-- [Fork and clone manuela-dev](#fork-and-clone-manuela-dev)
-- [Create the gitops repository](#create-the-gitops-repository)
-  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#option-1-you-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
-  - [Option 2: You set up a new environemnt and use a custom gitops repository](#option-2-you-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
-- [CI and Test (Mandatory)](#ci-and-test-mandatory)
-  - [Create the namespaces and operators](#create-the-namespaces-and-operators)
-  - [Instantiate ArgoCD](#instantiate-argocd)
-    - [Create cluster deployment agent configuration](#create-cluster-deployment-agent-configuration)
-    - [Deploy ArgoCD Cli Tool (optional)](#deploy-argocd-cli-tool-optional)
-    - [Validate gitops repo via ArgoCD web UI](#validate-gitops-repo-via-argocd-web-ui)
-    - [Remove manuela-temp-amq namespace](#remove-manuela-temp-amq-namespace)
-  - [Instantiate Tekton Pipelines](#instantiate-tekton-pipelines)
-- [Factory Datacenter & Line Data Server (Mandatory)](#factory-datacenter--line-data-server-mandatory)
-- [Optional extensions](#optional-extensions)
-  - [Development (Optional)](#development-optional)
-  - [CodeReady Workspaces (Optional)](#codeready-workspaces-optional)
-  - [Management Cluster(s) and Firewall VM(s) (Optional)](#management-clusters-and-firewall-vms-optional)
-    - [ArgoCD deployment agent configuration](#argocd-deployment-agent-configuration)
-    - [Set Up pfSense Firewall VM](#set-up-pfsense-firewall-vm)
-    - [Configure rules](#configure-rules)
-    - [Set root ssh key](#set-root-ssh-key)
-    - [Install & Prepare the firewall operator (once per firewall instance)](#install--prepare-the-firewall-operator-once-per-firewall-instance)
+- [Prerequisites](#Prerequisites)
+  - [Logical Environments](#Logical-Environments)
+  - [OpenShift clusters](#OpenShift-clusters)
+  - [Github account](#Github-account)
+  - [Quay instance](#Quay-instance)
+  - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
+- [Fork and clone manuela-dev](#Fork-and-clone-manuela-dev)
+- [Planning your installation](#Planning-your-installation)
+- [Create the gitops repository](#Create-the-gitops-repository)
+  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: You set up a new environemnt and use a custom gitops repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
+- [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
+  - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
+  - [Instantiate ArgoCD](#Instantiate-ArgoCD)
+    - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
+    - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
+    - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
+    - [Remove manuela-temp-amq namespace](#Remove-manuela-temp-amq-namespace)
+  - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
+- [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
+- [Optional extensions](#Optional-extensions)
+  - [Development (Optional)](#Development-Optional)
+  - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
+  - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
+    - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
+    - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
+    - [Configure rules](#Configure-rules)
+    - [Set root ssh key](#Set-root-ssh-key)
+    - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
 
 ## Prerequisites
 
@@ -48,7 +49,7 @@ Management Cluster|Optional|manuela-nwpathoperator|ocp3 + pfSense VM|Cluster hos
 
 ### OpenShift clusters
 
-Two or more OpenShift cluster version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup.
+Two or more OpenShift cluster version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup. See [Planning your installation](#Planning-your-installation) for more details.
 
 ### Github account
 
@@ -75,6 +76,28 @@ Then, clone the your manuela-dev repository into your home directory. This repo 
 cd ~
 git clone https://github.com/<yourorg>/manuela-dev.git
 ```
+
+## Planning your installation
+
+Some general tips to plan your installation:
+* If you have clusters with different sizes, choose the largest to hold the CI/CD & Test environment.
+* CRW is also very resource intensive (~2 GB RAM per workspace) place it on the largest cluster as well.
+* The Line Data Server environment only consists of ArgoCD and the two machine sensors which are fairly lightweight.
+
+We suggest the following distributions:
+
+* Two clusters:
+  * Cluster 1: CRW, CI/CD & Test, Central Datacenter, Factory Datacenter
+  * Cluster 2: Line Data Server 
+* Three clusters:
+  * Cluster 1: CRW, CI/CD & Test, Central Datacenter
+  * Cluster 2: Factory Datacenter
+  * Cluster 3: Line Data Server
+* Four clusters:
+  * Cluster 1: CRW, CI/CD & Test
+  * Cluster 2: Central Datacenter
+  * Cluster 3: Factory Datacenter
+  * Cluster 4: Line Data Server
 
 ## Create the gitops repository
 
