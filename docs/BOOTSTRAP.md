@@ -58,8 +58,22 @@ The demo uses github for the gitops git workflow. You need a github account that
 ### Quay instance
 
 This demo uses quay as central registry. This can be quay.io or quay enterprise.
-TODO: create repositories, robot accounts, etc...
-Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organization/manuela?tab=robots) and note the .dockerconfigjson from the robo account "manuela-build".
+
+Create the repositories:
+* iot-consumer
+* iot-frontend
+* iot-anomaly-detection
+* iot-software-sensor
+
+![Quay Repositories](./images/quay-repositories.png)
+
+Also create a robot account "build".
+![Quay Robot Account](images/quay-robot-account.png)
+
+Ensure the robot account has write permissions to the repositories.
+![Quay Robot Account Repository Access](images/quay-robot-account-repo-access.png)
+
+Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organization/manuela?tab=robots) and note the .dockerconfigjson from the robo account "manuela-build". You will need store it in a secret when setting up the [CI and Test (Mandatory)](#CI-and-Test-Mandatory).
 
 ### Virtualization environment (Optional)
 
