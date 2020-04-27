@@ -4,18 +4,18 @@
 This demo modules show how to implement a code change to manuela component, potentially using CodeReady Workspaces as Cloud IDE.
 The story is that in the code processing temperature data, there is an unnecessary  conversion from celsius to fahrenheit that needs to be removed.
 
-- [Prerequisites](#Prerequisites)
-- [Demo Preparation](#Demo-Preparation)
-  - [Code Change Prep](#Code-Change-Prep)
-  - [Optional: Create CRW workspace](#Optional-Create-CRW-workspace)
-  - [Optional: Prepare CRW Workspace](#Optional-Prepare-CRW-Workspace)
-- [Demo Execution](#Demo-Execution)
-  - [Step 1: Optional: Login to CRW and open Workspace (Alternative: use your favorite editor)](#Step-1-Optional-Login-to-CRW-and-open-Workspace-Alternative-use-your-favorite-editor)
-  - [Step 2: Show the bug](#Step-2-Show-the-bug)
-  - [Step 3: Fix the bug](#Step-3-Fix-the-bug)
-  - [Step 4: Commit changes](#Step-4-Commit-changes)
-  - [Step 5: Push changes to git](#Step-5-Push-changes-to-git)
-  - [Step 6: Summary](#Step-6-Summary)
+- [Prerequisites](#prerequisites)
+- [Demo Preparation](#demo-preparation)
+  - [Code Change Prep](#code-change-prep)
+  - [Optional: Create CRW workspace](#optional-create-crw-workspace)
+  - [Optional: Prepare CRW Workspace](#optional-prepare-crw-workspace)
+- [Demo Execution](#demo-execution)
+  - [Step 1: Optional: Login to CRW and open Workspace (Alternative: use your favorite editor)](#step-1-optional-login-to-crw-and-open-workspace-alternative-use-your-favorite-editor)
+  - [Step 2: Show the bug](#step-2-show-the-bug)
+  - [Step 3: Fix the bug](#step-3-fix-the-bug)
+  - [Step 4: Commit changes](#step-4-commit-changes)
+  - [Step 5: Push changes to git](#step-5-push-changes-to-git)
+  - [Step 6: Summary](#step-6-summary)
 
 ## Prerequisites
 
@@ -30,7 +30,15 @@ If you want to demonstrate CRW, a workspace must be setup and prepared. If you h
 1. Check that the source code we are going to remove in manuela-dev/components/iot-consumer/index.js, line 117  is NOT commented out and looks like this:
 ![image alt text](images/crw_4.png)
 
-TODO - replace image with actual text
+In case the code got lost because someone deleted it instead of commenting out, here it is for easy cut'n'paste:
+
+```javascript
+    var modifiedValue = (Number(elements[2]) * 9/5) + 32;
+    var newData = data.replace(elements[2], modifiedValue);
+    message = Buffer.from(newData, 'utf8');
+```
+
+
 
 ### Optional: Create CRW workspace 
 Duration: 10 minutes  
@@ -114,6 +122,16 @@ Perform the demo with the following steps.
 ### Step 3: Fix the bug
 1. Fix the bug by adding the comments, don't forget to save if you disabled auto save!  
 ![image alt text](images/crw_6.png)
+
+As code snippet:
+```javascript
+/*
+    var modifiedValue = (Number(elements[2]) * 9/5) + 32;
+    var newData = data.replace(elements[2], modifiedValue);
+    message = Buffer.from(newData, 'utf8');
+*/
+```
+
 
 1. The component will be restarted immediately.
 1. Verify the bug is fixed in the dev environment (notice the steep step, below the red limit line):  
