@@ -11,6 +11,8 @@ This document describes how to prepare & execute the CI/CD pipeline & staging de
 
 The demo environment(s) have been [bootstrapped](BOOTSTRAP.md). It is a continuation of the [code change module](module-code-change.md). It can be prepared independently, but needs to be executed after it.
 
+Review the [staging concept](staging-concept.md).
+
 ## Demo Preparation
 
 TODO

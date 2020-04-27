@@ -25,7 +25,9 @@ You want to run the demo on an existing environment? Check out the individual ho
 - Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./module-code-change.md#Demo-execution)
 -  CI/CD pipeline & gitops staging [preparation](./docs/module-ci-cd-pipeline.md#Demo-preparation) - [demo execution](./docs/module-ci-cd-pipeline.md#Demo-execution)
 - Machine learning [preparation](./docs/module-machine-learning.md#Demo-preparation) - [demo execution](./docs/module-machine-learning.md#Demo-execution)
-- Infrastructure operator development [preparation](./docs/module-infrastructure-operator-development.md#Demo-preparation) - [demo execution](./docs/module-infrastructure-operator-development.md#Demo-execution) 
+- Infrastructure operator development [preparation](./docs/module-infrastructure-operator-development.md#Demo-preparation) - [demo execution](./docs/module-infrastructure-operator-development.md#Demo-execution)
+- Enterprise Container [preparation](./docs/module-enterprise-container.md#Demo-preparation) - [demo execution](./docs/module-enterprise-container.md#Demo-execution)
+- Multi Cluster Management [preparation](./docs/module-multicluster.md#Demo-preparation) - [demo execution](./docs/module-multicluster.md#Demo-execution)
 
 ### References
 - TODO: GitOps for large scale manufacturing
