@@ -289,7 +289,15 @@ oc apply -k tekton/secrets
 oc apply -k tekton
 ```
 
-TODO: Run the pipelines to ensure the images build and are pushed & deployed to manuela-tst-all
+### Seed the git ops repo and image registries
+
+In order to ensure that the container repositories, the manuela-tst-all namespace and the production environment have a working configuration to base demo runs on, run the seed pipeline to populate them: 
+
+```bash
+oc process -n manuela-ci seed | oc create -n manuela-ci -f -
+```
+
+Wait for the pipeline to complete successfully.
 
 ## Factory Datacenter & Line Data Server (Mandatory)
 For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
