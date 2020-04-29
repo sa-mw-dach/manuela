@@ -22,7 +22,7 @@ Your feedback is welcome - enter your feedback, issues, and enhancement requests
 You want to run the demo on an existing environment? Check out the individual horizontal modules below.
 - GitOps app deployment [preparation](./docs/module-app-deployment.md#Demo-preparation) - [demo execution](./docs/module-app-deployment.md#Demo-execution)
 - GitOps configuration management [preparation](./docs/module-configuration-management.md#Demo-preparation) - [demo execution](./docs/module-configuration-management.md#Demo-execution)
-- Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./module-code-change.md#Demo-execution)
+- Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./docs/module-code-change.md#demo-execution)
 -  CI/CD pipeline & GitOps staging [preparation](./docs/module-ci-cd-pipeline.md#Demo-preparation) - [demo execution](./docs/module-ci-cd-pipeline.md#Demo-execution)
 - Machine learning [preparation](./docs/module-machine-learning.md#Demo-preparation) - [demo execution](./docs/module-machine-learning.md#Demo-execution)
 - Infrastructure operator development [preparation](./docs/module-infrastructure-operator-development.md#Demo-preparation) - [demo execution](./docs/module-infrastructure-operator-development.md#Demo-execution)
