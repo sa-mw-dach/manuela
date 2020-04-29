@@ -4,7 +4,7 @@
 
 **Purpose**: Show an exemplary horizontal solution blueprint for IoT Edge use cases applicable to different verticals.
 
-This project is build and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well.
+This project is built and maintained by a group of solution architects at Red Hat. It originated from SAs responsible for diverse manufacturing customers in Germany and has grown to include other verticals as well.
 
 Your feedback is welcome - enter your feedback, issues, and enhancement requests [here](https://github.com/sa-mw-dach/manuela/issues).
 
@@ -20,10 +20,10 @@ Your feedback is welcome - enter your feedback, issues, and enhancement requests
 
 ### Use Cases 
 You want to run the demo on an existing environment? Check out the individual horizontal modules below.
-- Gitops app deployment [preparation](./docs/module-app-deployment.md#Demo-preparation) - [demo execution](./docs/module-app-deployment.md#Demo-execution)
-- Gitops configuration management [preparation](./docs/module-configuration-management.md#Demo-preparation) - [demo execution](./docs/module-configuration-management.md#Demo-execution)
+- GitOps app deployment [preparation](./docs/module-app-deployment.md#Demo-preparation) - [demo execution](./docs/module-app-deployment.md#Demo-execution)
+- GitOps configuration management [preparation](./docs/module-configuration-management.md#Demo-preparation) - [demo execution](./docs/module-configuration-management.md#Demo-execution)
 - Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./module-code-change.md#Demo-execution)
--  CI/CD pipeline & gitops staging [preparation](./docs/module-ci-cd-pipeline.md#Demo-preparation) - [demo execution](./docs/module-ci-cd-pipeline.md#Demo-execution)
+-  CI/CD pipeline & GitOps staging [preparation](./docs/module-ci-cd-pipeline.md#Demo-preparation) - [demo execution](./docs/module-ci-cd-pipeline.md#Demo-execution)
 - Machine learning [preparation](./docs/module-machine-learning.md#Demo-preparation) - [demo execution](./docs/module-machine-learning.md#Demo-execution)
 - Infrastructure operator development [preparation](./docs/module-infrastructure-operator-development.md#Demo-preparation) - [demo execution](./docs/module-infrastructure-operator-development.md#Demo-execution)
 - Enterprise Container [preparation](./docs/module-enterprise-container.md#Demo-preparation) - [demo execution](./docs/module-enterprise-container.md#Demo-execution)
@@ -50,7 +50,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - See and experience Hybrid Cloud in action
 - OpenShift Multi-Cluster Management
 - IoT Data Ingest 
-- AI/ML- How to train models in the public cloud with data from the private cloud, and bring the executable model back  to on prem.
+- AI/ML- How to train models in the public cloud with data from the private cloud, and bring the executable model back to on prem.
 
 
 ## (Red Hat) Technology involved
@@ -59,7 +59,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - AMQ (MQTT Message broker)
 - AMQ Streams (Kafka Event Broker, coming soon)
 - Tekton Pipelines
-- ArgoCD for gitops
+- ArgoCD for GitOps
 - Code Ready Workspaces (Development Environment)
 - Red Hat Virtualization (Optional, to provide multiple clusters)
 - Open Data Hub for machine learning use cases
