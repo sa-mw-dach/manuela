@@ -5,14 +5,14 @@
 The gitops repository uses only the single branch "master" to depict the
 desired state of the deployments.
 
-To stay within the git workflow concepts, changes staged for approval into  
-production are kept in a separate branch "staging-approval" in the same gitops 
+To stay within the git workflow concepts, changes staged for approval into
+production are kept in a separate branch "staging-approval" in the same gitops
 repository. This branch is created and populated automatically as part of the
 CI/CD pipeline flows.
 
-A pull request between staging-approval and master allows to review the changes 
-whcih are staged for production. Whoever is responsible for production can review and 
-approve or reject these changes. 
+A pull request between staging-approval and master allows to review the changes
+which are staged for production. Whoever is responsible for production can review and
+approve or reject these changes.
 
 ![Github Pull Request](./images/github-pull-request.png)
 
