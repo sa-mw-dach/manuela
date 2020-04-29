@@ -4,20 +4,20 @@ This document describes how to bootstrap (install from scratch) the complete dem
 - [Prerequisites](#Prerequisites)
   - [Logical Environments](#Logical-Environments)
   - [OpenShift clusters](#OpenShift-clusters)
-  - [Github account](#Github-account)
+  - [GitHub account](#Github-account)
   - [Quay instance](#Quay-instance)
   - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
 - [Fork and clone manuela-dev](#Fork-and-clone-manuela-dev)
 - [Planning your installation](#Planning-your-installation)
-- [Create the gitops repository](#Create-the-gitops-repository)
-  - [Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
-  - [Option 2: You set up a new environemnt and use a custom gitops repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
+- [Create the GitOps repository](#Create-the-gitops-repository)
+  - [Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: You set up a new environemnt and use a custom GitOps repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
 - [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
   - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
   - [Instantiate ArgoCD](#Instantiate-ArgoCD)
     - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
     - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
-    - [Validate gitops repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
+    - [Validate GitOps repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
     - [Remove manuela-temp-amq namespace](#Remove-manuela-temp-amq-namespace)
   - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
 - [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
@@ -29,19 +29,19 @@ This document describes how to bootstrap (install from scratch) the complete dem
     - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
     - [Configure rules](#Configure-rules)
     - [Set root ssh key](#Set-root-ssh-key)
-    - [Install & Prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
+    - [Install & prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
 
 ## Prerequisites
 
 ### Logical Environments
 
-This edge demo storyline spans multiple environments, from edge deployments over remote datacenters, central datacenters and public cloud environments. These logical environments can be mapped to a smaller number of physical environments. The following table gives an overview of the mapping in the stormshift environment:
+This edge demo storyline spans multiple environments, from edge deployments over remote datacenters and central datacenters to public cloud environments. These logical environments can be mapped to a smaller number of physical environments. The following table gives an overview of the mapping in the stormshift environment:
 
 Logical Environment Name|Status|Namespaces|Stormshift Mapping|Comments
 ---|---|---|---|---
 Development|Optional|iotdemo|ocp3|Development environment, hosts e.g. AMQ Broker for IOT App Dev
 CodeReady Workspaces|Optional|manuela-crw|ocp3|Development on-demand
-CI/CD & Test|Mandatory|manuela-ci, manuela-tst-all|ocp3|All in one CI/CD and functional testing environment
+CI/CD & Test|Mandatory|manuela-ci, manuela-tst-all|ocp3|All-in-one CI/CD and functional testing environment
 Factory Datacenter|Mandatory|manuela-\*-line-dashboard, manuela-\*-messaging|ocp3|Production environment in Factory
 Line Data Server|Mandatory|manuela-\*-machine-sensor|ocp4|Production environment in Factory, close to production line
 Central Datacenter|Mandatory| - |quay.io|Production environment in central datacenter, hosts enterprise registry
@@ -49,15 +49,15 @@ Management Cluster|Optional|manuela-nwpathoperator|ocp3 + pfSense VM|Cluster hos
 
 ### OpenShift clusters
 
-Two or more OpenShift cluster version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup. See [Planning your installation](#Planning-your-installation) for more details.
+Two or more OpenShift clusters version 4.3 or later are installed and running. You have administrative access to these clusters. The instructions assume you are logged into the correct OpenShift cluster depending on the logical environment mapping (see above) for your demo setup. See [Planning your installation](#Planning-your-installation) for more details.
 
 ### Github account
 
-The demo uses github for the gitops git workflow. You need a github account that can access the chosen gitops repository (see below) and have [Personal Access Token](https://github.com/settings/) with "repo" permissions.
+The demo uses GitHub for the GitOps git workflow. You need a GitHub account that can access the chosen GitOps repository (see below) and have a [Personal Access Token](https://github.com/settings/) with "repo" permissions.
 
 ### Quay instance
 
-This demo uses quay as central registry. This can be quay.io or quay enterprise.
+This demo uses quay as the central registry. This can be quay.io or quay enterprise.
 
 Create the repositories:
 * iot-consumer
@@ -95,7 +95,7 @@ git clone https://github.com/<yourorg>/manuela-dev.git
 
 Some general tips to plan your installation:
 * If you have clusters with different sizes, choose the largest to hold the CI/CD & Test environment.
-* CRW is also very resource intensive (~2 GB RAM per workspace) place it on the largest cluster as well.
+* Code Ready Workspaces is also very resource intensive (~2 GB RAM per workspace), place it on the largest cluster as well.
 * The Line Data Server environment only consists of ArgoCD and the two machine sensors which are fairly lightweight.
 
 We suggest the following distributions:
@@ -115,17 +115,18 @@ We suggest the following distributions:
 
 ## Create the gitops repository
 
-Unless you are using the stormshift environment, create a new gitops repository. You can choose a different name, but the subsquent docs assume it to reside in ~/manuela-gitops.
+Unless you are using the stormshift environment, create a new GitOps repository. You can choose a different name, but the subsequent docs assume it to reside in ~/manuela-gitops.
 
-### Option 1: You demo stormshift and use existing github.com/sa-mw-dach/manuela-gitops
+### Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops
 
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela-gitops.git
 ```
 
-### Option 2: You set up a new environemnt and use a custom gitops repository
-Create your own gitops repo from ```~/manuela-dev/gitops-repo-example```
+### Option 2: You set up a new environment and use a custom GitOps repository
+
+Create your own GitOps repo from ```~/manuela-dev/gitops-repo-example```
 ```bash
 cd ~
 git init manuela-gitops
@@ -135,19 +136,19 @@ git add .
 git commit -m "initial checkin"
 ```
 
-[Publish this new directory to Github](https://help.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line) and note the Github URL.
+[Publish this new directory to Github](https://help.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line) and note the GitHub URL.
 
 ```bash
 git remote add origin https://github.com/<yourorg>/<yourrepo>.git
 git push -u origin master
 ```
 
-Adjust the gitops repo to match your OCP clusters:
+Adjust the GitOps repo to match your OCP clusters:
 1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name.
 2. If you intend to demonstrate the firewall operator, do the same for the network paths between the clusters.
 3. In the directory representing the cluster which hosts the CI/CD and Test environment, leave the manuela-tst-all symlink and delete it in the other directories. Adjust the ```spec.source.repoURL``` value to match the gitops repo url.
-4. For each (physical) cluster and for each network path between them, create an ArgoCD application in ```~/manuela-gitops/meta``` based on the sample. Remember to adjust its ```metadata.name``` to match the cluster name, ```spec.source.repoURL``` to point to the GitHub URL and ```spec.source.path``` to point to the directory representing the cluster/networkpath in ```~/manuela-gitops/deployment```.
-5. Adjust the application configuration the configmaps in ```~/manuela-gitops/config/instances/manuela-tst/``` and ```~/manuela-gitops/config/instances/manuela-prod``` to match your environment:
+4. For each (physical) cluster and for each network path between them, create an ArgoCD application in ```~/manuela-gitops/meta``` based on the sample. Remember to adjust it's ```metadata.name``` to match the cluster name, ```spec.source.repoURL``` to point to the GitHub URL and ```spec.source.path``` to point to the directory representing the cluster/networkpath in ```~/manuela-gitops/deployment```.
+5. Adjust the application configuration of the configmaps in ```~/manuela-gitops/config/instances/manuela-tst/``` and ```~/manuela-gitops/config/instances/manuela-prod``` to match your environment:
    - Messaging URL for the machine-sensors
    - Messaging URL for the line-dashboard
 
@@ -159,9 +160,9 @@ git commit -m "adopted to match demo env"
 git push
 ```
 
-
 ## CI and Test (Mandatory)
 ### Create the namespaces and operators
+
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/openshift-pipelines
@@ -171,8 +172,8 @@ oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate ArgoCD
-Wait for the ArgoCD operator to be available.
 
+Wait for the ArgoCD operator to be available
 ```bash
 oc get pods -n argocd
 
@@ -180,13 +181,13 @@ NAME                                             READY   STATUS              RES
 argocd-operator-65dcf99d75-htjq4                 1/1     Running             0          114s
 ```
 
-Then instantiate ArgoCD and allow its service account to manage the cluster:
+Then instantiate ArgoCD and allow its service account to manage the cluster
 ```bash
 oc apply -k infrastructure/argocd
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
 
-Wait for the argocd resources to be created.
+Wait for the argocd resources to be created
 ```bash
 oc get secret argocd-secret -n argocd
 
@@ -194,7 +195,7 @@ NAME            TYPE     DATA   AGE
 argocd-secret   Opaque   2      2m12s
 ```
 
-Set the ArgoCD admin password to admin/admin:
+Set the ArgoCD admin password to admin/admin
 ```bash
 oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
@@ -216,21 +217,24 @@ NAME            HOST/PORT                               PATH   SERVICES        P
 argocd-server   argocd-server-argocd.apps-crc.testing          argocd-server   http   edge/Redirect   None
 ```
 
-#### Create cluster deployment agent configuration
-This also causes the manuela-tst-all testing project to be deployed via ArgocCD.
+#### Create the cluster deployment agent configuration
+
+This also causes the manuela-tst-all testing project to be deployed via ArgocCD
 ```bash
 oc create -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>.yaml
 ```
 
-#### Deploy ArgoCD Cli Tool (optional)
-Download the argocd binary, place it under /usr/local/bin and give it execution permissions
+#### Deploy the ArgoCD Cli Tool (optional)
+
+Download the ArgoCD binary, place it under /usr/local/bin and give it execution permissions
 ```bash
 sudo curl -L https://github.com/argoproj/argo-cd/releases/download/v1.4.1/argocd-linux-amd64 -o /usr/local/bin/argocd
 sudo chmod +x /usr/local/bin/argocd
 ```
-Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server
+Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to interact with the ArgoCD Server.
 
-#### Validate gitops repo via ArgoCD web UI
+#### Validate gitops repo via ArgoCD Web UI
+
 Log in via openshift auth (or use user: admin, password: admin) and validate that at least the cluster deployment agent configuration and manuela-tst-all is present.
 
 To get the ArgoCD URL use:
@@ -239,16 +243,17 @@ echo https://$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
 ```
 
 #### Remove manuela-temp-amq namespace
-This namespace was created to kickstart the argocd deployment of manuela-tst-all by making the AMQ Broker CRD known to the cluster. It can now be removed:
 
+This namespace was created to kickstart the ArgoCD deployment of manuela-tst-all by making the AMQ Broker CRD known to the cluster. It can now be removed:
 ```bash
 oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate Tekton Pipelines
+
 Adjust Tekton secrets to match your environments.
 
-Github Secret:
+GitHub Secret:
 ```bash
 cd ~/manuela-dev
 export GITHUB_PERSONAL_ACCESS_TOKEN=changeme
@@ -273,7 +278,7 @@ sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secr
 
 TODO: Adjust Tekton pipeline-resources and pipeline to match your environments. This step will hopefully go away with https://github.com/sa-mw-dach/manuela/issues/268 and https://github.com/sa-mw-dach/manuela/issues/269
 
-Then instantiate the pipelines.
+Then instantiate the pipelines
 ```bash
 cd ~/manuela-dev
 oc apply -k tekton/secrets
@@ -284,7 +289,6 @@ TODO: Run the pipelines to ensure the images build and are pushed & deployed to 
 
 ## Factory Datacenter & Line Data Server (Mandatory)
 For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
-
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/argocd
@@ -292,20 +296,19 @@ oc apply -k infrastructure/argocd
 oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
 
-Ensure the deployment agent configuration for the respective cluster is present:
+Ensure the deployment agent configuration for the respective cluster is present
 ```bash
 oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
 
-Refer to [Validate gitops repo via ArgoCD web UI](#validate-gitops-repo-via-argocd-web-ui) to validate the ArgoCD setup.
+Refer to [Validate GitOps repository via ArgoCD Web UI](#validate-gitops-repo-via-argocd-web-ui) to validate the ArgoCD setup.
 
 On the physical cluster representing the factory datacenter, ensure that the AMQ Broker CRD is instantiated, so that a rollout of a project containing the AMQ Broker CR will not fail via ArgoCD. If this hasn't happened as part of other steps, do the following:
-
 ```bash
 oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
-Then wait a little, then:
+Then wait a little, then
 ```bash
 oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
@@ -315,8 +318,7 @@ oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ### Development (Optional)
 You only need to install this if you intend to develop the demo application. This will provide you with an AMQ Broker and configurations to build and deploy the container images in the iotdemo namespace.
 
-Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-configmap.yaml``` ConfigMap to the target environment (Note: the software sensor components uses the internal service name to reach the AMQ broker, therefore do not need adjustments):
-
+Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-configmap.yaml``` ConfigMap to the target environment (Note: the software sensor components uses the internal service name to reach the AMQ broker, and therefore do not need adjustments):
 ```bash
 diff --git a/components/iot-frontend/manifests/iot-frontend-configmap.yaml b/components/iot-frontend/manifests/iot-frontend-configmap.yaml
 
@@ -337,7 +339,6 @@ index dac9161..363152e 100644
 ```
 
 Instantiate the development environment. Note: this will kick off a build of all components which will take several minutes.
-
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/iotdemo
@@ -347,8 +348,7 @@ oc apply -k components
 ### CodeReady Workspaces (Optional)
 If you want to demo the code change story line using CodeReady Workspaces instead of a local dev environment (or a simple git commit/push), you need to setup Code Ready Workspaces.
 
-This provides CodeReady Workspaces as alternative development environment.
-
+This provides CodeReady Workspaces as alternative development environment
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/manuela-crw
@@ -360,7 +360,7 @@ This will create the following:
 1. Create a new project manuela-crw in the current logged in OCP
 2. Create an OperatorGroup CR to make the OLM aware of an operator in this namespace
 3. Create an CRW Operator Subscription from the latest stable channel -> installs the CRW operator in the namespace manuela-crw
-4. Create an actual CheCluster in the namespace manuela-crw with following custom properties:
+4. Create an actual CheCluster in the namespace manuela-crw with following custom properties
 ```yaml
 customCheProperties:
   CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
@@ -393,7 +393,6 @@ Point your browser to the URL and  use your OpenShift Account (OpenShift OAuth i
 #### ArgoCD deployment agent configuration
 
 Ensure that ArgoCD is running on and able to manage the management cluster(s). See the instructions for the [Factory Datacenter & Line Data Server](#factory-datacenter--line-data-server-mandatory) for details. Create the deployment agent configuration:
-
 ```bash
 cd ~/manuela-gitops/meta/
 oc apply -n argocd -f argocd-nwpath-<cluster1>-<cluster2>.yaml
@@ -439,8 +438,7 @@ Replace these rules with a "Default deny all" rule blocking IP4+6.
 
 #### Set root ssh key
 
-For the demo ssh-access needs to additionally be enabled and keys generated, because the operator needs to be able to access the pfsense appliance via ansible. Generate a keypair which will be used to access the demo
-
+For the demo ssh-access needs to additionally be enabled and keys generated, because the operator needs to be able to access the pfsense appliance via Ansible. Generate a keypair which will be used to access the demo
 ```
 $ ssh-keygen -f keypair
 
@@ -520,22 +518,19 @@ Connection to 10.32.111.165 closed.
 ```
 #### Install & Prepare the firewall operator (once per firewall instance)
 
-Each firewall instance is represented by a namespace in the management cluster. These namespaces have to match the namespaces in the ```~/manuela-gitops/meta/argocd-nwpath-<cluster1>-<cluster2>.yaml``` files. Create the namespace via oc command. Replace manuela-networkpathoperator with your chosen namespace in the subsequent command examples.
-
+Each firewall instance is represented by a namespace in the management cluster. These namespaces have to match the namespaces in the ```~/manuela-gitops/meta/argocd-nwpath-<cluster1>-<cluster2>.yaml``` files. Create the namespace via oc command. Replace manuela-networkpathoperator with your chosen namespace in the subsequent command examples
 ```bash
 oc new-project manuela-networkpathoperator
 ```
 
-Prepare a secret for the operator deployment. Adjust hostname, username, SSH private key for firewall access as created before.
-
+Prepare a secret for the operator deployment. Adjust hostname, username, SSH private key for firewall access as created before
 ```bash
 cd ~/manuela-dev/networkpathoperator/firewallrule/deploy
 cp firewall-inventory-secret-example.yaml firewall-inventory-secret.yaml
 vi firewall-inventory-secret.yaml
 ```
 
-Deploy operator to new namespace:
-
+Deploy the operator to the new namespace
 ```bash
 cd ~/manuela-dev
 oc project manuela-networkpathoperator
@@ -543,14 +538,14 @@ oc apply -n manuela-networkpathoperator -f networkpathoperator/firewallrule/depl
 oc apply -k networkpathoperator/firewallrule/deploy
 ```
 
-Test the sample firewall rule:
+Test the sample firewall rule
 ```bash
 oc apply -n manuela-networkpathoperator -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
 ```
 
-Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**. Then remove the firewall rule:
-
+Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is created appropriately in the firewall **(via firewall UI)**. Then remove the firewall rule
 ```bash
 oc delete -n manuela-networkpathoperator -f deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml
 ```
+
 Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is removed appropriately from the firewall **(via firewall UI)**.
