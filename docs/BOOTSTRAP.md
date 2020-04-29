@@ -235,7 +235,7 @@ Now you should be able to use the ArgoCD WebUI and the ArgoCD Cli tool to intera
 
 #### Validate gitops repo via ArgoCD Web UI
 
-Log in via openshift auth (or use user: admin, password: admin) and validate that at least the cluster deployment agent configuration and manuela-tst-all is present.
+Log in via OpenShift authentication (or use user: admin, password: admin) and validate that at least the cluster deployment agent configuration and manuela-tst-all is present.
 
 To get the ArgoCD URL use:
 ```bash
@@ -381,7 +381,7 @@ CRW should be available after about 3-5 minutes after the previous installation 
     postgres-55ccbdccb-cnnbc              1/1     Running   0          7m48s
     ```
 
-2. check that you can login. Look for the route with the name **codeready:**
+2. Check that you can login. Look for the route with the name **codeready:**
 ```bash
 echo https://$(oc -n manuela-crw get route codeready -o jsonpath='{.spec.host}')
 ```
