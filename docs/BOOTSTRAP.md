@@ -1,35 +1,39 @@
 # Bootstrap <!-- omit in toc -->
 This document describes how to bootstrap (install from scratch) the complete demo. This is separate from and in addition to the [quickstart](QUICKSTART.md) which describes a simplified setup and demo runthrough on a single cluster and the actual demo preparation and execution steps.
 
-- [Prerequisites](#Prerequisites)
-  - [Logical Environments](#Logical-Environments)
-  - [OpenShift clusters](#OpenShift-clusters)
-  - [GitHub account](#Github-account)
-  - [Quay instance](#Quay-instance)
-  - [Virtualization environment (Optional)](#Virtualization-environment-Optional)
-- [Fork and clone manuela-dev](#Fork-and-clone-manuela-dev)
-- [Planning your installation](#Planning-your-installation)
-- [Create the GitOps repository](#Create-the-gitops-repository)
-  - [Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops](#Option-1-You-demo-stormshift-and-use-existing-githubcomsa-mw-dachmanuela-gitops)
-  - [Option 2: You set up a new environemnt and use a custom GitOps repository](#Option-2-You-set-up-a-new-environemnt-and-use-a-custom-gitops-repository)
-- [CI and Test (Mandatory)](#CI-and-Test-Mandatory)
-  - [Create the namespaces and operators](#Create-the-namespaces-and-operators)
-  - [Instantiate ArgoCD](#Instantiate-ArgoCD)
-    - [Create cluster deployment agent configuration](#Create-cluster-deployment-agent-configuration)
-    - [Deploy ArgoCD Cli Tool (optional)](#Deploy-ArgoCD-Cli-Tool-optional)
-    - [Validate GitOps repo via ArgoCD web UI](#Validate-gitops-repo-via-ArgoCD-web-UI)
-    - [Remove manuela-temp-amq namespace](#Remove-manuela-temp-amq-namespace)
-  - [Instantiate Tekton Pipelines](#Instantiate-Tekton-Pipelines)
-- [Factory Datacenter & Line Data Server (Mandatory)](#Factory-Datacenter--Line-Data-Server-Mandatory)
-- [Optional extensions](#Optional-extensions)
-  - [Development (Optional)](#Development-Optional)
-  - [CodeReady Workspaces (Optional)](#CodeReady-Workspaces-Optional)
-  - [Management Cluster(s) and Firewall VM(s) (Optional)](#Management-Clusters-and-Firewall-VMs-Optional)
-    - [ArgoCD deployment agent configuration](#ArgoCD-deployment-agent-configuration)
-    - [Set Up pfSense Firewall VM](#Set-Up-pfSense-Firewall-VM)
-    - [Configure rules](#Configure-rules)
-    - [Set root ssh key](#Set-root-ssh-key)
-    - [Install & prepare the firewall operator (once per firewall instance)](#Install--Prepare-the-firewall-operator-once-per-firewall-instance)
+- [Prerequisites](#prerequisites)
+  - [Logical Environments](#logical-environments)
+  - [OpenShift clusters](#openshift-clusters)
+  - [Github account](#github-account)
+  - [Quay instance](#quay-instance)
+  - [Virtualization environment (Optional)](#virtualization-environment-optional)
+- [Fork and clone manuela-dev](#fork-and-clone-manuela-dev)
+- [Planning your installation](#planning-your-installation)
+- [Create the gitops repository](#create-the-gitops-repository)
+  - [Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops](#option-1-you-demo-stormshift-and-use-the-existing-githubcomsa-mw-dachmanuela-gitops)
+  - [Option 2: You set up a new environment and use a custom GitOps repository](#option-2-you-set-up-a-new-environment-and-use-a-custom-gitops-repository)
+- [CI and Test (Mandatory)](#ci-and-test-mandatory)
+  - [Create the namespaces and operators](#create-the-namespaces-and-operators)
+  - [Instantiate ArgoCD](#instantiate-argocd)
+    - [Create the cluster deployment agent configuration](#create-the-cluster-deployment-agent-configuration)
+    - [Deploy the ArgoCD Cli Tool (optional)](#deploy-the-argocd-cli-tool-optional)
+    - [Validate gitops repo via ArgoCD Web UI](#validate-gitops-repo-via-argocd-web-ui)
+    - [Remove manuela-temp-amq namespace](#remove-manuela-temp-amq-namespace)
+  - [Instantiate Tekton Pipelines](#instantiate-tekton-pipelines)
+- [Factory Datacenter & Line Data Server (Mandatory)](#factory-datacenter--line-data-server-mandatory)
+- [Optional extensions](#optional-extensions)
+  - [Development (Optional)](#development-optional)
+  - [CodeReady Workspaces (Optional)](#codeready-workspaces-optional)
+  - [Management Cluster(s) and Firewall VM(s) (Optional)](#management-clusters-and-firewall-vms-optional)
+    - [ArgoCD deployment agent configuration](#argocd-deployment-agent-configuration)
+    - [Set Up pfSense Firewall VM](#set-up-pfsense-firewall-vm)
+    - [Configure rules](#configure-rules)
+    - [Set root ssh key](#set-root-ssh-key)
+    - [Install & Prepare the firewall operator (once per firewall instance)](#install--prepare-the-firewall-operator-once-per-firewall-instance)
+  - [Machine Learning based Anomaly Detection and Alerting (Optional)](#machine-learning-based-anomaly-detection-and-alerting-optional)
+    - [Stormshift test and prod](#stormshift-test-and-prod)
+      - [Bootstrap and configure Anomaly Detection Service in manuela-tst-all](#bootstrap-and-configure-anomaly-detection-service-in-manuela-tst-all)
+  - [Build iot-anomaly-detection container](#build-iot-anomaly-detection-container)
 
 ## Prerequisites
 
@@ -549,3 +553,66 @@ oc delete -n manuela-networkpathoperator -f deploy/crds/manuela.redhat.com_v1alp
 ```
 
 Validate that the firewall rule in deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml is removed appropriately from the firewall **(via firewall UI)**.
+
+
+### Machine Learning based Anomaly Detection and Alerting (Optional)
+
+Machine Learning based alerting is not enabled by default in the iotdemo and stormshift (test & prod) environment. The following section describes how to enable and disable the Machine Learning based Anomaly Detection and Alerting for iotdemo and stormshift (prod) environment.
+
+Note, the steps how to deploy an OpenDataHub with JupyterHub is described in the [Demo Preparation](./module-machine-learning.md#Prerequisites ) 
+
+#### Stormshift test and prod
+Let's look at the Stormshift test & prod first.
+Please clone the ```manuela-dev``` repo first.
+
+
+##### Bootstrap and configure Anomaly Detection Service in manuela-tst-all
+
+login into ocp3 as admin or with admin privileges 
+```
+oc login -u XXX -p XXXX --server=https://api.ocp3.stormshift.coe.muc.redhat.com:6443
+```
+
+
+**Install Seldon CRD**
+
+Check if seldon CRD is deployed:
+
+```
+oc get crds | grep seldon
+```
+
+Expected results:
+```
+seldondeployments.machinelearning.seldon.io                2020-04-13T10:41:50Z
+```
+
+If not, apply seldon-deployment-crd.yaml
+```
+oc apply -f ./manuela-dev/namespaces_and_operator_subscriptions/opendatahub/seldon-deployment-crd.yaml
+```
+
+**Enable ODH and Seldon service**
+
+Edit ```manuela-gitops/config/instances/manuela-tst/kustomization.yaml```
+and uncomment the line  ```../../templates/manuela-openshift/anomaly-detection```
+
+For example ... 
+
+ ```
+# Comment out the following line if you don't want to run anomaly-detection (ODH)
+- ../../templates/manuela-openshift/anomaly-detection
+```
+
+Push changes to master. ArgoCD will pickup the change.
+
+### Build iot-anomaly-detection container
+
+Run iot-anomaly-detection-pipeline to build or rebuild image. Either by starting the rerunning the last pipeline run or with the following command.
+
+```
+oc apply -f manuela-dev/tekton/pipeline-runs/iot-anomaly-detection-pipeline-run-1.yaml -n manuela-ci
+```
+
+Watch the pipeline run in the UI to complete
+
