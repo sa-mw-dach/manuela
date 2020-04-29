@@ -14,7 +14,7 @@ A pull request between staging-approval and master allows to review the changes
 which are staged for production. Whoever is responsible for production can review and
 approve or reject these changes.
 
-![Github Pull Request](./images/github-pull-request.png)
+![GitHub Pull Request](./images/github-pull-request.png)
 
 If the changes are approved, the branch is merged into master. Optionally, the branch
 can be deleted.
