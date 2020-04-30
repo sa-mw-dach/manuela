@@ -4,18 +4,18 @@
 This demo modules show how to implement a code change to manuela component, potentially using CodeReady Workspaces as Cloud IDE.
 The story is that in the code processing temperature data, there is an unnecessary  conversion from celsius to fahrenheit that needs to be removed.
 
-- [Prerequisites](#prerequisites)
-- [Demo Preparation](#demo-preparation)
-  - [Code Change Prep](#code-change-prep)
-  - [Optional: Create CRW workspace](#optional-create-crw-workspace)
-  - [Optional: Prepare CRW Workspace](#optional-prepare-crw-workspace)
-- [Demo Execution](#demo-execution)
-  - [Step 1: Optional: Login to CRW and open Workspace (Alternative: use your favorite editor)](#step-1-optional-login-to-crw-and-open-workspace-alternative-use-your-favorite-editor)
-  - [Step 2: Show the bug](#step-2-show-the-bug)
-  - [Step 3: Fix the bug](#step-3-fix-the-bug)
-  - [Step 4: Commit changes](#step-4-commit-changes)
-  - [Step 5: Push changes to git](#step-5-push-changes-to-git)
-  - [Step 6: Summary](#step-6-summary)
+- [Prerequisites](#Prerequisites)
+- [Demo Preparation](#Demo-Preparation)
+  - [Code Change Prep](#Code-Change-Prep)
+  - [Optional: Create CRW workspace](#Optional-Create-CRW-workspace)
+  - [Optional: Prepare CRW Workspace](#Optional-Prepare-CRW-Workspace)
+- [Demo Execution](#Demo-Execution)
+  - [Step 1: Optional: Login to CRW and open Workspace (Alternative: use your favorite editor)](#Step-1-Optional-Login-to-CRW-and-open-Workspace-Alternative-use-your-favorite-editor)
+  - [Step 2: Show the bug](#Step-2-Show-the-bug)
+  - [Step 3: Fix the bug](#Step-3-Fix-the-bug)
+  - [Step 4: Commit changes](#Step-4-Commit-changes)
+  - [Step 5: Push changes to git](#Step-5-Push-changes-to-git)
+  - [Step 6: Summary](#Step-6-Summary)
 
 ## Prerequisites
 
@@ -24,6 +24,8 @@ The demo environment(s) have been [bootstrapped](BOOTSTRAP.md) and Code Ready Wo
 ## Demo Preparation
 
 If you want to demonstrate CRW, a workspace must be setup and prepared. If you have a lot of time for the demo, you could do the prep in the demo to explain and show the stuff.
+
+You will probably want to run through the ci-cd demo right after this module. Be sure to review [its preparation](module-ci-cd-pipeline.md#Demo-preparation) steps as well.
 
 ### Code Change Prep
 
