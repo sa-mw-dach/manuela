@@ -18,7 +18,7 @@ Review the [staging concept](staging-concept.md) and the pipelines [README](http
 Validate that all components in the manuela-tst-all project are working correctly (otherwise the ArgoCD sync task might fail because it waits for all components to come up). If a single component is failing, you can run its build-and-test pipeline to fix the problem (see below). If it's more than one component, you can use the seed pipeline to build and deploy new versions of all components to test and prod.
 
 ```bash
-oc process -n manuela-ci seed | oc process -n manuela-ci -f -
+oc process -n manuela-ci seed | oc create -n manuela-ci -f -
 ```
 
 Go to the gitops repo on GitHub and close any pending pull requests. Then delete the "staging-approval" branch.
@@ -30,7 +30,7 @@ Review the GitHub ops repository and show that currently, only the master branch
 Once a code change has been performed, committed and pushed to the GitHub dev repository, launch the pipeline via the OpenShift template:
 
 ```bash
-oc process -n manuela-ci build-iot-consumer | oc process -n manuela-ci -f -
+oc process -n manuela-ci build-iot-consumer | oc create -n manuela-ci -f -
 ```
 
 Now that the pipeline is running, you have time to review its stages via the OpenShift Pipelines UI:
