@@ -257,6 +257,7 @@ oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 
 ### Instantiate Tekton Pipelines
 
+#### Adjust secrets
 Adjust Tekton secrets to match your environments.
 
 GitHub Secret:
@@ -282,8 +283,10 @@ export QUAY_BUILD_SECRET=ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV
 sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secrets/quay-build-secret-example.yaml >tekton/secrets/quay-build-secret.yaml
 ```
 
-TODO: Adjust Tekton pipeline-resources and pipeline to match your environments. This step will hopefully go away with https://github.com/sa-mw-dach/manuela/issues/268 and https://github.com/sa-mw-dach/manuela/issues/269
+#### Adjust Config Map
+Adjust Tekton environment config map to match your environment. Unless you are deviating from the manuela-gitops repository structure and contents, you only need to change the values which begin with GIT_.
 
+#### Instantiate Pipelines
 Then instantiate the pipelines
 ```bash
 cd ~/manuela-dev
@@ -291,7 +294,15 @@ oc apply -k tekton/secrets
 oc apply -k tekton
 ```
 
-TODO: Run the pipelines to ensure the images build and are pushed & deployed to manuela-tst-all
+### Seed the git ops repo and image registries
+
+In order to ensure that the container repositories, the manuela-tst-all namespace and the production environment have a working configuration to base demo runs on, run the seed pipeline to populate them: 
+
+```bash
+oc process -n manuela-ci seed | oc create -n manuela-ci -f -
+```
+
+Wait for the pipeline to complete successfully.
 
 ## Factory Datacenter & Line Data Server (Mandatory)
 For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
