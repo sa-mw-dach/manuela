@@ -585,7 +585,7 @@ oc login -u XXX -p XXXX --server=https://api.ocp3.stormshift.coe.muc.redhat.com:
 ```
 
 
-**Install Seldon CRD**
+_**Install Seldon CRD**_ 
 
 Check if seldon CRD is deployed:
 
@@ -604,7 +604,7 @@ oc apply -f . https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/na
 
 ```
 
-**Enable ODH and Seldon service**
+_**Enable ODH and Seldon service**_ 
 
 Edit ```~/manuela-gitops/config/instances/manuela-tst/kustomization.yaml```
 and uncomment the line  ```../../templates/manuela-openshift/anomaly-detection```
@@ -620,7 +620,7 @@ For example ...
 
 Push changes to master. ArgoCD will pickup the change.
 
-**Build iot-anomaly-detection container by running the pipeline**
+_**Build iot-anomaly-detection container by running the pipeline**_ 
 
 Run iot-anomaly-detection-pipeline to build or rebuild image. Either by starting the rerunning the last pipeline run or with the following commands.
 
@@ -633,7 +633,7 @@ oc process -n manuela-ci build-iot-anomaly-detection | oc create -n manuela-ci -
 Watch the pipeline run in the UI to complete
 
 
-**Test the anomaly detection service**
+_**Test the anomaly detection service**_ 
 
 ```
 curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [[16.1,  15.40,  15.32,  13.47,  17.70]]}}" https://$(oc get route anomaly-detection -o jsonpath='{.spec.host}')/api/v0.1/predictions
@@ -661,7 +661,7 @@ Expexted result:
 ```
 
 
-**Enable the vibration alert and vibration anomaly detection in the messaging-configmap**
+_**Enable the vibration alert and vibration anomaly detection in the messaging-configmap**_ 
 
 Update the messaging config map:  
 
@@ -729,7 +729,7 @@ Prerequitsites:
 
 
 
-**Enable ODH and Seldon service**
+_**Enable ODH and Seldon service**_
 
 Let's assume you cloned the manuela-gitops repository already.
 
@@ -741,7 +741,7 @@ ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-opendatahub-a
 ```
 
 
-**Enable Vibration Alert and Vibration Anomaly detection in messaging-configmap of manuela-stormshift**
+_**Enable Vibration Alert and Vibration Anomaly detection in messaging-configmap of manuela-stormshift**_
 
 
 Update the messaging config map:  
