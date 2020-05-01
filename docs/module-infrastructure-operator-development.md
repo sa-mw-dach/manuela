@@ -399,3 +399,5 @@ redhat-operators-5895fbb9d7-kxh7v        1/1     Running   0          22h
 Show that the operator appears in the OLM catalog:
 
 ![OLM Catalog](images/olm.png)
+
+If you instantiate the operator in a namespace, you still have to create the inventory secret in the namespace you install to. Otherwise the operator container will not come up and it will not leave the state "Installing" in OLM.
