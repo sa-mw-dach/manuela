@@ -7,19 +7,21 @@ This document describes how to prepare & execute the infrastructure operator dev
 - [Demo Preparation](#Demo-Preparation)
 - [Demo Execution](#Demo-Execution)
   - [Create project scaffolding](#Create-project-scaffolding)
-  - [Adjust Dockerfile to include dependencies](#Adjust-Dockerfile-to-include-dependencies)
-  - [Create firewall secret and add to deployment](#Create-firewall-secret-and-add-to-deployment)
-  - [Adjust playbook.yaml to load secret data into inventory](#Adjust-playbookyaml-to-load-secret-data-into-inventory)
-  - [Adjust roles/firewallrule/tasks/main.yml to create firewall rules](#Adjust-rolesfirewallruletasksmainyml-to-create-firewall-rules)
-  - [Adjust the sample CR to provide the required data](#Adjust-the-sample-CR-to-provide-the-required-data)
-  - [Adjust watches.yaml to cascade CR delete to managed resource](#Adjust-watchesyaml-to-cascade-CR-delete-to-managed-resource)
+  - [Write the operator code](#Write-the-operator-code)
+    - [Adjust Dockerfile to include dependencies](#Adjust-Dockerfile-to-include-dependencies)
+    - [Create firewall secret and add to deployment](#Create-firewall-secret-and-add-to-deployment)
+    - [Adjust playbook.yaml to load secret data into inventory](#Adjust-playbookyaml-to-load-secret-data-into-inventory)
+    - [Adjust roles/firewallrule/tasks/main.yml to create firewall rules](#Adjust-rolesfirewallruletasksmainyml-to-create-firewall-rules)
+    - [Adjust the sample CR to provide the required data](#Adjust-the-sample-CR-to-provide-the-required-data)
+    - [Adjust watches.yaml to cascade CR delete to managed resource](#Adjust-watchesyaml-to-cascade-CR-delete-to-managed-resource)
   - [Optional: test the operator locally](#Optional-test-the-operator-locally)
-  - [Build & push the operator container image](#Build--push-the-operator-container-image)
-  - [Adjust the deployment to reference operator container image](#Adjust-the-deployment-to-reference-operator-container-image)
-  - [Deploy the operator](#Deploy-the-operator)
+  - [Deploy the operator directly](#Deploy-the-operator-directly)
+    - [Build & push the operator container image](#Build--push-the-operator-container-image)
+    - [Adjust the deployment to reference operator container image](#Adjust-the-deployment-to-reference-operator-container-image)
+    - [Deploy the operator](#Deploy-the-operator)
   - [Test the operator](#Test-the-operator)
   - [Cleanup](#Cleanup)
-  - [Prepare deployment via OLM](#Prepare-deployment-via-OLM)
+  - [Deploy the operator via OLM](#Deploy-the-operator-via-OLM)
     - [Create manifests](#Create-manifests)
     - [Wrap manifests](#Wrap-manifests)
     - [Create index](#Create-index)
@@ -49,8 +51,12 @@ These instructions assume you will be building the FirewallRule operator. Adjust
 - We will use operator-sdk to create the scaffolding for an ansible-based operator.
 - The scaffolding assumes the operator will manage kubernetes resources in the same cluster. This is not the case, therefore we need to perform some adjustments to add the external resource to the runtime ansibme inventory and execute the playbook against the external resource.
 - We will then write ansible code to apply the data provided in the kubernetes custom resource to the externally managed resource (creation and deletion, no reconciliation if the resource was changed outside the operator).
+- We will test the operator on the cluster directly
+- Finally, we will use the OLM to make the operator available in the cluster
 
 The instructions are written as if you are developing the operator from scratch. You can also simply clone the [manuela-dev](https://github.com/sa-mw-dach/manuela-dev) repo with the [existing firewall rule operator](https://github.com/sa-mw-dach/manuela-dev/tree/master/networkpathoperator/firewallrule) and follow along, pointing out the relevant code snippets in the existing code.
+
+
 
 ### Create project scaffolding
 
@@ -62,7 +68,10 @@ operator-sdk new firewallrule --type ansible --kind FirewallRule --api-version m
 cd firewallrule
 ```
 
-### Adjust Dockerfile to include dependencies
+
+### Write the operator code
+
+#### Adjust Dockerfile to include dependencies
 
 Add the following lines in ```build/Dockerfile``` right after the ```FROM``` statement to ensure the openssh-clients (required for Ansible access to external resources) and other required RPMs and modules from Ansible Galaxy are present:
 
@@ -72,7 +81,7 @@ RUN dnf -y install openssh-clients && ansible-galaxy collection install pfsensib
 USER 1001
 ```
 
-### Create firewall secret and add to deployment
+#### Create firewall secret and add to deployment
 
 Create a kubernetes secret ```deploy/firewall-secret.yaml``` containing the access information required to access the infrastructure resource, i.e. hostname, username and SSH private key.
 
@@ -110,7 +119,7 @@ Also add the following stanza to ```spec.template.spec.volumes``` to make the se
             defaultMode: 256
 ```
 
-### Adjust playbook.yaml to load secret data into inventory
+#### Adjust playbook.yaml to load secret data into inventory
 
 Insert the following task before the existing task to ensure that the inventory from the secret is loaded into the ansible runtime. This creates a new group "firewall" in the inventory with the external resource as its only member. You could chose a different group name as well.
 
@@ -137,7 +146,7 @@ In the second (the existing task), change the hosts from 'localhost' to 'firewal
 A [finished example](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/playbook.yml) can be found in the manuela-dev repo.
 
 
-### Adjust roles/firewallrule/tasks/main.yml to create firewall rules
+#### Adjust roles/firewallrule/tasks/main.yml to create firewall rules
 
 We use the pfsensible modules from ansible galaxy to create or delete firewall rules with the data provided from the custom resource. The custom resource data metadata will be provided in a variable called "meta", anything under ```.spec``` will be provided as its own variable.
 
@@ -163,7 +172,7 @@ Add the following task to ```roles/firewallrule/tasks/main.yml```:
     state: "{{ state|default('present',true) }}"
 ```
 
-### Adjust the sample CR to provide the required data
+#### Adjust the sample CR to provide the required data
 
 Provide sample data as the ansible module expects in ```deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml```: 
 
@@ -186,7 +195,7 @@ spec:
 
 Note: Adjusting the CRD is not in scope of this demo. It could be adjusted with a schema definition to allow the Kubernetes API server provide validation of the CR and reject invalid CRs.
 
-### Adjust watches.yaml to cascade CR delete to managed resource
+#### Adjust watches.yaml to cascade CR delete to managed resource
 
 Add the following stanza to the existing entry in the watches.yaml file like the [sample](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/watches.yaml). This ensures that the ansible playbook is also run with the variable "state" set to "absent" when the custom resource is deleted. Per default the kubernetes-internal parent-child relations ensure that a delete of the custom resource is cascaded to all its children, but since the resource the operator is managing is not a kubernetes object, an explicit deletion run is required. [More information in the SDK Docs.](https://github.com/operator-framework/operator-sdk/blob/master/doc/ansible/dev/finalizers.md).
 
@@ -204,13 +213,15 @@ If you do not feel confident your code will work, it makes sense to test the ope
 
 The [instructions to test the operator](#Test-the-operator) describe how to create and delte CRs th local operator can react on. It will use the current openshift project of the oc client.
 
-### Build & push the operator container image
+### Deploy the operator directly
+
+#### Build & push the operator container image
 
 Build the container image by executing ```sudo operator-sdk build your.registry/namespace/imagename:tag with``` your selection of registry/namespace/imagename/tag. If you omit ":tag" it will assume ":latest", ensure to omit it in the subsequent steps as well.
 
 Push the container image to the registry by executing ```sudo docker push your.registry/namespace/imagename:tag```
 
-### Adjust the deployment to reference operator container image
+#### Adjust the deployment to reference operator container image
 
 Linux
 ```bash
@@ -222,7 +233,7 @@ OSX
 $ sed -i "" "s|REPLACE_IMAGE|your.registry/namespace/imagename:tag|g" deploy/operator.yaml
 ```
 
-### Deploy the operator
+#### Deploy the operator
 
 Create a new project via ```oc new-project operator-test```
 
@@ -267,7 +278,7 @@ You need to ensure that all CRs are deleted before the operator itself is delete
 
 Once all CRs are deleted, you can remove the operator either by ```oc delete project operator-test``` or by ```oc delete -k deploy```, keeping the project.
 
-### Prepare deployment via OLM
+### Deploy the operator via OLM
 
 Deploying the operator is a four-step process:
 
