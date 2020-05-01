@@ -285,7 +285,7 @@ sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secr
 ```
 
 #### Adjust Config Map
-Adjust Tekton environment config map to match your environment. Unless you are deviating from the manuela-gitops repository structure and contents, you only need to change the values which begin with GIT_.
+Adjust Tekton environment config map to match your environment. Unless you are deviating from the manuela-gitops repository structure and contents, you only need to change the values which begin with GIT_ or end with _REMOTE_IMAGE.
 
 #### Instantiate Pipelines
 Then instantiate the pipelines
