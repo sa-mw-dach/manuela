@@ -19,13 +19,19 @@ This document describes how to prepare & execute the infrastructure operator dev
   - [Deploy the operator](#Deploy-the-operator)
   - [Test the operator](#Test-the-operator)
   - [Cleanup](#Cleanup)
+  - [Prepare deployment via OLM](#Prepare-deployment-via-OLM)
+    - [Create manifests](#Create-manifests)
+    - [Wrap manifests](#Wrap-manifests)
+    - [Create index](#Create-index)
+    - [Create CatalogSource in cluster](#Create-CatalogSource-in-cluster)
 
 ## Prerequisites
 
 - You need an OpenShift environment - it does not have to be a bootstrapped Manuela environment; CRC is fine. 
 - You need an infrastructure element (e.g. pfSense firewall) you will configure which is set up to be managed by Ansible. You have the required SSH private key available to access the infrastructure element. See the [bootstrap instructions on how to set up and configure pfsense](BOOTSTRAP.md#Management-Clusters-and-Firewall-VMs-Optional).
-- You also need to have a nanespace in a docker registry from which your management cluster can pull and you can push the operator images to.
-- You can either use Vagrant to bootstrap a development environment on your laptop in a VM, or use a Linux environment with docker, ansible, the required python modules for kubernetes and openshift as well as the operator-sdk installed.
+- You also need to have a namespace in a docker registry from which your management cluster can pull and you can push the operator images to.
+- For the operator deployment via OLM, you need another two namespaces in a docker registry (...-catalog and ...-index).
+- You can either use Vagrant to bootstrap a development environment on your laptop in a VM, or use a Linux environment with docker, ansible, the required python modules for kubernetes and openshift as well as the operator-sdk (v0.17 or later) and opm (operator package manager, v1.11.1 or later) installed.
 - Understand how the [pfSense firewall rule operator](https://github.com/sa-mw-dach/manuela-dev/tree/master/networkpathoperator/firewallrule) is built and deployed.
 
 ## Demo Preparation
@@ -260,3 +266,125 @@ Again, after a short while, the firewall rule should be no longer visible in the
 You need to ensure that all CRs are deleted before the operator itself is deleted from the cluster. Otherwise kubernetes will wait for the finalizer to be removed, which doesn't happen since the operator is gone, creating a deadlock that can only be resolved by editing the CR and removing the finalizer string manually.
 
 Once all CRs are deleted, you can remove the operator either by ```oc delete project operator-test``` or by ```oc delete -k deploy```, keeping the project.
+
+### Prepare deployment via OLM
+
+Deploying the operator is a four-step process:
+
+1. Create a manifest containing the ClusterServiceVersion CRD that describes the operator version
+2. Wrap the manifests in a container image and make it available in a container registry
+3. Create an Operator Registry Index container image and make it available in a container registry
+4. Create a CatalogSource CRD and deploy it to the target cluster to make the catalog source known to the cluster
+
+#### Create manifests
+
+Generate the deploy/olm-catalog scaffolding:
+
+```bash
+operator-sdk generate csv --csv-version 0.0.1
+```
+
+In the generated manifest, modify ```spec.keywords``` and ```spec.provider``` as follows. You can also provide a base64 encoded image in your CSV that will be displayed in the OLM UI. Encode this image via ```cat image.png | base64```:
+
+```diff
+diff --git a/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml b/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
+index f9eb843..119eda0 100644
+--- a/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
++++ b/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
+@@ -34,8 +34,8 @@ spec:
+       version: v1alpha1
+   displayName: Firewallrule
+   icon:
+-  - base64data: ""
+-    mediatype: ""
++  - base64data: "iVBORw0KGgoAAAANSUh...ASUVORK5CYII="
++    mediatype: "image/png"
+   install:
+     spec:
+       deployments:
+@@ -180,12 +180,16 @@ spec:
+     type: SingleNamespace
+   - supported: false
+     type: MultiNamespace
+-  - supported: true
++  - supported: false
+     type: AllNamespaces
+   keywords:
+-  - ""
++  - "pfsense"
++  - "firewall"
++  - "manuela"
+   maintainers:
+   - {}
+   maturity: alpha
+-  provider: {}
++  provider:
++    name: Manuela Team
++    url: https://github.com/sa-mw-dach/manuela
+   version: 0.0.1
+```
+
+#### Wrap manifests 
+
+Create container image wrapping the manifests:
+
+```bash
+sudo operator-sdk bundle create quay.io/manuela/firewallruleoperator-catalog --channels alpha --package firewallruleoperator-catalog --directory deploy/olm-catalog/firewallrule/manifests/
+```
+
+Push manifest container image to the registry:
+
+```bash
+sudo docker push quay.io/manuela/firewallruleoperator-catalog:latest
+```
+
+#### Create index
+
+```bash
+sudo opm index add -c docker --bundles quay.io/manuela/firewallruleoperator-catalog:latest --tag quay.io/manuela/firewallruleoperator-index:latest
+```
+
+Push index container image to the registry:
+
+```bash
+sudo docker push quay.io/manuela/firewallruleoperator-index:latest
+```
+
+#### Create CatalogSource in cluster
+
+Create a file ```deploy/catalogsource.yaml``` pointing to the catalog index:
+
+```yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: manuela-firewalloperator-catalog
+spec:
+  sourceType: grpc
+  image: quay.io/manuela/firewallruleoperator-index:latest
+  displayName: Manuela Firewall Rule Operator Catalog
+  publisher: Manuela Team
+```
+
+Create this CatalogSource to the ```openshift-marketplace``` namespace. You need to be logged in as cluster-admin to do so.
+
+```bash
+oc create -f deploy/catalogsource.yaml -n openshift-marketplace
+```
+
+Check that a pod is running for your catalog:
+
+```bash
+oc get pods -n openshift-marketplace
+
+NAME                                     READY   STATUS    RESTARTS   AGE
+certified-operators-6cfb678ff9-hkrgc     1/1     Running   0          74m
+community-operators-5f44b46fdf-m82vs     1/1     Running   0          31h
+manuela-firewalloperator-catalog-vdnfs   1/1     Running   0          103s
+marketplace-operator-6f7cb8fd4d-zs46w    1/1     Running   0          11d
+redhat-operators-5895fbb9d7-kxh7v        1/1     Running   0          22h
+```
+
+Show that the operator appears in the OLM catalog:
+
+![OLM Catalog](images/olm.png)
