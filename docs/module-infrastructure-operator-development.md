@@ -284,7 +284,7 @@ Generate the deploy/olm-catalog scaffolding:
 operator-sdk generate csv --csv-version 0.0.1
 ```
 
-In the generated manifest, modify ```spec.keywords``` and ```spec.provider``` as follows. You can also provide a base64 encoded image in your CSV that will be displayed in the OLM UI. Encode this image via ```cat image.png | base64```:
+In the generated manifest, modify ```spec.keywords```, ```spec.provider``` and ```spec.installModes``` as follows. You can also provide a base64 encoded icon at ```spec.icon``` that will be displayed in the OLM UI. Encode this image via ```cat image.png | base64```:
 
 ```diff
 diff --git a/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml b/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
