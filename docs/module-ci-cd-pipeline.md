@@ -3,9 +3,9 @@
 # CI&CD Pipeline & Staging <!-- omit in toc -->
 This document describes how to prepare & execute the CI/CD pipeline & staging demo
 
-- [Prerequisites](#Prerequisites)
-- [Demo Preparation](#Demo-Preparation)
-- [Demo Execution](#Demo-Execution)
+- [Prerequisites](#prerequisites)
+- [Demo Preparation](#demo-preparation)
+- [Demo Execution](#demo-execution)
 
 ## Prerequisites
 
@@ -22,6 +22,12 @@ oc process -n manuela-ci seed | oc create -n manuela-ci -f -
 ```
 
 Go to the gitops repo on GitHub and close any pending pull requests. Then delete the "staging-approval" branch.
+
+Clean up the old pipelineruns and keep only a smaller number, e.g. 15:
+
+```bash
+oc get pipelineruns -n manuela-ci --sort-by=.metadata.creationTimestamp -o name | tail -n +2 | tail -r | tail -n +15 | xargs oc delete -n manuela-ci
+```
 
 ## Demo Execution
 
