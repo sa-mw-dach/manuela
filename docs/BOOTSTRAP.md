@@ -37,6 +37,7 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Machine Learning based Anomaly Detection and Alerting (Optional)](#machine-learning-based-anomaly-detection-and-alerting-optional)
     - [Bootstrap and configure Anomaly Detection Service in manuela-tst-all](#bootstrap-and-configure-anomaly-detection-service-in-manuela-tst-all)
     - [Bootstrap and configure Anomaly Detection Service in production (manuela-stormshift-odh)](#bootstrap-and-configure-anomaly-detection-service-in-production-manuela-stormshift-odh)
+    - [Bootstrap and configure Anomaly Detection Service in iotdemo on OCP3](#bootstrap-and-configure-anomaly-detection-service-in-iotdemo-on-ocp3)
 
 ## Prerequisites
 
@@ -310,7 +311,9 @@ For the individual physical clusters representing the factory datacenter and the
 ```bash
 cd ~/manuela-dev
 oc apply -k namespaces_and_operator_subscriptions/argocd
-oc apply -k infrastructure/argocdThen, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev . for the respective cluster is present
+oc apply -k infrastructure/argocd
+```
+Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev . for the respective cluster is present
 ```bash
 oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
@@ -574,7 +577,7 @@ Note, the steps how to deploy an OpenDataHub with JupyterHub is described in the
 **Let's look at the Stormshift test & prod first**
 
 
-Please clone the  ```manuela-gitops```  and ```manuela-gitops``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela-gitops``` .
+Please clone the  ```manuela-gitops```  and ```manuela-dev``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela-dev``` .
 
 
 #### Bootstrap and configure Anomaly Detection Service in manuela-tst-all
