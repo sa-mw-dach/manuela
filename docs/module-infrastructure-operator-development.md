@@ -7,25 +7,33 @@ This document describes how to prepare & execute the infrastructure operator dev
 - [Demo Preparation](#Demo-Preparation)
 - [Demo Execution](#Demo-Execution)
   - [Create project scaffolding](#Create-project-scaffolding)
-  - [Adjust Dockerfile to include dependencies](#Adjust-Dockerfile-to-include-dependencies)
-  - [Create firewall secret and add to deployment](#Create-firewall-secret-and-add-to-deployment)
-  - [Adjust playbook.yaml to load secret data into inventory](#Adjust-playbookyaml-to-load-secret-data-into-inventory)
-  - [Adjust roles/firewallrule/tasks/main.yml to create firewall rules](#Adjust-rolesfirewallruletasksmainyml-to-create-firewall-rules)
-  - [Adjust the sample CR to provide the required data](#Adjust-the-sample-CR-to-provide-the-required-data)
-  - [Adjust watches.yaml to cascade CR delete to managed resource](#Adjust-watchesyaml-to-cascade-CR-delete-to-managed-resource)
+  - [Write the operator code](#Write-the-operator-code)
+    - [Adjust Dockerfile to include dependencies](#Adjust-Dockerfile-to-include-dependencies)
+    - [Create firewall secret and add to deployment](#Create-firewall-secret-and-add-to-deployment)
+    - [Adjust playbook.yaml to load secret data into inventory](#Adjust-playbookyaml-to-load-secret-data-into-inventory)
+    - [Adjust roles/firewallrule/tasks/main.yml to create firewall rules](#Adjust-rolesfirewallruletasksmainyml-to-create-firewall-rules)
+    - [Adjust the sample CR to provide the required data](#Adjust-the-sample-CR-to-provide-the-required-data)
+    - [Adjust watches.yaml to cascade CR delete to managed resource](#Adjust-watchesyaml-to-cascade-CR-delete-to-managed-resource)
   - [Optional: test the operator locally](#Optional-test-the-operator-locally)
-  - [Build & push the operator container image](#Build--push-the-operator-container-image)
-  - [Adjust the deployment to reference operator container image](#Adjust-the-deployment-to-reference-operator-container-image)
-  - [Deploy the operator](#Deploy-the-operator)
+  - [Deploy the operator directly](#Deploy-the-operator-directly)
+    - [Build & push the operator container image](#Build--push-the-operator-container-image)
+    - [Adjust the deployment to reference operator container image](#Adjust-the-deployment-to-reference-operator-container-image)
+    - [Deploy the operator](#Deploy-the-operator)
   - [Test the operator](#Test-the-operator)
   - [Cleanup](#Cleanup)
+  - [Deploy the operator via OLM](#Deploy-the-operator-via-OLM)
+    - [Create manifests](#Create-manifests)
+    - [Wrap manifests](#Wrap-manifests)
+    - [Create index](#Create-index)
+    - [Create CatalogSource in cluster](#Create-CatalogSource-in-cluster)
 
 ## Prerequisites
 
 - You need an OpenShift environment - it does not have to be a bootstrapped Manuela environment; CRC is fine. 
 - You need an infrastructure element (e.g. pfSense firewall) you will configure which is set up to be managed by Ansible. You have the required SSH private key available to access the infrastructure element. See the [bootstrap instructions on how to set up and configure pfsense](BOOTSTRAP.md#Management-Clusters-and-Firewall-VMs-Optional).
-- You also need to have a nanespace in a docker registry from which your management cluster can pull and you can push the operator images to.
-- You can either use Vagrant to bootstrap a development environment on your laptop in a VM, or use a Linux environment with docker, ansible, the required python modules for kubernetes and openshift as well as the operator-sdk installed.
+- You also need to have a namespace in a docker registry from which your management cluster can pull and you can push the operator images to.
+- For the operator deployment via OLM, you need another two namespaces in a docker registry (...-catalog and ...-index).
+- You can either use Vagrant to bootstrap a development environment on your laptop in a VM, or use a Linux environment with docker, ansible, the required python modules for kubernetes and openshift as well as the operator-sdk (v0.17 or later) and opm (operator package manager, v1.11.1 or later) installed.
 - Understand how the [pfSense firewall rule operator](https://github.com/sa-mw-dach/manuela-dev/tree/master/networkpathoperator/firewallrule) is built and deployed.
 
 ## Demo Preparation
@@ -43,8 +51,12 @@ These instructions assume you will be building the FirewallRule operator. Adjust
 - We will use operator-sdk to create the scaffolding for an ansible-based operator.
 - The scaffolding assumes the operator will manage kubernetes resources in the same cluster. This is not the case, therefore we need to perform some adjustments to add the external resource to the runtime ansibme inventory and execute the playbook against the external resource.
 - We will then write ansible code to apply the data provided in the kubernetes custom resource to the externally managed resource (creation and deletion, no reconciliation if the resource was changed outside the operator).
+- We will test the operator on the cluster directly
+- Finally, we will use the OLM to make the operator available in the cluster
 
 The instructions are written as if you are developing the operator from scratch. You can also simply clone the [manuela-dev](https://github.com/sa-mw-dach/manuela-dev) repo with the [existing firewall rule operator](https://github.com/sa-mw-dach/manuela-dev/tree/master/networkpathoperator/firewallrule) and follow along, pointing out the relevant code snippets in the existing code.
+
+
 
 ### Create project scaffolding
 
@@ -56,7 +68,10 @@ operator-sdk new firewallrule --type ansible --kind FirewallRule --api-version m
 cd firewallrule
 ```
 
-### Adjust Dockerfile to include dependencies
+
+### Write the operator code
+
+#### Adjust Dockerfile to include dependencies
 
 Add the following lines in ```build/Dockerfile``` right after the ```FROM``` statement to ensure the openssh-clients (required for Ansible access to external resources) and other required RPMs and modules from Ansible Galaxy are present:
 
@@ -66,7 +81,7 @@ RUN dnf -y install openssh-clients && ansible-galaxy collection install pfsensib
 USER 1001
 ```
 
-### Create firewall secret and add to deployment
+#### Create firewall secret and add to deployment
 
 Create a kubernetes secret ```deploy/firewall-secret.yaml``` containing the access information required to access the infrastructure resource, i.e. hostname, username and SSH private key.
 
@@ -104,7 +119,7 @@ Also add the following stanza to ```spec.template.spec.volumes``` to make the se
             defaultMode: 256
 ```
 
-### Adjust playbook.yaml to load secret data into inventory
+#### Adjust playbook.yaml to load secret data into inventory
 
 Insert the following task before the existing task to ensure that the inventory from the secret is loaded into the ansible runtime. This creates a new group "firewall" in the inventory with the external resource as its only member. You could chose a different group name as well.
 
@@ -131,7 +146,7 @@ In the second (the existing task), change the hosts from 'localhost' to 'firewal
 A [finished example](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/playbook.yml) can be found in the manuela-dev repo.
 
 
-### Adjust roles/firewallrule/tasks/main.yml to create firewall rules
+#### Adjust roles/firewallrule/tasks/main.yml to create firewall rules
 
 We use the pfsensible modules from ansible galaxy to create or delete firewall rules with the data provided from the custom resource. The custom resource data metadata will be provided in a variable called "meta", anything under ```.spec``` will be provided as its own variable.
 
@@ -157,7 +172,7 @@ Add the following task to ```roles/firewallrule/tasks/main.yml```:
     state: "{{ state|default('present',true) }}"
 ```
 
-### Adjust the sample CR to provide the required data
+#### Adjust the sample CR to provide the required data
 
 Provide sample data as the ansible module expects in ```deploy/crds/manuela.redhat.com_v1alpha1_firewallrule_cr.yaml```: 
 
@@ -180,7 +195,7 @@ spec:
 
 Note: Adjusting the CRD is not in scope of this demo. It could be adjusted with a schema definition to allow the Kubernetes API server provide validation of the CR and reject invalid CRs.
 
-### Adjust watches.yaml to cascade CR delete to managed resource
+#### Adjust watches.yaml to cascade CR delete to managed resource
 
 Add the following stanza to the existing entry in the watches.yaml file like the [sample](https://github.com/sa-mw-dach/manuela-dev/blob/master/networkpathoperator/firewallrule/watches.yaml). This ensures that the ansible playbook is also run with the variable "state" set to "absent" when the custom resource is deleted. Per default the kubernetes-internal parent-child relations ensure that a delete of the custom resource is cascaded to all its children, but since the resource the operator is managing is not a kubernetes object, an explicit deletion run is required. [More information in the SDK Docs.](https://github.com/operator-framework/operator-sdk/blob/master/doc/ansible/dev/finalizers.md).
 
@@ -198,13 +213,15 @@ If you do not feel confident your code will work, it makes sense to test the ope
 
 The [instructions to test the operator](#Test-the-operator) describe how to create and delte CRs th local operator can react on. It will use the current openshift project of the oc client.
 
-### Build & push the operator container image
+### Deploy the operator directly
+
+#### Build & push the operator container image
 
 Build the container image by executing ```sudo operator-sdk build your.registry/namespace/imagename:tag with``` your selection of registry/namespace/imagename/tag. If you omit ":tag" it will assume ":latest", ensure to omit it in the subsequent steps as well.
 
 Push the container image to the registry by executing ```sudo docker push your.registry/namespace/imagename:tag```
 
-### Adjust the deployment to reference operator container image
+#### Adjust the deployment to reference operator container image
 
 Linux
 ```bash
@@ -216,7 +233,7 @@ OSX
 $ sed -i "" "s|REPLACE_IMAGE|your.registry/namespace/imagename:tag|g" deploy/operator.yaml
 ```
 
-### Deploy the operator
+#### Deploy the operator
 
 Create a new project via ```oc new-project operator-test```
 
@@ -260,3 +277,127 @@ Again, after a short while, the firewall rule should be no longer visible in the
 You need to ensure that all CRs are deleted before the operator itself is deleted from the cluster. Otherwise kubernetes will wait for the finalizer to be removed, which doesn't happen since the operator is gone, creating a deadlock that can only be resolved by editing the CR and removing the finalizer string manually.
 
 Once all CRs are deleted, you can remove the operator either by ```oc delete project operator-test``` or by ```oc delete -k deploy```, keeping the project.
+
+### Deploy the operator via OLM
+
+Deploying the operator is a four-step process:
+
+1. Create a manifest containing the ClusterServiceVersion CRD that describes the operator version
+2. Wrap the manifests in a container image and make it available in a container registry
+3. Create an Operator Registry Index container image and make it available in a container registry
+4. Create a CatalogSource CRD and deploy it to the target cluster to make the catalog source known to the cluster
+
+#### Create manifests
+
+Generate the deploy/olm-catalog scaffolding:
+
+```bash
+operator-sdk generate csv --csv-version 0.0.1
+```
+
+In the generated manifest, modify ```spec.keywords```, ```spec.provider``` and ```spec.installModes``` as follows. You can also provide a base64 encoded icon at ```spec.icon``` that will be displayed in the OLM UI. Encode this image via ```cat image.png | base64```:
+
+```diff
+diff --git a/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml b/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
+index f9eb843..119eda0 100644
+--- a/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
++++ b/networkpathoperator/firewallrule/deploy/olm-catalog/firewallrule/manifests/firewallrule.clusterserviceversion.yaml
+@@ -34,8 +34,8 @@ spec:
+       version: v1alpha1
+   displayName: Firewallrule
+   icon:
+-  - base64data: ""
+-    mediatype: ""
++  - base64data: "iVBORw0KGgoAAAANSUh...ASUVORK5CYII="
++    mediatype: "image/png"
+   install:
+     spec:
+       deployments:
+@@ -180,12 +180,16 @@ spec:
+     type: SingleNamespace
+   - supported: false
+     type: MultiNamespace
+-  - supported: true
++  - supported: false
+     type: AllNamespaces
+   keywords:
+-  - ""
++  - "pfsense"
++  - "firewall"
++  - "manuela"
+   maintainers:
+   - {}
+   maturity: alpha
+-  provider: {}
++  provider:
++    name: Manuela Team
++    url: https://github.com/sa-mw-dach/manuela
+   version: 0.0.1
+```
+
+#### Wrap manifests 
+
+Create container image wrapping the manifests:
+
+```bash
+sudo operator-sdk bundle create quay.io/manuela/firewallruleoperator-catalog --channels alpha --package firewallruleoperator-catalog --directory deploy/olm-catalog/firewallrule/manifests/
+```
+
+Push manifest container image to the registry:
+
+```bash
+sudo docker push quay.io/manuela/firewallruleoperator-catalog:latest
+```
+
+#### Create index
+
+```bash
+sudo opm index add -c docker --bundles quay.io/manuela/firewallruleoperator-catalog:latest --tag quay.io/manuela/firewallruleoperator-index:latest
+```
+
+Push index container image to the registry:
+
+```bash
+sudo docker push quay.io/manuela/firewallruleoperator-index:latest
+```
+
+#### Create CatalogSource in cluster
+
+Create a file ```deploy/catalogsource.yaml``` pointing to the catalog index:
+
+```yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: manuela-firewalloperator-catalog
+spec:
+  sourceType: grpc
+  image: quay.io/manuela/firewallruleoperator-index:latest
+  displayName: Manuela Firewall Rule Operator Catalog
+  publisher: Manuela Team
+```
+
+Create this CatalogSource to the ```openshift-marketplace``` namespace. You need to be logged in as cluster-admin to do so.
+
+```bash
+oc create -f deploy/catalogsource.yaml -n openshift-marketplace
+```
+
+Check that a pod is running for your catalog:
+
+```bash
+oc get pods -n openshift-marketplace
+
+NAME                                     READY   STATUS    RESTARTS   AGE
+certified-operators-6cfb678ff9-hkrgc     1/1     Running   0          74m
+community-operators-5f44b46fdf-m82vs     1/1     Running   0          31h
+manuela-firewalloperator-catalog-vdnfs   1/1     Running   0          103s
+marketplace-operator-6f7cb8fd4d-zs46w    1/1     Running   0          11d
+redhat-operators-5895fbb9d7-kxh7v        1/1     Running   0          22h
+```
+
+Show that the operator appears in the OLM catalog:
+
+![OLM Catalog](images/olm.png)
+
+If you instantiate the operator in a namespace, you still have to create the inventory secret in the namespace you install to. Otherwise the operator container will not come up and it will not leave the state "Installing" in OLM.
