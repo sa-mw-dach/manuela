@@ -146,7 +146,7 @@ Enable the second temperature sensor via GitOps:
 ```bash
 cd ~/manuela-gitops
 
-sed -i "" "s|SENSOR_TEMPERATURE_ENABLED.*|SENSOR_TEMPERATURE_ENABLED=true|" \
+sed -i "s|SENSOR_TEMPERATURE_ENABLED.*|SENSOR_TEMPERATURE_ENABLED=true|" \
 config/instances/manuela-quickstart/machine-sensor/machine-sensor-2-configmap.properties
 
 git add .
