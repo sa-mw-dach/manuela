@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  generateName: iotdemo-
+  generation: 1
+  name: iotdemo-9sjbt
+  namespace: iotdemo
+spec:
+  targetNamespaces:
+  - iotdemo

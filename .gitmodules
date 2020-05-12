@@ -1,3 +1,6 @@
 [submodule "manuela-dev"]
 	path = manuela-dev
 	url = https://github.com/sa-mw-dach/manuela-dev
+[submodule "manuela-gitops-example"]
+	path = manuela-gitops-example
+	url = https://github.com/sa-mw-dach/manuela-gitops-example.git
