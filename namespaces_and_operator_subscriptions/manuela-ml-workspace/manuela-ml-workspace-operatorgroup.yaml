@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  generateName: manuela-ml-workspace-
+  generation: 1
+  name: manuela-ml-workspace-ant42
+  namespace: manuela-ml-workspace
+spec:
+  targetNamespaces:
+  - manuela-ml-workspace

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  server:
+    route: true
+    ingress: false
+    insecure: false
+    resources: {}
+  dex:
+    image: quay.io/ablock/dex
+    openShiftOAuth: true
+    version: openshift-connector
+  helpChatURL: https://chat.google.com/room/AAAAonnPp64
+  helpChatText: "MANUela Chat"
+  rbac:
+    defaultPolicy: role:admin
+#see: https://argocd-operator.readthedocs.io/en/latest/reference/argocd/

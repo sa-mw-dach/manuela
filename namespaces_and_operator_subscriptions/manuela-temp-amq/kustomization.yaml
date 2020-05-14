@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: manuela-temp-amq
+
+resources:
+- manuela-temp-amq-namespace.yaml
+- manuela-temp-amq-operatorgroup.yaml
+- manuela-temp-amq-subscription.yaml
