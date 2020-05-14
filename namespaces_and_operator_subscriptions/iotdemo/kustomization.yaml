@@ -3,13 +3,17 @@ kind: Kustomization
 
 namespace: iotdemo
 
-bases:
-- ../manuela-team-rolebindings
-
 resources:
 - iotdemo-namespace.yaml
 - iotdemo-operatorgroup.yaml
-- amq-operator-subscription.yaml
+- rolebinding-system-imagepullers.yaml
 
+bases:
+- ../manuela-team-rolebindings
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=267_new_repo_structure
 # Open data hub is optional
-# - odh-operator-subscription.yaml
+#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=267_new_repo_structure
+
+
+
+

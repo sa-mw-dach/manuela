@@ -5,12 +5,8 @@ namespace: manuela-ml-workspace
 
 bases:
 - ../manuela-team-rolebindings
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=267_new_repo_structure
 
 resources:
 - manuela-ml-workspace-namespace.yaml
 - manuela-ml-workspace-operatorgroup.yaml
-- odh-operator-subscription.yaml
-# Seldon CRD should exist on OCP3 and OCP4
-# Uncomment if you install in your own OCP (e.g. CRC)
-# - seldon-deployment-crd.yaml
-- odh-instance.yaml
