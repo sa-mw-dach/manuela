@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: iotdemo
+
+bases:
+- github.com/sa-mw-dach/manuela-dev//components?ref=267_new_repo_structure
