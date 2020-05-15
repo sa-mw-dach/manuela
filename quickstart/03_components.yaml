@@ -23,7 +23,7 @@ apiVersion: v1
 data:
   config.json: |-
     {
-        "websocketHost": "http://iot-consumer-iotdemo.apps.ocp3.stormshift.coe.muc.redhat.com",
+        "websocketHost": "http://iot-consumer-iotdemo.apps-crc.testing",
         "websocketPath": "/api/service-web/socket",
         "SERVER_TIMEOUT": 20000
     }

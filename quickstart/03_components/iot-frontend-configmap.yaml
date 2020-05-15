@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iot-frontend-cfg
+data:
+  config.json: |-
+    {
+        "websocketHost": "http://iot-consumer-iotdemo.apps-crc.testing",
+        "websocketPath": "/api/service-web/socket",
+        "SERVER_TIMEOUT": 20000
+    }
