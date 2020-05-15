@@ -7,4 +7,4 @@ bases:
 - iotdemo
 - manuela-crw
 - manuela-ci
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/openshift-pipelines?ref=267_new_repo_structure
+- openshift-pipelines

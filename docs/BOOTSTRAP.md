@@ -7,8 +7,9 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Github account](#github-account)
   - [Quay instance](#quay-instance)
   - [Virtualization environment (Optional)](#virtualization-environment-optional)
-- [Fork and clone manuela-dev](#fork-and-clone-manuela-dev)
 - [Planning your installation](#planning-your-installation)
+- [Clone the manuela repository](#clone-the-manuela-repository)
+- [Fork and clone manuela and manuela-dev](#fork-and-clone-manuela-and-manuela-dev)
 - [Create the gitops repository](#create-the-gitops-repository)
   - [Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops](#option-1-you-demo-stormshift-and-use-the-existing-githubcomsa-mw-dachmanuela-gitops)
   - [Option 2: You set up a new environment and use a custom GitOps repository](#option-2-you-set-up-a-new-environment-and-use-a-custom-gitops-repository)
@@ -88,17 +89,6 @@ Login to [https://quay.io/organization/manuela?tab=robots](https://quay.io/organ
 If you intend to show the firewall operator, you need to run a pfSense firewall in a virtualization environment.
 (We currently use Red Hat Enterprise Virtualization)
 
-## Fork and clone manuela-dev
-
-Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
-
-Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
-
-```bash
-cd ~
-git clone https://github.com/<yourorg>/manuela-dev.git
-```
-
 ## Planning your installation
 
 Some general tips to plan your installation:
@@ -121,6 +111,26 @@ We suggest the following distributions:
   * Cluster 3: Factory Datacenter
   * Cluster 4: Line Data Server
 
+## Clone the manuela repository
+
+Clone the manuela repository. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela .
+
+```bash
+cd ~
+git clone https://github.com/sa-mw-dach/manuela.git
+```
+
+## Fork and clone manuela and manuela-dev
+
+Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
+
+Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
+
+```bash
+cd ~
+git clone https://github.com/<yourorg>/manuela-dev.git
+```
+
 ## Create the gitops repository
 
 Unless you are using the stormshift environment, create a new GitOps repository. You can choose a different name, but the subsequent docs assume it to reside in ~/manuela-gitops.
@@ -134,20 +144,17 @@ git clone https://github.com/sa-mw-dach/manuela-gitops.git
 
 ### Option 2: You set up a new environment and use a custom GitOps repository
 
-Create your own GitOps repo from ```~/manuela-dev/gitops-repo-example```
+Create your own GitOps repo from (https://github.com/sa-mw-dach/manuela-gitops-example)[https://github.com/sa-mw-dach/manuela-gitops-example]
 ```bash
 cd ~
-git init manuela-gitops
-cp -R ~/manuela-dev/gitops-repo-example/* manuela-gitops
-cd manuela-gitops
-git add .
-git commit -m "initial checkin"
+git clone https://github.com/sa-mw-dach/manuela-gitops-example
+mv manuela-gitops-example manuela-gitops
 ```
 
 [Publish this new directory to Github](https://help.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line) and note the GitHub URL.
 
 ```bash
-git remote add origin https://github.com/<yourorg>/<yourrepo>.git
+git remote set-url origin https://github.com/<yourorg>/<yourrepo>.git
 git push -u origin master
 ```
 
@@ -172,7 +179,7 @@ git push
 ### Create the namespaces and operators
 
 ```bash
-cd ~/manuela-dev
+cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/openshift-pipelines
 oc apply -k namespaces_and_operator_subscriptions/manuela-ci
 oc apply -k namespaces_and_operator_subscriptions/argocd
@@ -309,7 +316,7 @@ Wait for the pipeline to complete successfully.
 ## Factory Datacenter & Line Data Server (Mandatory)
 For the individual physical clusters representing the factory datacenter and the line data server, ensure that ArgoCD is deployed and allowed to manage the cluster. If you have already done this as part of the setup of another logical environment, you may skip this step.
 ```bash
-cd ~/manuela-dev
+cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/argocd
 oc apply -k infrastructure/argocd
 ```
@@ -357,7 +364,7 @@ index dac9161..363152e 100644
 
 Instantiate the development environment. Note: this will kick off a build of all components which will take several minutes.
 ```bash
-cd ~/manuela-dev
+cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/iotdemo
 oc apply -k components
 ```
@@ -367,7 +374,7 @@ If you want to demo the code change story line using CodeReady Workspaces instea
 
 This provides CodeReady Workspaces as alternative development environment
 ```bash
-cd ~/manuela-dev
+cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/manuela-crw
 oc apply -k infrastructure/crw
 ```
