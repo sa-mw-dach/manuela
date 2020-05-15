@@ -84,9 +84,9 @@ oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quicksta
 Create ArgoCD instance:
 ```bash
 oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/02_argocd.yaml
-
-oc adm policy add-cluster-role-to-user cluster-admin -n argocd -z argocd-application-controller
 ```
+
+These two steps are performed separately due to the lifecycle of the operator and the custom resources it manages. The first step creates operator subscriptions which in turn advises the OLM to instantiate the operator, which then registers its CRD in the system. Only once the CRDs are registered, the custom resources can be created. This is why these two things cannot be done in a single transaction.
 
 Wait for all ArgoCD pods to run:
 ```bash
