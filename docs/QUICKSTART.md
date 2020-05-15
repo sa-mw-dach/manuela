@@ -88,7 +88,7 @@ oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quicksta
 
 These two steps are performed separately due to the lifecycle of the operator and the custom resources it manages. The first step creates operator subscriptions which in turn advises the OLM to instantiate the operator, which then registers its CRD in the system. Only once the CRDs are registered, the custom resources can be created. This is why these two things cannot be done in a single transaction.
 
-Wait for all ArgoCD pods to run:
+Wait for all ArgoCD pods to run. Depending on your network connection, this can take a couple of minutes until all images are pulled:
 ```bash
 oc get pods -n argocd
 
@@ -167,6 +167,11 @@ oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quicksta
 ```
 
 These build configs point to the [https://github.com/sa-mw-dach/manuela-dev](https://github.com/sa-mw-dach/manuela-dev) repository. Use ```oc edit``` to point them to your own fork of the repository if you wish.
+
+Also, if you are NOT using CRC, change the configmap URL to fit your cluster's application base domain:
+ ```bash
+ oc edit -n iotdemo configmap iot-frontend-cfg
+ ``` 
 
 ## Modify GitOps repo to deploy your own application components
 
