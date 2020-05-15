@@ -84,6 +84,19 @@ subjects:
   kind: Group
   name: manuela-ops
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-application-controller-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: argocd-application-controller
+  namespace: argocd
+---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:

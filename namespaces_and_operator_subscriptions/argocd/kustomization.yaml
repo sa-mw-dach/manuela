@@ -10,3 +10,4 @@ resources:
 - argocd-namespace.yaml
 - argocd-operatorgroup.yaml
 - argocd-subscription.yaml
+- argocd-application-controller-cluster-admin-role-binding.yaml
