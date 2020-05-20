@@ -144,7 +144,7 @@ git clone https://github.com/sa-mw-dach/manuela-gitops.git
 
 ### Option 2: You set up a new environment and use a custom GitOps repository
 
-Create your own GitOps repo from (https://github.com/sa-mw-dach/manuela-gitops-example)[https://github.com/sa-mw-dach/manuela-gitops-example]
+Create your own GitOps repo from [https://github.com/sa-mw-dach/manuela-gitops-example](https://github.com/sa-mw-dach/manuela-gitops-example)
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela-gitops-example

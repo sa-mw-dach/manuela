@@ -24,7 +24,7 @@ First, clone manuela-dev. E.g. with  ```git clone git@github.com:sa-mw-dach/manu
 
 Deploy Seldon CRD and create a ODH subscription:
 ```
-cd manuela-dev/namespaces_and_operator_subscriptions/opendatahub
+cd manuela-dev/operator_subscriptions/opendatahub
 oc apply -f seldon-deployment-crd.yaml
 oc apply -f odh-operator-subscription.yaml
 ```
@@ -139,7 +139,7 @@ oc delete -k .
 ```
 
 ```
-cd manuela-dev/namespaces_and_operator_subscriptions/opendatahub/
+cd manuela-dev/operator_subscriptions/opendatahub/
 oc delete -f odh-operator-subscription.yaml 
 ```
 
@@ -161,7 +161,7 @@ seldondeployments.machinelearning.seldon.io                 2020-04-13T10:41:50Z
 
 If not, apply seldon-deployment-crd.yaml
 ```
-oc apply -f ./manuela-dev/namespaces_and_operator_subscriptions/opendatahub/seldon-deployment-crd.yaml
+oc apply -f ./manuela-dev/operator_subscriptions/opendatahub/seldon-deployment-crd.yaml
 ```
 
 ### Enable ODH and Seldon service
