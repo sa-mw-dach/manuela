@@ -41,12 +41,12 @@ Let's use ocp4 during the following steps. Login into ocp4 as admin or with admi
 oc login -u XXX -p XXXX --server=https://api.ocp4.stormshift.coe.muc.redhat.com:6443
 ```
 
-Please clone the  ```manuela-dev``` repository into your home directory. This repo contains everything required to set up the  demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
+Please clone the  ```manuela``` repository into your home directory. This repo contains everything required to set up the  demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
 
 ```bash
 cd ~
-git clone https://github.com/sa-mw-dach/manuela-dev.git
-cd  ~/manuela-dev/namespaces_and_operator_subscriptions/manuela-ml-workspace
+git clone https://github.com/sa-mw-dach/manuela.git
+cd  ~/manuela/namespaces_and_operator_subscriptions/manuela-ml-workspace
 ```
 
 

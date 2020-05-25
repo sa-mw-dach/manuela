@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: iotdemo
+
+bases:
+- github.com/sa-mw-dach/manuela-dev//components/iot-consumer/manifests?ref=267_new_repo_structure
+- github.com/sa-mw-dach/manuela-dev//components/iot-frontend/manifests?ref=267_new_repo_structure
+- github.com/sa-mw-dach/manuela-dev//components/iot-software-sensor/manifests?ref=267_new_repo_structure
+
+patchesStrategicMerge:
+  - iot-frontend-configmap.yaml

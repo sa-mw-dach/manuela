@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: iotdemo
+
+resources:
+- iotdemo-namespace.yaml
+- iotdemo-operatorgroup.yaml
+- rolebinding-system-imagepullers.yaml
+
+bases:
+- ../manuela-team-rolebindings
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=267_new_repo_structure
+# Open data hub is optional
+#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=267_new_repo_structure
+
+
+
+

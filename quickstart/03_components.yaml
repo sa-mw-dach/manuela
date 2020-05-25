@@ -1,0 +1,726 @@
+apiVersion: v1
+data:
+  ANOMALY_DETECTION_URL: http://anomaly-detection-anomaly-detection:8000
+  MQTT_BROKER: ws://broker-amq-mqtt-all-0-svc:61616
+  MQTT_PASSWORD: iotuser
+  MQTT_USER: iotuser
+  PORT: "3000"
+  SOCKET_PATH: /api/service-web/socket
+  TEMPERATURE_ALERT_ENABLED: "false"
+  TEMPERATURE_THRESHOLD: "70.0"
+  TOPIC_GPS: iot-sensor/sw/gps
+  TOPIC_LIGHT: iot-sensor/sw/light
+  TOPIC_TEMPERATURE: iot-sensor/sw/temperature
+  TOPIC_VIBRATION: iot-sensor/sw/vibration
+  VIBRATION_ALERT_ENABLED: "false"
+  VIBRATION_ANOMALY_ENABLED: "false"
+kind: ConfigMap
+metadata:
+  name: iot-consumer-cfg
+  namespace: iotdemo
+---
+apiVersion: v1
+data:
+  config.json: |-
+    {
+        "websocketHost": "http://iot-consumer-iotdemo.apps-crc.testing",
+        "websocketPath": "/api/service-web/socket",
+        "SERVER_TIMEOUT": 20000
+    }
+kind: ConfigMap
+metadata:
+  name: iot-frontend-cfg
+  namespace: iotdemo
+---
+apiVersion: v1
+data:
+  APP_NAME: iot-sensor
+  DEVICE_ID: pump-2
+  DEVICE_METRICS: temperature,vibration,gps,light
+  MACHINE_ID: floor-1-line-1-extruder-1
+  MQTT_HOSTNAME: broker-amq-mqtt-all-0-svc
+  MQTT_PASSWORD: iotuser
+  MQTT_PORT: "61616"
+  MQTT_TLSSNI: "false"
+  MQTT_USER: iotuser
+  SENSOR_GPS_ENABLED: "false"
+  SENSOR_GPS_FINAL_LATITUDE: "40.689879"
+  SENSOR_GPS_FINAL_LONGITUDE: "-73.992895"
+  SENSOR_GPS_FREQUENCY: "5"
+  SENSOR_GPS_INITIAL_LATITUDE: "42.579258"
+  SENSOR_GPS_INITIAL_LONGITUDE: "-71.437841"
+  SENSOR_GPS_ITERATION_LATITUDE: "-0.009"
+  SENSOR_GPS_ITERATION_LONGITUDE: "-0.012"
+  SENSOR_LIGHT_ENABLED: "false"
+  SENSOR_LIGHT_FREQUENCY: "5"
+  SENSOR_LIGHT_MAXITERATION: "3"
+  SENSOR_LIGHT_MAXRANGE: "25000"
+  SENSOR_LIGHT_MINITERATION: "0"
+  SENSOR_LIGHT_MINRANGE: "0"
+  SENSOR_LIGHT_START: "0"
+  SENSOR_TEMPERATURE_ENABLED: "false"
+  SENSOR_TEMPERATURE_FREQUENCY: "5"
+  SENSOR_TEMPERATURE_MAXITERATION: "1"
+  SENSOR_TEMPERATURE_MAXRANGE: "55"
+  SENSOR_TEMPERATURE_MINITERATION: "0"
+  SENSOR_TEMPERATURE_MINRANGE: "45"
+  SENSOR_TEMPERATURE_STARTMAX: "50"
+  SENSOR_TEMPERATURE_STARTMIN: "50"
+  SENSOR_VIBRATION_ENABLED: "true"
+  SENSOR_VIBRATION_FREQUENC: "5"
+  SENSOR_VIBRATION_MAXITERATION: "1"
+  SENSOR_VIBRATION_MAXRANGE: "17"
+  SENSOR_VIBRATION_MINITERATION: "0"
+  SENSOR_VIBRATION_MINRANGE: "10"
+  SENSOR_VIBRATION_PEAKINTETVAL: "200"
+  SENSOR_VIBRATION_START: "12"
+kind: ConfigMap
+metadata:
+  name: iot-software-sensor-2-config
+  namespace: iotdemo
+---
+apiVersion: v1
+data:
+  APP_NAME: iot-sensor
+  DEVICE_ID: pump-1
+  DEVICE_METRICS: temperature,vibration,gps,light
+  MACHINE_ID: floor-1-line-1-extruder-1
+  MQTT_HOSTNAME: broker-amq-mqtt-all-0-svc
+  MQTT_PASSWORD: iotuser
+  MQTT_PORT: "61616"
+  MQTT_TLSSNI: "false"
+  MQTT_USER: iotuser
+  SENSOR_GPS_ENABLED: "false"
+  SENSOR_GPS_FINAL_LATITUDE: "40.689879"
+  SENSOR_GPS_FINAL_LONGITUDE: "-73.992895"
+  SENSOR_GPS_FREQUENCY: "5"
+  SENSOR_GPS_INITIAL_LATITUDE: "42.579258"
+  SENSOR_GPS_INITIAL_LONGITUDE: "-71.437841"
+  SENSOR_GPS_ITERATION_LATITUDE: "-0.009"
+  SENSOR_GPS_ITERATION_LONGITUDE: "-0.012"
+  SENSOR_LIGHT_ENABLED: "false"
+  SENSOR_LIGHT_FREQUENCY: "5"
+  SENSOR_LIGHT_MAXITERATION: "3"
+  SENSOR_LIGHT_MAXRANGE: "25000"
+  SENSOR_LIGHT_MINITERATION: "0"
+  SENSOR_LIGHT_MINRANGE: "0"
+  SENSOR_LIGHT_START: "0"
+  SENSOR_TEMPERATURE_ENABLED: "true"
+  SENSOR_TEMPERATURE_FREQUENCY: "5"
+  SENSOR_TEMPERATURE_MAXITERATION: "1"
+  SENSOR_TEMPERATURE_MAXRANGE: "55"
+  SENSOR_TEMPERATURE_MINITERATION: "0"
+  SENSOR_TEMPERATURE_MINRANGE: "45"
+  SENSOR_TEMPERATURE_STARTMAX: "50"
+  SENSOR_TEMPERATURE_STARTMIN: "50"
+  SENSOR_VIBRATION_ENABLED: "true"
+  SENSOR_VIBRATION_FREQUENC: "5"
+  SENSOR_VIBRATION_MAXITERATION: "1"
+  SENSOR_VIBRATION_MAXRANGE: "18"
+  SENSOR_VIBRATION_MINITERATION: "0"
+  SENSOR_VIBRATION_MINRANGE: "10"
+  SENSOR_VIBRATION_PEAKINTETVAL: "20"
+  SENSOR_VIBRATION_START: "15"
+kind: ConfigMap
+metadata:
+  name: iot-software-sensor-config
+  namespace: iotdemo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: iot-consumer
+  name: iot-consumer
+  namespace: iotdemo
+spec:
+  ports:
+  - name: 3000-tcp
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: iot-consumer
+    deploymentconfig: iot-consumer
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: iot-frontend
+  name: iot-frontend
+  namespace: iotdemo
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: iot-frontend
+    deploymentconfig: iot-frontend
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    app.openshift.io/connects-to: broker-amq-mqtt-ss,iot-frontend
+  labels:
+    app: iot-consumer
+    app.kubernetes.io/part-of: ManuELA
+  name: iot-consumer
+  namespace: iotdemo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: iot-consumer
+    deploymentconfig: iot-consumer
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: iot-consumer
+        deploymentconfig: iot-consumer
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: iot-consumer-cfg
+        image: iot-consumer:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iot-consumer
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - iot-consumer
+      from:
+        kind: ImageStreamTag
+        name: iot-consumer:latest
+    type: ImageChange
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: iot-frontend
+    app.kubernetes.io/part-of: ManuELA
+  name: iot-frontend
+  namespace: iotdemo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: iot-frontend
+    deploymentconfig: iot-frontend
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: iot-frontend
+        deploymentconfig: iot-frontend
+    spec:
+      containers:
+      - image: iot-frontend:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /home
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iot-frontend
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /home
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/app-root/output/conf/config.json
+          name: iot-frontend-cfg-vol
+          subPath: config.json
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 438
+          name: iot-frontend-cfg
+        name: iot-frontend-cfg-vol
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - iot-frontend
+      from:
+        kind: ImageStreamTag
+        name: iot-frontend:latest
+    type: ImageChange
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    app.openshift.io/connects-to: broker-amq-mqtt-ss
+  labels:
+    app.kubernetes.io/part-of: ManuELA
+    application: iot-software-sensor
+    template: openjdk18-web-basic-s2i
+  name: iot-software-sensor
+  namespace: iotdemo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    deploymentConfig: iot-software-sensor
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        application: iot-software-sensor
+        deploymentConfig: iot-software-sensor
+      name: iot-software-sensor
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: iot-software-sensor-config
+        image: iot-software-sensor:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iot-software-sensor
+        ports:
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 75
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - iot-software-sensor
+      from:
+        kind: ImageStreamTag
+        name: iot-software-sensor:latest
+    type: ImageChange
+  - type: ConfigChange
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    app.openshift.io/connects-to: broker-amq-mqtt-ss
+  labels:
+    app.kubernetes.io/part-of: ManuELA
+    application: iot-software-sensor-2
+    template: openjdk18-web-basic-s2i
+  name: iot-software-sensor-2
+  namespace: iotdemo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    deploymentConfig: iot-software-sensor-2
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        application: iot-software-sensor-2
+        deploymentConfig: iot-software-sensor-2
+      name: iot-software-sensor-2
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: iot-software-sensor-2-config
+        image: iot-software-sensor:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iot-software-sensor-2
+        ports:
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 75
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - iot-software-sensor-2
+      from:
+        kind: ImageStreamTag
+        name: iot-software-sensor:latest
+    type: ImageChange
+  - type: ConfigChange
+---
+apiVersion: broker.amq.io/v2alpha1
+kind: ActiveMQArtemis
+metadata:
+  name: broker-amq-mqtt
+  namespace: iotdemo
+spec:
+  acceptors:
+  - expose: true
+    name: all
+    port: 61616
+  console:
+    expose: true
+  deploymentPlan:
+    image: registry.redhat.io/amq7/amq-broker:7.5
+    journalType: nio
+    messageMigration: false
+    persistenceEnabled: false
+    requireLogin: false
+    size: 1
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: iot-consumer
+  name: iot-consumer
+  namespace: iotdemo
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: iot-consumer:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: components/iot-consumer
+    git:
+      uri: https://github.com/sa-mw-dach/manuela-dev.git
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: nodejs:10
+        namespace: openshift
+    type: Source
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - type: ConfigChange
+  - imageChange: null
+    type: ImageChange
+status:
+  lastVersion: 0
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: iot-frontend
+  name: iot-frontend
+  namespace: iotdemo
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: iot-frontend:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: components/iot-frontend
+    git:
+      uri: https://github.com/sa-mw-dach/manuela-dev.git
+    type: Git
+  strategy:
+    sourceStrategy:
+      env:
+      - name: OUTPUT_DIR
+        value: www
+      from:
+        kind: ImageStreamTag
+        name: centos7-s2i-web-app:latest
+    type: Source
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - type: ConfigChange
+  - imageChange: null
+    type: ImageChange
+status:
+  lastVersion: 0
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: iot-software-sensor
+    template: openjdk18-web-basic-s2i
+  name: iot-software-sensor
+  namespace: iotdemo
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: iot-software-sensor:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: components/iot-software-sensor
+    git:
+      ref: master
+      uri: https://github.com/sa-mw-dach/manuela-dev.git
+    type: Git
+  strategy:
+    sourceStrategy:
+      forcePull: true
+      from:
+        kind: ImageStreamTag
+        name: java:8
+        namespace: openshift
+    type: Source
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - type: ConfigChange
+  - imageChange: null
+    type: ImageChange
+status:
+  lastVersion: 0
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: iot-frontend
+  name: centos7-s2i-web-app
+  namespace: iotdemo
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations:
+      openshift.io/imported-from: nodeshift/centos7-s2i-web-app
+    from:
+      kind: DockerImage
+      name: nodeshift/centos7-s2i-web-app
+    importPolicy: {}
+    name: latest
+    referencePolicy:
+      type: Source
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: iot-consumer
+  name: iot-consumer
+  namespace: iotdemo
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: iot-frontend
+  name: iot-frontend
+  namespace: iotdemo
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    application: iot-software-sensor
+  name: iot-software-sensor
+  namespace: iotdemo
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: iot-consumer
+  name: iot-consumer
+  namespace: iotdemo
+spec:
+  port:
+    targetPort: 3000-tcp
+  to:
+    kind: Service
+    name: iot-consumer
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress: []
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: iot-frontend
+  name: iot-frontend
+  namespace: iotdemo
+spec:
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: iot-frontend
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress: []
