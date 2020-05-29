@@ -10,9 +10,9 @@ resources:
 
 bases:
 - ../manuela-team-rolebindings
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=267_new_repo_structure
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.1
 # Open data hub is optional
-#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=267_new_repo_structure
+#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=manuela-1.1
 
 
 

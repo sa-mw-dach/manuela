@@ -4,4 +4,4 @@ kind: Kustomization
 namespace: iotdemo
 
 bases:
-- github.com/sa-mw-dach/manuela-dev//components?ref=267_new_repo_structure
+- github.com/sa-mw-dach/manuela-dev//components?ref=manuela-1.1
