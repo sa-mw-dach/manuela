@@ -10,7 +10,7 @@ spec:
     registry: quay.io
     repository: odh-jupyterhub
     notebook_images:
-      deploy_all_notebooks: false
+      deploy_all_notebooks: true
       deploy_cuda_notebooks: false
     storage_class: null
     db_memory: 1Gi

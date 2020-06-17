@@ -46,21 +46,36 @@ Please clone the  ```manuela``` repository into your home directory. This repo c
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela.git
+```
+
+**Deploy the OpenDataHub Operator in the Manuela-ML-Workspace namespace**
+```bash
 cd  ~/manuela/namespaces_and_operator_subscriptions/manuela-ml-workspace
-```
-
-
-**Deploy OpenDataHub with a JupyterHub in the Manuela-ML-Workspace namespace**
-```bash
 oc apply -k .
+oc project manuela-ml-workspace
+```
+Wait a minute until the operator is running:
+```bash
+oc get pods 
+NAME                                    READY   STATUS    RESTARTS   AGE
+opendatahub-operator-546d49d59b-qd8hz   1/1     Running   0          48s
 ```
 
-Follow the instantiation in the OpenShift Console or using oc:  
+
+**Deploy a OpenDataHub instance with a JupyterHub in the Manuela-ML-Workspace namespace**
 ```bash
-oc get pods -w
+cd  ~/manuela/infrastructure/opendatahub
+oc apply -k . 
 ```
-OpenDataHub with Jupyter and Seldon
+
+
+Follow the instantiation of the jupyterhub in the OpenShift Console or using oc:  
+```bash
+oc get pods -w -n manuela-ml-workspace
+```
+
 **Launch a Jupyterhub**  
+
 Get the Jupyterhub Url either from the route in the OpenShift Console or using oc::
 
 ```bash
@@ -70,20 +85,16 @@ echo https://$(oc get route jupyterhub -o jsonpath='{.spec.host}' -n manuela-ml-
 https://jupyterhub-manuela-ml-workspace.apps.ocp4.stormshift.coe.muc.redhat.com
 
 1. Login with OpenShift credentials
-2. Spwan a notebook using the defaults
+2. Spwan a notebook ```s2i-minimal-notebook:3.6``` using the defaults
 3. Upload ```Data-Analyses.ipynb``` and ```raw-data.csv``` from ```~/manuela-dev/ml-models/anomaly-detection/```
    
 
 ![launch-jupyter](./images/launch-jupyter.png)
-OpenDataHub with Jupyter and Seldon
+
+
 ## Demo Execution
 
-
 ### Demo ML modeling
-
-**Data collection and labeling**
-Since we don't have a metric database yet, the collection is a bit cluncky
-
 
 **Demo the notebook**
 
@@ -98,6 +109,8 @@ Option 2: Full demo
 - Run each cell \[Shift]\[Enter] and explain each step.
 
 **Demo model serving**
+
+For keeping the demo setup simple, lets use manuela-tst-all for show the model serving.
 
 Show the running seldon pods in manuela-tst-all.
 
