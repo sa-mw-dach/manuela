@@ -139,9 +139,9 @@ metadata:
   name: amq-broker
   namespace: iotdemo
 spec:
-  channel: current-76
+  channel: current
   installPlanApproval: Automatic
   name: amq-broker
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: amq-broker-operator.v0.13.0
+  startingCSV: amq-broker-operator.v0.15.0
