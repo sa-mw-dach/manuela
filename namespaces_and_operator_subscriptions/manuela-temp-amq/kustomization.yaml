@@ -8,4 +8,4 @@ resources:
 - manuela-temp-amq-operatorgroup.yaml
 
 bases:
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.1
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.2

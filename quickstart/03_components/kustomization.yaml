@@ -4,9 +4,9 @@ kind: Kustomization
 namespace: iotdemo
 
 bases:
-- github.com/sa-mw-dach/manuela-dev//components/iot-consumer/manifests?ref=manuela-1.1
-- github.com/sa-mw-dach/manuela-dev//components/iot-frontend/manifests?ref=manuela-1.1
-- github.com/sa-mw-dach/manuela-dev//components/iot-software-sensor/manifests?ref=manuela-1.1
+- github.com/sa-mw-dach/manuela-dev//components/iot-consumer/manifests?ref=manuela-1.2
+- github.com/sa-mw-dach/manuela-dev//components/iot-frontend/manifests?ref=manuela-1.2
+- github.com/sa-mw-dach/manuela-dev//components/iot-software-sensor/manifests?ref=manuela-1.2
 
 patchesStrategicMerge:
   - iot-frontend-configmap.yaml
