@@ -675,7 +675,7 @@ _**Enable the vibration alert and vibration anomaly detection in the messaging-c
 
 Update the messaging config map:  
 
-In ```~/manuela-gitops/config/instances/manuela-stormshift/messaging/messaging-configmap.yaml``` set 
+In ```~/manuela-gitops/config/instances/manuela-tst/messaging/messaging-configmap.yaml``` set 
 ```
 VIBRATION_ALERT_ENABLED: 'true'
 VIBRATION_ANOMALY_ENABLED: 'true'
