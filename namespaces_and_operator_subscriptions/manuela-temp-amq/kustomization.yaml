@@ -6,4 +6,6 @@ namespace: manuela-temp-amq
 resources:
 - manuela-temp-amq-namespace.yaml
 - manuela-temp-amq-operatorgroup.yaml
-- manuela-temp-amq-subscription.yaml
+
+bases:
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.1
