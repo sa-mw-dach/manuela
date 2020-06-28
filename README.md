@@ -74,5 +74,5 @@ There is some strange German humor [behind the scenes](https://www.youtube.com/w
 
 
 ## Other repos
-There are also further MANUela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo.
+There are also further [MANUela-linked projects for GitOps, ArgoCD and some demo apps to be deployed within the demo](docs/repo-structure.md).
 You can check them out in this Github directory https://github.com/sa-mw-dach .
