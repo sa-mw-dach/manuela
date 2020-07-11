@@ -356,6 +356,10 @@ Instantiate the development environment. Note: this will kick off a build of all
 ```bash
 cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/iotdemo
+
+oc project iotdemo
+
+cd ~/manuela-dev
 oc apply -k components
 ```
 
@@ -574,35 +578,59 @@ Note, the steps how to deploy an OpenDataHub with JupyterHub is described in the
 **Let's look at the Stormshift test & prod first**
 
 
-Please clone the  ```manuela-gitops```  and ```manuela-dev``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela-dev``` .
+Please clone the  ```manuela-gitops```  and ```manuela``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela``` .
 
 
 #### Bootstrap and configure Anomaly Detection Service in manuela-tst-all
 
-login into ocp3 as admin or with admin privileges 
+login into ocp3 as admin or with admin privileges and switch to the manuela-tst-all project
 ```
 oc login -u XXX -p XXXX --server=https://api.ocp3.stormshift.coe.muc.redhat.com:6443
+
+
+oc project manuela-tst-all
 ```
 
 
 _**Install Seldon CRD**_ 
 
-Check if seldon CRD is deployed:
+Check if the SeldonCore Operator is deployed:
 
 ```
-oc get crds | grep seldon
+oc get csv -n manuela-tst-all | grep -i seldon
+
 ```
 
 Expected results:
 ```
-seldondeployments.machinelearning.seldon.io                2020-04-13T10:41:50Z
+seldon-operator.v1.2.0                Seldon Operator                    1.2.0                  Succeeded
 ```
 
-If not, apply seldon-deployment-crd.yaml
+If not, deploy the SeldonCore Operator
 ```
-oc apply -f . https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/namespaces_and_operator_subscriptions/opendatahub/seldon-deployment-crd.yaml
+oc apply -k ~/manuela/namespaces_and_operator_subscriptions/seldon-operator/manuela-tst-all/
 
 ```
+
+
+
+_**Build iot-anomaly-detection container by running the pipeline**_ 
+
+
+Check if the anomaly-detection image stream already exists:
+
+```
+oc get is anomaly-detection -n manuela-tst-all
+
+```
+
+Expected results:
+```
+NAME                IMAGE REPOSITORY                                                                                                   TAGS      UPDATED
+anomaly-detection   default-route-openshift-image-registry.apps.ocp3.stormshift.coe.muc.redhat.com/manuela-tst-all/anomaly-detection   0.0.1-7   8 minutes ago
+```
+
+If not, run the pipeline to build the anomaly-detection image.
 
 _**Enable ODH and Seldon service**_ 
 
@@ -620,44 +648,16 @@ For example ...
 
 Push changes to master. ArgoCD will pickup the change.
 
-_**Build iot-anomaly-detection container by running the pipeline**_ 
-
-Run iot-anomaly-detection-pipeline to build or rebuild image. Either by starting the rerunning the last pipeline run or with the following commands.
-
-```
-cd ~/manuela-dev/tekton/templates
-
-oc process -n manuela-ci build-iot-anomaly-detection | oc create -n manuela-ci -f -
-```
-
-Watch the pipeline run in the UI to complete
-
 
 _**Test the anomaly detection service**_ 
 
 ```
-curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [[16.1,  15.40,  15.32,  13.47,  17.70]]}}" https://$(oc get route anomaly-detection -o jsonpath='{.spec.host}')/api/v0.1/predictions
+curl -k -X POST -H 'Content-Type: application/json' -d '{"data": { "ndarray": [[16.1,  15.40,  15.32,  13.47,  17.70]]}}' http://$(oc get route anomaly-detection -o jsonpath='{.spec.host}' -n manuela-tst-all)/api/v1.0/predictions
 ```
 
 Expexted result:
 ```
-{
-  "meta": {
-    "puid": "ebt47gdpjfemihjlhk9ng2evoc",
-    "tags": {
-    },
-    "routing": {
-    },
-    "requestPath": {
-      "anomaly-detection": "image-registry.openshift-image-registry.svc:5000/manuela-tst-all/anomaly-detection:0.0.1-20"
-    },
-    "metrics": []
-  },
-  "data": {
-    "names": [],
-    "ndarray": [1.0]
-  }
-}
+{"data":{"names":[],"ndarray":[1]},"meta":{}}
 ```
 
 
@@ -717,7 +717,6 @@ Prediction:  [1]
 #### Bootstrap and configure Anomaly Detection Service in production (manuela-stormshift-odh)
 
 Prerequitsites: 
-- Seldon Seldon CRD is already deployed
 - Anomaly Detection Service is deployed in manuela-tst-all
 - Pipeline iot-anomaly-detection run successfully
 
@@ -731,6 +730,7 @@ Create a symbolic link to instruct AgroCD to deploy opendatahub.
 
 ```
 cd   ~/manuela-gitops/deployment/execenv-ocp3
+
 ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-opendatahub-application.yaml
 ```
 
