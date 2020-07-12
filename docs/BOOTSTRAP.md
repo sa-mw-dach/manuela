@@ -38,7 +38,7 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Machine Learning based Anomaly Detection and Alerting (Optional)](#machine-learning-based-anomaly-detection-and-alerting-optional)
     - [Bootstrap and configure Anomaly Detection Service in manuela-tst-all](#bootstrap-and-configure-anomaly-detection-service-in-manuela-tst-all)
     - [Bootstrap and configure Anomaly Detection Service in production (manuela-stormshift-odh)](#bootstrap-and-configure-anomaly-detection-service-in-production-manuela-stormshift-odh)
-    - [Bootstrap and configure Anomaly Detection Service in iotdemo on OCP3](#bootstrap-and-configure-anomaly-detection-service-in-iotdemo-on-ocp3)
+    - [Configure Anomaly Detection Service in iotdemo](#configure-anomaly-detection-service-in-iotdemo)
 
 ## Prerequisites
 
@@ -356,6 +356,10 @@ Instantiate the development environment. Note: this will kick off a build of all
 ```bash
 cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/iotdemo
+
+oc project iotdemo
+
+cd ~/manuela-dev
 oc apply -k components
 ```
 
@@ -574,37 +578,61 @@ Note, the steps how to deploy an OpenDataHub with JupyterHub is described in the
 **Let's look at the Stormshift test & prod first**
 
 
-Please clone the  ```manuela-gitops```  and ```manuela-dev``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela-dev``` .
+Please clone the  ```manuela-gitops```  and ```manuela``` repos  into your home directory.  You can choose a different directory, but the subsequent docs assume it to reside in ```~/manuela-gitops```  and ```~/manuela``` .
 
 
 #### Bootstrap and configure Anomaly Detection Service in manuela-tst-all
 
-login into ocp3 as admin or with admin privileges 
+login into ocp3 as admin or with admin privileges and switch to the manuela-tst-all project
 ```
 oc login -u XXX -p XXXX --server=https://api.ocp3.stormshift.coe.muc.redhat.com:6443
+
+
+oc project manuela-tst-all
 ```
 
 
 _**Install Seldon CRD**_ 
 
-Check if seldon CRD is deployed:
+Check if the SeldonCore Operator is deployed:
 
 ```
-oc get crds | grep seldon
+oc get csv -n manuela-tst-all | grep -i seldon
+
 ```
 
 Expected results:
 ```
-seldondeployments.machinelearning.seldon.io                2020-04-13T10:41:50Z
+seldon-operator.v1.2.0                Seldon Operator                    1.2.0                  Succeeded
 ```
 
-If not, apply seldon-deployment-crd.yaml
+If not, deploy the SeldonCore Operator
 ```
-oc apply -f . https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/namespaces_and_operator_subscriptions/opendatahub/seldon-deployment-crd.yaml
+oc apply -k ~/manuela/namespaces_and_operator_subscriptions/seldon-operator/manuela-tst-all/
 
 ```
 
-_**Enable ODH and Seldon service**_ 
+
+
+_**Build iot-anomaly-detection container by running the pipeline**_ 
+
+
+Check if the anomaly-detection image stream already exists:
+
+```
+oc get is anomaly-detection -n manuela-tst-all
+
+```
+
+Expected results:
+```
+NAME                IMAGE REPOSITORY                                                                                                   TAGS      UPDATED
+anomaly-detection   default-route-openshift-image-registry.apps.ocp3.stormshift.coe.muc.redhat.com/manuela-tst-all/anomaly-detection   0.0.1-7   8 minutes ago
+```
+
+If not, run the pipeline to build the anomaly-detection image.
+
+_**Enable Seldon service**_ 
 
 Edit ```~/manuela-gitops/config/instances/manuela-tst/kustomization.yaml```
 and uncomment the line  ```../../templates/manuela-openshift/anomaly-detection```
@@ -620,44 +648,16 @@ For example ...
 
 Push changes to master. ArgoCD will pickup the change.
 
-_**Build iot-anomaly-detection container by running the pipeline**_ 
-
-Run iot-anomaly-detection-pipeline to build or rebuild image. Either by starting the rerunning the last pipeline run or with the following commands.
-
-```
-cd ~/manuela-dev/tekton/templates
-
-oc process -n manuela-ci build-iot-anomaly-detection | oc create -n manuela-ci -f -
-```
-
-Watch the pipeline run in the UI to complete
-
 
 _**Test the anomaly detection service**_ 
 
 ```
-curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [[16.1,  15.40,  15.32,  13.47,  17.70]]}}" https://$(oc get route anomaly-detection -o jsonpath='{.spec.host}')/api/v0.1/predictions
+curl -k -X POST -H 'Content-Type: application/json' -d '{"data": { "ndarray": [[16.1,  15.40,  15.32,  13.47,  17.70]]}}' http://$(oc get route anomaly-detection -o jsonpath='{.spec.host}' -n manuela-tst-all)/api/v1.0/predictions
 ```
 
 Expexted result:
 ```
-{
-  "meta": {
-    "puid": "ebt47gdpjfemihjlhk9ng2evoc",
-    "tags": {
-    },
-    "routing": {
-    },
-    "requestPath": {
-      "anomaly-detection": "image-registry.openshift-image-registry.svc:5000/manuela-tst-all/anomaly-detection:0.0.1-20"
-    },
-    "metrics": []
-  },
-  "data": {
-    "names": [],
-    "ndarray": [1.0]
-  }
-}
+{"data":{"names":[],"ndarray":[1]},"meta":{}}
 ```
 
 
@@ -717,22 +717,38 @@ Prediction:  [1]
 #### Bootstrap and configure Anomaly Detection Service in production (manuela-stormshift-odh)
 
 Prerequitsites: 
-- Seldon Seldon CRD is already deployed
 - Anomaly Detection Service is deployed in manuela-tst-all
 - Pipeline iot-anomaly-detection run successfully
 
 
 
-_**Enable ODH and Seldon service**_
+_**Enable Seldon service**_
 
 Let's assume you cloned the manuela-gitops repository already.
 
-Create a symbolic link to instruct AgroCD to deploy opendatahub.
+Edit `~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml` 
+
 
 ```
-cd   ~/manuela-gitops/deployment/execenv-ocp3
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-opendatahub-application.yaml
+vi ~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml
 ```
+and uncomment `- ../../../templates/manuela-openshift-prod/anomaly-detection`
+
+```
+...
+# Comment/uncomment following line to disable/enable anomaly-detection deployment
+- ../../../templates/manuela-openshift-prod/anomaly-detection
+...
+
+```
+
+Push changes
+```
+git add ~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml
+git commit -m "enable anomaly-detection"
+git push
+```
+
 
 
 _**Enable Vibration Alert and Vibration Anomaly detection in messaging-configmap of manuela-stormshift**_
@@ -744,7 +760,6 @@ Edit  ``` ~/manuela-gitops/config/instances/manuela-stormshift/messaging/messagi
 
 ```properties
 ...
-ANOMALY_DETECTION_URL=https://anomaly-detection-manuela-stormshift-odh.apps.ocp3.stormshift.coe.muc.redhat.com
 VIBRATION_ALERT_ENABLED=true
 VIBRATION_ANOMALY_ENABLED=true
 NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -752,14 +767,23 @@ NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 Push the changes to github and wait that ArgoCD picks up the change.
 
-Then, restart the messaging pod:
+Push changes
+```
+git add ~/manuela-gitops/config/instances/manuela-stormshift/messaging/messaging-configmap.properties
+git commit -m "enable anomaly detection alerts"
+git push
+```
 
-```
-oc delete  pods -l  app=messaging -n manuela-stormshift-messaging 
-```
 
 Check the messaging log to see if Anomaly web service is called (see above).
 
-#### Bootstrap and configure Anomaly Detection Service in iotdemo on OCP3
+#### Configure Anomaly Detection Service in iotdemo 
 
-- TBD
+Edit `~/manuela-dev/components/kustomization.yaml` and uncomment `- iot-anomaly-detection/manifests`
+
+```
+# Open data hub is optional
+- iot-anomaly-detection/manifests
+```
+
+Deploy or redeploy iotdemo. See [Development (Optional)](#development-optional)
