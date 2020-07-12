@@ -38,7 +38,7 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Machine Learning based Anomaly Detection and Alerting (Optional)](#machine-learning-based-anomaly-detection-and-alerting-optional)
     - [Bootstrap and configure Anomaly Detection Service in manuela-tst-all](#bootstrap-and-configure-anomaly-detection-service-in-manuela-tst-all)
     - [Bootstrap and configure Anomaly Detection Service in production (manuela-stormshift-odh)](#bootstrap-and-configure-anomaly-detection-service-in-production-manuela-stormshift-odh)
-    - [Bootstrap and configure Anomaly Detection Service in iotdemo on OCP3](#bootstrap-and-configure-anomaly-detection-service-in-iotdemo-on-ocp3)
+    - [Configure Anomaly Detection Service in iotdemo](#configure-anomaly-detection-service-in-iotdemo)
 
 ## Prerequisites
 
@@ -632,7 +632,7 @@ anomaly-detection   default-route-openshift-image-registry.apps.ocp3.stormshift.
 
 If not, run the pipeline to build the anomaly-detection image.
 
-_**Enable ODH and Seldon service**_ 
+_**Enable Seldon service**_ 
 
 Edit ```~/manuela-gitops/config/instances/manuela-tst/kustomization.yaml```
 and uncomment the line  ```../../templates/manuela-openshift/anomaly-detection```
@@ -722,17 +722,33 @@ Prerequitsites:
 
 
 
-_**Enable ODH and Seldon service**_
+_**Enable Seldon service**_
 
 Let's assume you cloned the manuela-gitops repository already.
 
-Create a symbolic link to instruct AgroCD to deploy opendatahub.
+Edit `~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml` 
+
 
 ```
-cd   ~/manuela-gitops/deployment/execenv-ocp3
-
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-opendatahub-application.yaml
+vi ~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml
 ```
+and uncomment `- ../../../templates/manuela-openshift-prod/anomaly-detection`
+
+```
+...
+# Comment/uncomment following line to disable/enable anomaly-detection deployment
+- ../../../templates/manuela-openshift-prod/anomaly-detection
+...
+
+```
+
+Push changes
+```
+git add ~/manuela-gitops/config/instances/manuela-stormshift/messaging/kustomization.yaml
+git commit -m "enable anomaly-detection"
+git push
+```
+
 
 
 _**Enable Vibration Alert and Vibration Anomaly detection in messaging-configmap of manuela-stormshift**_
@@ -744,7 +760,6 @@ Edit  ``` ~/manuela-gitops/config/instances/manuela-stormshift/messaging/messagi
 
 ```properties
 ...
-ANOMALY_DETECTION_URL=https://anomaly-detection-manuela-stormshift-odh.apps.ocp3.stormshift.coe.muc.redhat.com
 VIBRATION_ALERT_ENABLED=true
 VIBRATION_ANOMALY_ENABLED=true
 NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -752,14 +767,23 @@ NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 Push the changes to github and wait that ArgoCD picks up the change.
 
-Then, restart the messaging pod:
+Push changes
+```
+git add ~/manuela-gitops/config/instances/manuela-stormshift/messaging/messaging-configmap.properties
+git commit -m "enable anomaly detection alerts"
+git push
+```
 
-```
-oc delete  pods -l  app=messaging -n manuela-stormshift-messaging 
-```
 
 Check the messaging log to see if Anomaly web service is called (see above).
 
-#### Bootstrap and configure Anomaly Detection Service in iotdemo on OCP3
+#### Configure Anomaly Detection Service in iotdemo 
 
-- TBD
+Edit `~/manuela-dev/components/kustomization.yaml` and uncomment `- iot-anomaly-detection/manifests`
+
+```
+# Open data hub is optional
+- iot-anomaly-detection/manifests
+```
+
+Deploy or redeploy iotdemo. See [Development (Optional)](#development-optional)
