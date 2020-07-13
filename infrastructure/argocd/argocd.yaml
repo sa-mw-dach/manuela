@@ -5,8 +5,14 @@ metadata:
   namespace: argocd
 spec:
   server:
-    route: true
-    ingress: false
+    route:
+      annotations: {}
+      enabled: true
+      path: /
+      TLS:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: passthrough
+      wildcardPolicy: None
     insecure: false
     resources: {}
   dex:
