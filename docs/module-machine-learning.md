@@ -51,12 +51,13 @@ git clone https://github.com/sa-mw-dach/manuela.git
 **Deploy the OpenDataHub Operator in the Manuela-ML-Workspace namespace**
 ```bash
 cd  ~/manuela/namespaces_and_operator_subscriptions/manuela-ml-workspace
+oc apply -f opendatahub-subscription.yaml
 oc apply -k .
 oc project manuela-ml-workspace
 ```
 Wait a minute until the operator is running:
 ```bash
-oc get pods 
+oc get pods -n openshift-operators
 NAME                                    READY   STATUS    RESTARTS   AGE
 opendatahub-operator-546d49d59b-qd8hz   1/1     Running   0          48s
 ```
@@ -110,52 +111,38 @@ Option 2: Full demo
 
 **Demo model serving**
 
-For keeping the demo setup simple, lets use manuela-tst-all for show the model serving.
+For keeping the demo setup simple, lets use  for show the model serving.
 
-Show the running seldon pods in manuela-tst-all.
+Show the running seldon pods in manuela-tst-all manuela-stormshift-messaging.
 
 ```bash
-oc get pods -n manuela-tst-all | grep 'seldon\|anomaly'
+oc get pods -n  manuela-stormshift-messaging| grep 'seldon\|anomaly'
 ```
 
 ```
-anomaly-detection-predictor-4d76ee3-776b8fc6fc-vrcmh   2/2     Running   0          68m
-seldon-core-redis-master-0                             1/1     Running   0          67m
-seldon-core-seldon-apiserver-576f97485f-6swnx          1/1     Running   0          59m
-seldon-core-seldon-cluster-manager-7f799b974f-9tnjs    1/1     Running   0          68m
+anomaly-detection-predictor-0-anomaly-detection-796887f9899c2jj   2/2     Running   0          22h
+seldon-controller-manager-76d49f78b9-k7xc7                        1/1     Running   0          25h
 ```
 
 **Test the anomaly detection service** 
 
 ```
-curl -k -X POST -H 'Content-Type: application/json' -d "{'data': {'ndarray': [[16.1,  15.40,  15.32,  13.47,  17.70]]}}" https://$(oc get route anomaly-detection -o jsonpath='{.spec.host}' -n manuela-tst-all)/api/v0.1/predictions
-```
+curl -k -X POST -H 'Content-Type: application/json' -d '{"data": { "ndarray": [[16.1,  15.40,  15.32,  13.47,  17.70]]}}' http://$(oc get route anomaly-detection -n manuela-stormshift-messaging -o jsonpath='{.spec.host}' -n manuela-stormshift-messaging )/api/v1.0/predictions
+{"data":{"names":[],"ndarray":[1]},"meta":{}}
 
+
+```oc logs $(oc get pod -l seldon-app=anomaly-detection-anomaly-detection  -o jsonpath='{.items[0].metadata.name}' -n manuela-tst-all) -c anomaly-detection -n manuela-tst-all
 Expexted result:
 ```
-{
-  "meta": {
-    "puid": "ebt47gdpjfemihjlhk9ng2evoc",
-    "tags": {
-    },
-    "routing": {
-    },
-    "requestPath": {
-      "anomaly-detection": "image-registry.openshift-image-registry.svc:5000/manuela-tst-all/anomaly-detection:0.0.1-20"
-    },
-    "metrics": []
-  },
-  "data": {
-    "names": [],
-    "ndarray": [1.0]
-  }
-}
+{"data":{"names":[],"ndarray":[1]},"meta":{}}
 ```
+
+
 **Show logs to see anomaly-detection-predictor in action**
 
 Either on the OpenShift console or using oc
 ```
-oc logs $(oc get pod -l seldon-app=anomaly-detection-anomaly-detection  -o jsonpath='{.items[0].metadata.name}' -n manuela-tst-all) -c anomaly-detection -n manuela-tst-all
+oc logs $(oc get pod -l  seldon-app=anomaly-detection-predictor -o jsonpath='{.items[0].metadata.name}' -n manuela-stormshift-messaging) -c anomaly-detection -n manuela-stormshift-messaging
 
 ```
 

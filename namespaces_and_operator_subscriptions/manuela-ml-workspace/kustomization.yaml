@@ -5,8 +5,10 @@ namespace: manuela-ml-workspace
 
 bases:
 - ../manuela-team-rolebindings
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=manuela-1.2
 
 resources:
 - manuela-ml-workspace-namespace.yaml
 - manuela-ml-workspace-operatorgroup.yaml
+- opendatahub-subscription.yaml
+
+
