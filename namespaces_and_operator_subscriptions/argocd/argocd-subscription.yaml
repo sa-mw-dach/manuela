@@ -9,4 +9,4 @@ spec:
   name: argocd-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: argocd-operator.v0.0.8
+  startingCSV: argocd-operator.v0.0.11

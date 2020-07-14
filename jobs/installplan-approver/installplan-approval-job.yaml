@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+  name: startingCSV-installplan-approver
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli:v4.4
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -x
+              for subscription in `oc get subscription.operators.coreos.com -o name`
+              do 
+                DESIRED_CSV=$(oc get $subscription -o jsonpath='{ .spec.startingCSV }')
+                until [ "$(oc get installplan.operators.coreos.com -o jsonpath="{.items[?(@.spec.clusterServiceVersionNames[*] == \"$DESIRED_CSV\")].metadata.name}")" != "" ]; do sleep 2; done
+                INSTALL_PLAN=$(oc get installplan.operators.coreos.com -o jsonpath="{.items[?(@.spec.clusterServiceVersionNames[*] == \"$DESIRED_CSV\")].metadata.name}")
+                if [ "`oc get installplan.operators.coreos.com $INSTALL_PLAN -o jsonpath="{.spec.approved}"`" == "false" ]; then
+                  echo "Approving Subscription $subscription with install plan $INSTALL_PLAN"
+                  oc patch installplan.operators.coreos.com $INSTALL_PLAN --type=json -p='[{"op":"replace","path": "/spec/approved", "value": true}]'
+                else
+                  echo "Install Plan '$INSTALL_PLAN' already approved"
+                fi
+              done
+          imagePullPolicy: IfNotPresent
+          name: installplan-approver
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: installplan-approver
+      serviceAccountName: installplan-approver
+      terminationGracePeriodSeconds: 30
