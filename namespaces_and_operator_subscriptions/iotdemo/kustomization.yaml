@@ -11,7 +11,7 @@ resources:
 bases:
 - ../manuela-team-rolebindings
 - github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.2
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/seldon?ref=HEAD
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/seldon?ref=358_seldon_and_odh_rework
 
 # Open data hub is optional
 #- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=manuela-1.2

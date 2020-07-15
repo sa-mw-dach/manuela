@@ -3,9 +3,9 @@ kind: Kustomization
 
 namespace: manuela-ml-workspace
 
-resources:
+bases: 
+- ../../namespaces_and_operator_subscriptions/manuela-ml-workspace
 
+resources:
 # Used with ODH 0.6.1+
 - odh-kfdef.yaml
-
-# - odh-instance.yaml

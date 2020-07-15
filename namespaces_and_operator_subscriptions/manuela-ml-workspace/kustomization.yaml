@@ -9,6 +9,6 @@ bases:
 resources:
 - manuela-ml-workspace-namespace.yaml
 - manuela-ml-workspace-operatorgroup.yaml
-- opendatahub-subscription.yaml
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=358_seldon_and_odh_rework
 
 
