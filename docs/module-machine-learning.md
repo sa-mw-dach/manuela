@@ -51,10 +51,10 @@ git clone https://github.com/sa-mw-dach/manuela.git
 **Deploy the OpenDataHub Operator in the Manuela-ML-Workspace namespace**
 ```bash
 cd  ~/manuela/namespaces_and_operator_subscriptions/manuela-ml-workspace
-oc apply -f opendatahub-subscription.yaml
 oc apply -k .
-oc project manuela-ml-workspace
 ```
+If ```oc apply -k .``` fails, please try ``` kustomize build . | oc apply -f - ```
+
 Wait a minute until the operator is running:
 ```bash
 oc get pods -n openshift-operators
@@ -65,6 +65,7 @@ opendatahub-operator-546d49d59b-qd8hz   1/1     Running   0          48s
 
 **Deploy a OpenDataHub instance with a JupyterHub in the Manuela-ML-Workspace namespace**
 ```bash
+oc project manuela-ml-workspace
 cd  ~/manuela/infrastructure/opendatahub
 oc apply -k . 
 ```
