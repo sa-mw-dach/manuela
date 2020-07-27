@@ -5,6 +5,7 @@ namespace: argocd
 
 bases:
 - ../manuela-team-rolebindings
+- ../../jobs/installplan-approver
 
 resources:
 - argocd-namespace.yaml

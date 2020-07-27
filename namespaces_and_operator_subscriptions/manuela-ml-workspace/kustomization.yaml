@@ -5,10 +5,11 @@ namespace: manuela-ml-workspace
 
 bases:
 - ../manuela-team-rolebindings
+- ../../jobs/installplan-approver
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/seldon?ref=master
+# if included here, the install will fail because kustomize will change the namespace from openshift-operators to manuela-ml-workspace
+#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=master
 
 resources:
 - manuela-ml-workspace-namespace.yaml
 - manuela-ml-workspace-operatorgroup.yaml
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=HEAD
-
-

@@ -8,3 +8,4 @@ bases:
 - manuela-crw
 - manuela-ci
 - openshift-pipelines
+- opendatahub

@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=master
+
+patchesStrategicMerge:
+- opendatahub-subscription.yaml

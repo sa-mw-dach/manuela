@@ -10,11 +10,16 @@ resources:
 
 bases:
 - ../manuela-team-rolebindings
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.2
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/seldon?ref=HEAD
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=master
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/seldon?ref=master
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq-streams?ref=master
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/camel-k?ref=master
+- ../../jobs/installplan-approver
+
 
 # Open data hub is optional
-#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=manuela-1.2
+# if included here, the install will fail because kustomize will change the namespace from openshift-operators to iotdemo
+#- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/opendatahub?ref=master
 
 
 

@@ -5,6 +5,7 @@ namespace: manuela-crw
 
 bases:
 - ../manuela-team-rolebindings
+- ../../jobs/installplan-approver
 
 resources:
 - crw-namespace.yaml

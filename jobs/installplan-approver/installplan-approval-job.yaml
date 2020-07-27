@@ -3,29 +3,55 @@ kind: Job
 metadata:
   annotations:
     argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "-1"
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-  name: startingCSV-installplan-approver
+  name: startingcsv-installplan-approver
 spec:
   template:
     spec:
       containers:
         - image: registry.redhat.io/openshift4/ose-cli:v4.4
+          # env:
+          # - name: NAMESPACE
+          #   valueFrom:
+          #     fieldRef:
+          #       fieldPath: metadata.namespace
           command:
             - /bin/bash
             - -c
             - |
               set -x
-              for subscription in `oc get subscription.operators.coreos.com -o name`
+              # work around unwriteable HOME dir for unprivileged pods causing OC commands to be slow in pods
+              export HOME=$(mktemp -d)
+              cd $HOME
+
+              for SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com -o jsonpath="{range .items[?(@.spec.installPlanApproval==\"Manual\")]}{@.metadata.name}{'|'}{@.spec.startingCSV}{'|'}{@.status.installedCSV}{'\n'}{end}")
               do 
-                DESIRED_CSV=$(oc get $subscription -o jsonpath='{ .spec.startingCSV }')
-                until [ "$(oc get installplan.operators.coreos.com -o jsonpath="{.items[?(@.spec.clusterServiceVersionNames[*] == \"$DESIRED_CSV\")].metadata.name}")" != "" ]; do sleep 2; done
-                INSTALL_PLAN=$(oc get installplan.operators.coreos.com -o jsonpath="{.items[?(@.spec.clusterServiceVersionNames[*] == \"$DESIRED_CSV\")].metadata.name}")
-                if [ "`oc get installplan.operators.coreos.com $INSTALL_PLAN -o jsonpath="{.spec.approved}"`" == "false" ]; then
-                  echo "Approving Subscription $subscription with install plan $INSTALL_PLAN"
-                  oc patch installplan.operators.coreos.com $INSTALL_PLAN --type=json -p='[{"op":"replace","path": "/spec/approved", "value": true}]'
-                else
-                  echo "Install Plan '$INSTALL_PLAN' already approved"
+                SUBSCRIPTION=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f1 -d"|")
+                DESIRED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f2 -d"|")
+                INSTALLED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f3 -d"|")
+
+                if [ "$DESIRED_CSV" != "$INSTALLED_CSV" ]; then
+                  
+                  # get InstallPlan for desired CSV, or fail if it can't be determined (this sometimes happens with OLM)
+                  GET_INSTALLPLAN_CMD="oc get installplan.operators.coreos.com -o jsonpath=\"{range .items[*]}{@.metadata.name}{'|'}{@.spec.approved}{'|'}{@.spec.clusterServiceVersionNames}{'\n'}{end}\" | grep \"$DESIRED_CSV\" | cut -f1,2 -d\"|\""
+                  ALL_INSTALL_PLANS_FOR_CSV=$(eval $GET_INSTALLPLAN_CMD)
+                  RETRIES=10
+                  while [ "$ALL_INSTALL_PLANS_FOR_CSV" == "" && $RETRIES -gt 0]; do sleep 5; ALL_INSTALL_PLANS_FOR_CSV=$(eval $GET_INSTALLPLAN_CMD); RETRIES=$(($RETRIES - 1)); done
+                  if [ "ALL_INSTALL_PLANS_FOR_CSV" == "" ]; then
+                    exit 1
+                  fi
+
+                  for INSTALL_PLAN_SUMMARY in $ALL_INSTALL_PLANS_FOR_CSV
+                  do
+                    INSTALL_PLAN="$(echo $INSTALL_PLAN_SUMMARY|cut -f1 -d'|')"
+                    if [ "$INSTALL_PLAN_SUMMARY" == "$INSTALL_PLAN|false" ]; then
+                      echo "Approving install plan $INSTALL_PLAN for subscription $SUBSCRIPTION"
+                      oc patch installplan.operators.coreos.com $INSTALL_PLAN --type=json -p='[{"op":"replace","path": "/spec/approved", "value": true}]'
+                    else
+                      echo "Install plan '$INSTALL_PLAN' for subscription $SUBSCRIPTION already approved"
+                    fi
+                  done
                 fi
               done
           imagePullPolicy: IfNotPresent

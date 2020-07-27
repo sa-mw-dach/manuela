@@ -188,7 +188,13 @@ oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 
 ### Instantiate ArgoCD
 
-Wait for the ArgoCD operator to be available
+You cam also monitor the operator installation process by checking which InstallPlan and CSV are being created:
+```bash
+$ oc get Subscription.operators.coreos.com -n argocd -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+argocd-operator	install-29bkp	argocd-operator.v0.0.11
+```
+
+Once the operator installation is complete, wait for the ArgoCD operator to be available
 ```bash
 oc get pods -n argocd
 
@@ -320,7 +326,8 @@ cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/argocd
 oc apply -k infrastructure/argocd
 ```
-Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev . for the respective cluster is present
+
+Ensure that the deployment agent configuration for the respective cluster is present:
 ```bash
 oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
@@ -332,7 +339,12 @@ On the physical cluster representing the factory datacenter, ensure that the AMQ
 oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
-Then wait a little, then
+Ensure that the operator has rolled out - this registers the AMQ CRD in the cluster. You can validate the installation using
+```bash
+oc get Subscription.operators.coreos.com -n manuela-temp-amq -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+```
+
+Then remove
 ```bash
 oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
@@ -352,11 +364,24 @@ Adjust the ```~/manuela-dev/components/iot-frontend/manifests/iot-frontend-confi
 }
 ```
 
-Instantiate the development environment. Note: this will kick off a build of all components which will take several minutes.
+Instantiate the development environment. 
 ```bash
 cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/iotdemo
+```
 
+Wait for the operators to be installed
+```bash
+$ oc get Subscription.operators.coreos.com -n iotdemo -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+amq-broker	install-26b9s	amq-broker-operator.v0.15.0
+amq-streams	install-26b9s	amqstreams.v1.5.2
+red-hat-camel-k	install-26b9s	red-hat-camel-k-operator.v1.0.0
+seldon-operator	install-p8t7g	seldon-operator.v1.2.1
+```
+
+Then instantiate the development components. Note: this will kick off a build of all components which will take several minutes.
+
+```bash
 oc project iotdemo
 
 cd ~/manuela-dev
@@ -370,7 +395,6 @@ This provides CodeReady Workspaces as alternative development environment
 ```bash
 cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/manuela-crw
-oc apply -k infrastructure/crw
 ```
 
 This will create the following:
@@ -378,7 +402,19 @@ This will create the following:
 1. Create a new project manuela-crw in the current logged in OCP
 2. Create an OperatorGroup CR to make the OLM aware of an operator in this namespace
 3. Create an CRW Operator Subscription from the latest stable channel -> installs the CRW operator in the namespace manuela-crw
-4. Create an actual CheCluster in the namespace manuela-crw with following custom properties
+
+
+Wait for the operator installation to complete:
+```bash
+oc get Subscription.operators.coreos.com -n manuela-crw -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+``` 
+
+Then instantiate the CRW resources:
+```
+oc apply -k infrastructure/crw
+```
+
+This will create an actual CheCluster in the namespace manuela-crw with following custom properties
 ```yaml
 customCheProperties:
   CHE_LIMITS_USER_WORKSPACES_RUN_COUNT: '10'
@@ -592,11 +628,11 @@ oc project manuela-tst-all
 ```
 
 
-_**Install Seldon CRD**_ 
+_**Validate Seldon Operator**_ 
 
 Check if the SeldonCore Operator is deployed:
 
-```
+```bash
 oc get csv -n manuela-tst-all | grep -i seldon
 
 ```
@@ -606,12 +642,12 @@ Expected results:
 seldon-operator.v1.2.0                Seldon Operator                    1.2.0                  Succeeded
 ```
 
-If not, deploy the SeldonCore Operator
-```
-oc apply -k ~/manuela/namespaces_and_operator_subscriptions/seldon-operator/manuela-tst-all/
+You can also monitor the operator installation if it is still runnign with
 
+```bash
+$ oc get Subscription.operators.coreos.com -n manuela-ml-workspace -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+seldon-operator	install-4p5h7	seldon-operator.v1.2.1
 ```
-
 
 
 _**Build iot-anomaly-detection container by running the pipeline**_ 

@@ -81,6 +81,14 @@ Create "iotdemo" and "argocd" namespaces and required operator subscriptions:
 oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/01_namespaces_and_operators.yaml
 ```
 
+Wait until the argocd operator is installed. This might take a short while. You can check the output of the following command to validate which installplan and CSV is instantiated:
+
+```bash
+$ oc get Subscription.operators.coreos.com -n argocd -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
+
+argocd-operator	install-29bkp	argocd-operator.v0.0.11
+```
+
 Create ArgoCD instance:
 ```bash
 oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/02_argocd.yaml

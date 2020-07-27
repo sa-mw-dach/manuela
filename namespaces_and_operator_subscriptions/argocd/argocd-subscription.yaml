@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   channel: alpha
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: argocd-operator
   source: community-operators
   sourceNamespace: openshift-marketplace

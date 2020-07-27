@@ -1,0 +1,24 @@
+apiVersion: operators.open-cluster-management.io/v1beta1
+kind: MultiClusterHub
+metadata:
+  namespace: advanced-cluster-management
+  finalizers:
+    - finalizer.operators.open-cluster-management.io
+spec:
+  ipv6: false
+  overrides: {}
+  cloudPakCompatibility: false
+  imagePullSecret: advanced-cluster-management-registry
+  etcd:
+    storage: 1Gi
+    storageClass: managed-nfs-storage
+  hive:
+    backup:
+      velero: {}
+    failedProvisionConfig: {}
+  failover: false
+  mongo:
+    storage: 5Gi
+    storageClass: managed-nfs-storage
+  forcedReconcile: false
+status: {}

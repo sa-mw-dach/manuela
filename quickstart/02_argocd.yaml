@@ -3,6 +3,39 @@ kind: Namespace
 metadata:
   name: argocd
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: installplan-approver
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: endpoints-access-role
+  namespace: argocd
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: installplan-approver-role
+  namespace: argocd
+rules:
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - installplans
+  - subscriptions
+  verbs:
+  - '*'
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -19,6 +52,33 @@ subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: Group
   name: manuela-dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-redis-ha-rolebinding
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: endpoints-access-role
+subjects:
+- kind: ServiceAccount
+  name: argocd-redis-ha
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: installplan-approver-rolebinding
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: installplan-approver-role
+subjects:
+- kind: ServiceAccount
+  name: installplan-approver
+  namespace: argocd
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -62,10 +122,64 @@ spec:
   rbac:
     defaultPolicy: role:admin
   server:
-    ingress: false
     insecure: false
     resources: {}
-    route: true
+    route:
+      TLS:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: passthrough
+      annotations: {}
+      enabled: true
+      path: /
+      wildcardPolicy: None
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-1"
+  name: startingcsv-installplan-approver
+  namespace: argocd
+spec:
+  template:
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - -c
+        - "set -x\n# work around unwriteable HOME dir for unprivileged pods causing
+          OC commands to be slow in pods\nexport HOME=$(mktemp -d)\ncd $HOME\n\nfor
+          SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com
+          -o jsonpath=\"{range .items[?(@.spec.installPlanApproval==\\\"Manual\\\")]}{@.metadata.name}{'|'}{@.spec.startingCSV}{'|'}{@.status.installedCSV}{'\\n'}{end}\")\ndo
+          \n  SUBSCRIPTION=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f1 -d\"|\")\n
+          \ DESIRED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f2 -d\"|\")\n
+          \ INSTALLED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f3 -d\"|\")\n\n
+          \ if [ \"$DESIRED_CSV\" != \"$INSTALLED_CSV\" ]; then\n    \n    # get InstallPlan
+          for desired CSV, or fail if it can't be determined (this sometimes happens
+          with OLM)\n    GET_INSTALLPLAN_CMD=\"oc get installplan.operators.coreos.com
+          -o jsonpath=\\\"{range .items[*]}{@.metadata.name}{'|'}{@.spec.approved}{'|'}{@.spec.clusterServiceVersionNames}{'\\n'}{end}\\\"
+          | grep \\\"$DESIRED_CSV\\\" | cut -f1,2 -d\\\"|\\\"\"\n    ALL_INSTALL_PLANS_FOR_CSV=$(eval
+          $GET_INSTALLPLAN_CMD)\n    RETRIES=10\n    while [ \"$ALL_INSTALL_PLANS_FOR_CSV\"
+          == \"\" && $RETRIES -gt 0]; do sleep 5; ALL_INSTALL_PLANS_FOR_CSV=$(eval
+          $GET_INSTALLPLAN_CMD); RETRIES=$(($RETRIES - 1)); done\n    if [ \"ALL_INSTALL_PLANS_FOR_CSV\"
+          == \"\" ]; then\n      exit 1\n    fi\n\n    for INSTALL_PLAN_SUMMARY in
+          $ALL_INSTALL_PLANS_FOR_CSV\n    do\n      INSTALL_PLAN=\"$(echo $INSTALL_PLAN_SUMMARY|cut
+          -f1 -d'|')\"\n      if [ \"$INSTALL_PLAN_SUMMARY\" == \"$INSTALL_PLAN|false\"
+          ]; then\n        echo \"Approving install plan $INSTALL_PLAN for subscription
+          $SUBSCRIPTION\"\n        oc patch installplan.operators.coreos.com $INSTALL_PLAN
+          --type=json -p='[{\"op\":\"replace\",\"path\": \"/spec/approved\", \"value\":
+          true}]'\n      else\n        echo \"Install plan '$INSTALL_PLAN' for subscription
+          $SUBSCRIPTION already approved\"\n      fi\n    done\n  fi\ndone\n"
+        image: registry.redhat.io/openshift4/ose-cli:v4.4
+        imagePullPolicy: IfNotPresent
+        name: installplan-approver
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: installplan-approver
+      serviceAccountName: installplan-approver
+      terminationGracePeriodSeconds: 30
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
@@ -86,8 +200,8 @@ metadata:
   namespace: argocd
 spec:
   channel: alpha
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: argocd-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: argocd-operator.v0.0.8
+  startingCSV: argocd-operator.v0.0.11

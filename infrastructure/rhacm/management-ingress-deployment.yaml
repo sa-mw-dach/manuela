@@ -1,0 +1,299 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  generateName: management-ingress-519ce-5595499d9c-
+  annotations:
+    k8s.v1.cni.cncf.io/networks-status: |-
+      [{
+          "name": "openshift-sdn",
+          "interface": "eth0",
+          "ips": [
+              "10.130.1.60"
+          ],
+          "dns": {},
+          "default-route": [
+              "10.130.0.1"
+          ]
+      }]
+    openshift.io/scc: multicloud-scc
+    productID: management-ingress_3.4.0_00000
+    productName: management-ingress
+    productVersion: 3.4.0
+    seccomp.security.alpha.kubernetes.io/pod: docker/default
+  selfLink: >-
+    /api/v1/namespaces/advanced-cluster-management/pods/management-ingress-519ce-5595499d9c-k98gv
+  resourceVersion: '140471710'
+  name: management-ingress-519ce-5595499d9c-k98gv
+  uid: aae7bbf8-e0f6-428c-9a38-326d20edcff3
+  creationTimestamp: '2020-06-05T03:05:40Z'
+  namespace: advanced-cluster-management
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: management-ingress-519ce-5595499d9c
+      uid: 1b4a9a04-dc5d-453c-bec8-d1f3337d824c
+      controller: true
+      blockOwnerDeletion: true
+  labels:
+    app: management-ingress-519ce
+    app.kubernetes.io/instance: management-ingress-519ce
+    release: management-ingress-519ce
+    certmanager.k8s.io/time-restarted: 2020-5-26.1547
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: management-ingress
+    app.kubernetes.io/name: management-ingress-519ce
+    pod-template-hash: 5595499d9c
+    k8s-app: management-ingress-519ce
+    component: management-ingress-519ce
+    chart: management-ingress
+    heritage: Helm
+spec:
+  restartPolicy: Always
+  serviceAccountName: management-ingress-519ce-sa
+  imagePullSecrets:
+    - name: advanced-cluster-management-registry
+  priority: 0
+  schedulerName: default-scheduler
+  enableServiceLinks: true
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - management-ingress-519ce
+          topologyKey: kubernetes.io/hostname
+  terminationGracePeriodSeconds: 30
+  nodeName: control-2.ocp3.stormshift.coe.muc.redhat.com
+  securityContext:
+    seLinuxOptions:
+      level: 's0:c30,c20'
+  containers:
+    - resources: {}
+      readinessProbe:
+        httpGet:
+          path: /oauth/healthz
+          port: 443
+          scheme: HTTPS
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      name: oauth-proxy
+      securityContext:
+        capabilities:
+          drop:
+            - MKNOD
+      ports:
+        - name: public
+          containerPort: 443
+          protocol: TCP
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: redhat-ca-secret
+          mountPath: /etc/tls/redhat
+        - name: router-ca-secret
+          mountPath: /etc/tls/router
+        - name: tls-secret
+          mountPath: /etc/tls/private
+        - name: ca-tls-secret
+          mountPath: /etc/tls/ca
+        - name: management-ingress-519ce-sa-token-gp6z8
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePolicy: File
+      image: >-
+        registry.redhat.io/openshift4/ose-oauth-proxy@sha256:5fe478210770b21c1eb26c1570bcbda40bc5a79011580ff5ebd4c701a5b04eb2
+      args:
+        - '--provider=openshift'
+        - '--upstream=https://localhost:8443'
+        - '--upstream-ca=/etc/tls/ca/tls.crt'
+        - '--https-address=:443'
+        - '--client-id=multicloudingress'
+        - '--client-secret=multicloudingresssecret'
+        - '--pass-user-bearer-token=true'
+        - '--pass-access-token=true'
+        - '--scope=user:full'
+        - >-
+          -openshift-delegate-urls={"/": {"resource": "projects", "verb":
+          "list"}}
+        - '--skip-provider-button=true'
+        - '--cookie-secure=true'
+        - '--cookie-expire=12h0m0s'
+        - '--cookie-refresh=8h0m0s'
+        - '--tls-cert=/etc/tls/private/tls.crt'
+        - '--openshift-ca=/etc/tls/redhat/tls.crt'
+        - '--openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+        - '--tls-key=/etc/tls/private/tls.key'
+        - '--cookie-secret=AAECAwQFBgcICQoLDA0OFw=='
+    - resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+      readinessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      name: management-ingress-519ce
+      command:
+        - /management-ingress
+        - >-
+          --default-ssl-certificate=$(POD_NAMESPACE)/management-ingress-519ce-tls-secret
+        - '--configmap=$(POD_NAMESPACE)/management-ingress-519ce'
+        - '--http-port=8080'
+        - '--https-port=8443'
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      env:
+        - name: ENABLE_IMPERSONATION
+          value: 'false'
+        - name: APISERVER_SECURE_PORT
+          value: '8001'
+        - name: CLUSTER_DOMAIN
+          value: cluster.local
+        - name: HOST_HEADERS_CHECK_ENABLED
+          value: 'false'
+        - name: ALLOWED_HOST_HEADERS
+          value: >-
+            127.0.0.1 localhost management-ingress-519ce management-ingress
+            multicloud-console.apps.ocp3.stormshift.coe.muc.redhat.com
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: FIPS_ENABLED
+          value: 'false'
+      securityContext:
+        capabilities:
+          drop:
+            - MKNOD
+        allowPrivilegeEscalation: true
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: tls-secret
+          mountPath: /var/run/secrets/tls
+        - name: management-ingress-519ce-sa-token-gp6z8
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePolicy: File
+      image: >-
+        registry.redhat.io/rhacm1-tech-preview/management-ingress-rhel7@sha256:fc5d943eabc8d99adfe26c3f64d068630e9679ddb3abd8cad660f3e66301ef49
+  serviceAccount: management-ingress-519ce-sa
+  volumes:
+    - name: tls-secret
+      secret:
+        secretName: byo-ingress-tls-secret
+        defaultMode: 420
+    - name: ca-tls-secret
+      secret:
+        secretName: multicloud-ca-cert
+        defaultMode: 420
+    - name: redhat-ca-secret
+      secret:
+        secretName: redhat-ca-cert
+        defaultMode: 420
+    - name: router-ca-secret
+      secret:
+        secretName: router-ca
+        defaultMode: 420
+    - name: management-ingress-519ce-sa-token-gp6z8
+      secret:
+        secretName: management-ingress-519ce-sa-token-gp6z8
+        defaultMode: 420
+  dnsPolicy: ClusterFirst
+  tolerations:
+    - key: dedicated
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+status:
+  phase: Running
+  conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2020-06-05T03:05:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2020-06-05T03:06:00Z'
+    - type: ContainersReady
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2020-06-05T03:06:00Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2020-06-05T03:05:41Z'
+  hostIP: 172.16.10.12
+  podIP: 10.130.1.60
+  podIPs:
+    - ip: 10.130.1.60
+  startTime: '2020-06-05T03:05:41Z'
+  containerStatuses:
+    - restartCount: 0
+      started: true
+      ready: true
+      name: management-ingress-519ce
+      state:
+        running:
+          startedAt: '2020-06-05T03:05:49Z'
+      imageID: >-
+        registry.redhat.io/rhacm1-tech-preview/management-ingress-rhel7@sha256:fbc90abbe9c84c5b38d48c8a09df1b79971ad8d5b2de07738854a49b5bb5ab9f
+      image: >-
+        registry.redhat.io/rhacm1-tech-preview/management-ingress-rhel7@sha256:fc5d943eabc8d99adfe26c3f64d068630e9679ddb3abd8cad660f3e66301ef49
+      lastState: {}
+      containerID: 'cri-o://f1584d0b203c8351e7183a25f517290c35b830cbcbd7fde4856b3771090ffc19'
+    - restartCount: 0
+      started: true
+      ready: true
+      name: oauth-proxy
+      state:
+        running:
+          startedAt: '2020-06-05T03:05:46Z'
+      imageID: >-
+        quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:1d5825577014d40e186d14a477d556f2a8a407e699efaad006be21eae93eb1f6
+      image: >-
+        registry.redhat.io/openshift4/ose-oauth-proxy@sha256:5fe478210770b21c1eb26c1570bcbda40bc5a79011580ff5ebd4c701a5b04eb2
+      lastState: {}
+      containerID: 'cri-o://bd7d564a3aecd690878b6b119dd1aa64d6d4fd72026c7d30993cdce89775aeed'
+  qosClass: Burstable

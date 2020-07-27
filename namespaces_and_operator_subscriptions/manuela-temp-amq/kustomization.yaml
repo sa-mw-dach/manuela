@@ -6,6 +6,8 @@ namespace: manuela-temp-amq
 resources:
 - manuela-temp-amq-namespace.yaml
 - manuela-temp-amq-operatorgroup.yaml
+- ../../jobs/installplan-approver
+
 
 bases:
-- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=manuela-1.2
+- github.com/sa-mw-dach/manuela-dev//operator_subscriptions/amq?ref=master
