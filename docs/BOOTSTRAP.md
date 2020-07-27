@@ -19,7 +19,6 @@ This document describes how to bootstrap (install from scratch) the complete dem
     - [Create the cluster deployment agent configuration](#create-the-cluster-deployment-agent-configuration)
     - [Deploy the ArgoCD Cli Tool (optional)](#deploy-the-argocd-cli-tool-optional)
     - [Validate gitops repo via ArgoCD Web UI](#validate-gitops-repo-via-argocd-web-ui)
-    - [Remove manuela-temp-amq namespace](#remove-manuela-temp-amq-namespace)
   - [Instantiate Tekton Pipelines](#instantiate-tekton-pipelines)
     - [Adjust secrets](#adjust-secrets)
     - [Adjust Config Map](#adjust-config-map)
@@ -183,7 +182,6 @@ cd ~/manuela
 oc apply -k namespaces_and_operator_subscriptions/openshift-pipelines
 oc apply -k namespaces_and_operator_subscriptions/manuela-ci
 oc apply -k namespaces_and_operator_subscriptions/argocd
-oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
 ```
 
 ### Instantiate ArgoCD
@@ -263,12 +261,6 @@ To get the ArgoCD URL use:
 echo https://$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
 ```
 
-#### Remove manuela-temp-amq namespace
-
-This namespace was created to kickstart the ArgoCD deployment of manuela-tst-all by making the AMQ Broker CRD known to the cluster. It can now be removed:
-```bash
-oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
-```
 
 ### Instantiate Tekton Pipelines
 
@@ -333,21 +325,6 @@ oc apply -n argocd -f ~/manuela-gitops/meta/argocd-<yourphysicalcluster>
 ```
 
 Refer to [Validate GitOps repository via ArgoCD Web UI](#validate-gitops-repo-via-argocd-web-ui) to validate the ArgoCD setup.
-
-On the physical cluster representing the factory datacenter, ensure that the AMQ Broker CRD is instantiated, so that a rollout of a project containing the AMQ Broker CR will not fail via ArgoCD. If this hasn't happened as part of other steps, do the following:
-```bash
-oc apply -k namespaces_and_operator_subscriptions/manuela-temp-amq
-```
-
-Ensure that the operator has rolled out - this registers the AMQ CRD in the cluster. You can validate the installation using
-```bash
-oc get Subscription.operators.coreos.com -n manuela-temp-amq -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
-```
-
-Then remove
-```bash
-oc delete -k namespaces_and_operator_subscriptions/manuela-temp-amq
-```
 
 ## Optional extensions
 
