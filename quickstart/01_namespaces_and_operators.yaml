@@ -207,9 +207,7 @@ spec:
       - command:
         - /bin/bash
         - -c
-        - "set -x\n# work around unwriteable HOME dir for unprivileged pods causing
-          OC commands to be slow in pods\nexport HOME=$(mktemp -d)\ncd $HOME\n\nfor
-          SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com
+        - "set -x\nfor SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com
           -o jsonpath=\"{range .items[?(@.spec.installPlanApproval==\\\"Manual\\\")]}{@.metadata.name}{'|'}{@.spec.startingCSV}{'|'}{@.status.installedCSV}{'\\n'}{end}\")\ndo
           \n  SUBSCRIPTION=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f1 -d\"|\")\n
           \ DESIRED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f2 -d\"|\")\n
@@ -230,6 +228,9 @@ spec:
           --type=json -p='[{\"op\":\"replace\",\"path\": \"/spec/approved\", \"value\":
           true}]'\n      else\n        echo \"Install plan '$INSTALL_PLAN' for subscription
           $SUBSCRIPTION already approved\"\n      fi\n    done\n  fi\ndone\n"
+        env:
+        - name: HOME
+          value: /tmp
         image: registry.redhat.io/openshift4/ose-cli:v4.4
         imagePullPolicy: IfNotPresent
         name: installplan-approver
@@ -255,9 +256,7 @@ spec:
       - command:
         - /bin/bash
         - -c
-        - "set -x\n# work around unwriteable HOME dir for unprivileged pods causing
-          OC commands to be slow in pods\nexport HOME=$(mktemp -d)\ncd $HOME\n\nfor
-          SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com
+        - "set -x\nfor SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV in $(oc get subscription.operators.coreos.com
           -o jsonpath=\"{range .items[?(@.spec.installPlanApproval==\\\"Manual\\\")]}{@.metadata.name}{'|'}{@.spec.startingCSV}{'|'}{@.status.installedCSV}{'\\n'}{end}\")\ndo
           \n  SUBSCRIPTION=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f1 -d\"|\")\n
           \ DESIRED_CSV=$(echo $SUBSCRIPTION_DESIREDCSV_INSTALLEDCSV|cut -f2 -d\"|\")\n
@@ -278,6 +277,9 @@ spec:
           --type=json -p='[{\"op\":\"replace\",\"path\": \"/spec/approved\", \"value\":
           true}]'\n      else\n        echo \"Install plan '$INSTALL_PLAN' for subscription
           $SUBSCRIPTION already approved\"\n      fi\n    done\n  fi\ndone\n"
+        env:
+        - name: HOME
+          value: /tmp
         image: registry.redhat.io/openshift4/ose-cli:v4.4
         imagePullPolicy: IfNotPresent
         name: installplan-approver
