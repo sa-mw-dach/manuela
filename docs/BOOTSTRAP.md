@@ -9,7 +9,7 @@ This document describes how to bootstrap (install from scratch) the complete dem
   - [Virtualization environment (Optional)](#virtualization-environment-optional)
 - [Planning your installation](#planning-your-installation)
 - [Clone the manuela repository](#clone-the-manuela-repository)
-- [Fork and clone manuela and manuela-dev](#fork-and-clone-manuela-and-manuela-dev)
+- [Fork and clone manuela-dev](#fork-and-clone-manuela-dev)
 - [Create the gitops repository](#create-the-gitops-repository)
   - [Option 1: You demo stormshift and use the existing github.com/sa-mw-dach/manuela-gitops](#option-1-you-demo-stormshift-and-use-the-existing-githubcomsa-mw-dachmanuela-gitops)
   - [Option 2: You set up a new environment and use a custom GitOps repository](#option-2-you-set-up-a-new-environment-and-use-a-custom-gitops-repository)
@@ -112,14 +112,16 @@ We suggest the following distributions:
 
 ## Clone the manuela repository
 
-Clone the manuela repository. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela .
+Clone the manuela repository. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela . Unless you want to try out the bleeding edge, it is suggested you checkout the latest manuela version tag.
 
 ```bash
 cd ~
 git clone https://github.com/sa-mw-dach/manuela.git
+cd ~/manuela
+git checkout $(git tag -l "manuela-*" | sort --version-sort | tail -n 1)
 ```
 
-## Fork and clone manuela and manuela-dev
+## Fork and clone manuela-dev
 
 Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
 
@@ -129,6 +131,8 @@ Then, clone the your manuela-dev repository into your home directory. This repo 
 cd ~
 git clone https://github.com/<yourorg>/manuela-dev.git
 ```
+
+If you have forked your own manuela-dev repository, you will still have references to the original manuela-dev repository in your manuela repository. These include references to operator versions via kustomization.yaml to ensure that operators deployed from content in manuela-dev and operators deployed from content in manuela are the same. This will not impact your ability to demo coding changes in manuela-dev, but if you intend to develop your fork independently and/or want to experiment with other operator versions, you need to adjust them. Search & replace "- github.com/sa-mw-dach/manuela-dev" with an adjusted link to your repo in the kustomization.yamls of your manuela repo.
 
 ## Create the gitops repository
 
