@@ -3,25 +3,25 @@
 # Gitops App Deployment <!-- omit in toc -->
 This document describes how to prepare & execute the basic gitops app deployment demo
 
-- [Prerequisites](#Prerequisites)
-- [Demo Preparation](#Demo-Preparation)
-  - [Ensure that deployment dir is empty for target execution environments](#Ensure-that-deployment-dir-is-empty-for-target-execution-environments)
-  - [Sync ArgoCD](#Sync-ArgoCD)
-  - [Validate Application Namespaces & Components no longer exist in OpenShift (and ArgoCD)](#Validate-Application-Namespaces--Components-no-longer-exist-in-OpenShift-and-ArgoCD)
-- [Demo Execution](#Demo-Execution)
-  - [Show empty environment(s) & empty ArgoCD UI](#Show-empty-environments--empty-ArgoCD-UI)
-  - [Optional: Show current Firewall configuration](#Optional-Show-current-Firewall-configuration)
-  - [Review GitOps Application Configuration & Deployment approach](#Review-GitOps-Application-Configuration--Deployment-approach)
-    - [Application Templating Concept](#Application-Templating-Concept)
-    - [Application Instance configuration (in demo storyline: create app instance configuration)](#Application-Instance-configuration-in-demo-storyline-create-app-instance-configuration)
-    - [Review app deployment information](#Review-app-deployment-information)
-  - [Deploy application](#Deploy-application)
-    - [Wait or trigger ArgoCD sync / Explain GitOps Repo Structure](#Wait-or-trigger-ArgoCD-sync--Explain-GitOps-Repo-Structure)
-    - [Show application being deployed in ArgoCD](#Show-application-being-deployed-in-ArgoCD)
-    - [Show application being deployed on OpenShift](#Show-application-being-deployed-on-OpenShift)
-    - [Show running application](#Show-running-application)
-  - [Optional: Show Firewall configuration change](#Optional-Show-Firewall-configuration-change)
-- [Mini Demo recording](#Mini-Demo-recording)
+- [Prerequisites](#prerequisites)
+- [Demo Preparation](#demo-preparation)
+  - [Ensure that deployment dir is empty for target execution environments](#ensure-that-deployment-dir-is-empty-for-target-execution-environments)
+  - [Sync ArgoCD](#sync-argocd)
+  - [Validate Application Namespaces & Components no longer exist in OpenShift (and ArgoCD)](#validate-application-namespaces--components-no-longer-exist-in-openshift-and-argocd)
+- [Demo Execution](#demo-execution)
+  - [Show empty environment(s) & empty ArgoCD UI](#show-empty-environments--empty-argocd-ui)
+  - [Optional: Show current Firewall configuration](#optional-show-current-firewall-configuration)
+  - [Review GitOps Application Configuration & Deployment approach](#review-gitops-application-configuration--deployment-approach)
+    - [Application Templating Concept](#application-templating-concept)
+    - [Application Instance configuration (in demo storyline: create app instance configuration)](#application-instance-configuration-in-demo-storyline-create-app-instance-configuration)
+    - [Review app deployment information](#review-app-deployment-information)
+  - [Deploy application](#deploy-application)
+    - [Wait or trigger ArgoCD sync / Explain GitOps Repo Structure](#wait-or-trigger-argocd-sync--explain-gitops-repo-structure)
+    - [Show application being deployed in ArgoCD](#show-application-being-deployed-in-argocd)
+    - [Show application being deployed on OpenShift](#show-application-being-deployed-on-openshift)
+    - [Show running application](#show-running-application)
+  - [Optional: Show Firewall configuration change](#optional-show-firewall-configuration-change)
+- [Mini Demo recording](#mini-demo-recording)
 
 ## Prerequisites
 
@@ -30,55 +30,39 @@ The demo environment(s) have been [bootstrapped](BOOTSTRAP.md).
 ## Demo Preparation
 
 ### Ensure that deployment dir is empty for target execution environments
-
-The following example uses the OCP3+OCP4 execution environments, adapt accordingly when deploying to crc.
-
 Make sure you do NOT move or delete the execenv-<targetenv>-placeholder-configmap to undeploy, otherwise you won’t be able to sync via ArgoCD UI
+
 ```bash
 cd ~/manuela-gitops/deployment
-ls execenv-ocp3
+$ ls execenv-linedataserver/
 
-execenv-ocp3-placeholder-configmap.yaml			manuela-stormshift-line-dashboard-namespace.yaml	manuela-stormshift-messaging-namespace.yaml
-manuela-stormshift-line-dashboard-application.yaml	manuela-stormshift-messaging-application.yaml		manuela-stormshift-messaging-operatorgroup.yaml
+execenv-linedataserver-placeholder-configmap.yaml	manuela-stormshift-machine-sensor-application.yaml
 
-ls execenv-ocp4
+$ ls execenv-factorydatacenter/
 
-execenv-ocp4-placeholder-configmap.yaml			manuela-stormshift-machine-sensor-application.yaml	manuela-stormshift-machine-sensor-namespace.yaml
+execenv-factorydatacenter-placeholder-configmap.yaml	manuela-stormshift-line-dashboard-application.yaml
+manuela-data-lake-factory-mirror-maker.yaml		manuela-stormshift-messaging-application.yaml
+
+$ ls execenv-centraldatacenter/
+
+execenv-centraldatacenter-placeholder-configmap.yaml	manuela-data-lake-central-kafka-cluster.yaml		manuela-tst-all-application.yaml
 ```
+
 The deployment are just symlinks, therefore simply delete the links
 ```bash
-rm execenv-ocp3/manuela-stormshift*
-rm execenv-ocp4/manuela-stormshift* 
-rm nwpath-ocp3-ocp4/*
+
+rm execenv-linedataserver/manuela-stormshift*
+rm execenv-factorydatacenter/manuela-stormshift*
+rm execenv-centraldatacenter/manuela-stormshift*
+rm nwpath-linedataserver-factorydatacenter/*
 ```
 
 Commit changes to Git
 ```bash
 cd ~/manuela-gitops
 git add .
-git commit -m "undeploy ocp3/ocp4 to prepare for test deployment"
-
-[master 03e0c62] undeploy ocp3/ocp4 to prepare for test deployment
- 7 files changed, 0 insertions(+), 0 deletions(-)
- rename deployment/{execenv-ocp3 => undeployed}/manuela-stormshift-line-dashboard-application.yaml (100%)
- rename deployment/{execenv-ocp3 => undeployed}/manuela-stormshift-line-dashboard-namespace.yaml (100%)
- rename deployment/{execenv-ocp4 => undeployed}/manuela-stormshift-machine-sensor-application.yaml (100%)
- rename deployment/{execenv-ocp4 => undeployed}/manuela-stormshift-machine-sensor-namespace.yaml (100%)
- rename deployment/{execenv-ocp3 => undeployed}/manuela-stormshift-messaging-application.yaml (100%)
- rename deployment/{execenv-ocp3 => undeployed}/manuela-stormshift-messaging-namespace.yaml (100%)
- rename deployment/{execenv-ocp3 => undeployed}/manuela-stormshift-messaging-operatorgroup.yaml (100%)
-
+git commit -m "undeploy manuela-stormshift to prepare for test deployment"
 git push
-
-Enumerating objects: 11, done.
-Counting objects: 100% (11/11), done.
-Delta compression using up to 4 threads
-Compressing objects: 100% (6/6), done.
-Writing objects: 100% (6/6), 925 bytes | 462.00 KiB/s, done.
-Total 6 (delta 4), reused 0 (delta 0)
-remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
-To https://github.com/sa-mw-dach/manuela-gitops.git
-   f583608..03e0c62  master -> master
 ```
 ### Sync ArgoCD
 
@@ -237,42 +221,21 @@ GitHub and similar workflows would allow an approval step to be inserted here
 Move application deployments to their respective execution envs
 ```bash
 cd ~/manuela-gitops/deployment
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-line-dashboard-application.yaml execenv-ocp****3
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-messaging-application.yaml execenv-ocp****3
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-machine-sensor-application.yaml execenv-ocp****4
+ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-line-dashboard-application.yaml execenv-linedataserver
+ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-messaging-application.yaml execenv-factorydatacenter
+ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-machine-sensor-application.yaml execenv-centraldatacenter
 ```
 If the firewall demo is in scope, add links to the appropriate firewall rules
 ```bash
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-http-firewallrule.yaml nwpath-ocp3-ocp4
-ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-https-firewallrule.yaml nwpath-ocp3-ocp4
+ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-http-firewallrule.yaml nwpath-linedataserver-factorydatacenter
+ln -s ../../config/instances/manuela-stormshift/manuela-stormshift-https-firewallrule.yaml nwpath-linedataserver-factorydatacenter
 ```
 Commit changes to Git
 ```bash
 cd ~/manuela-gitops
 git add .
-git commit -m "deploy manuela-stormshift application to ocp3/ocp4"
-
-[master 882bd14] deploy manuela-stormshift application to ocp3/ocp4
- 7 files changed, 0 insertions(+), 0 deletions(-)
- rename deployment/{undeployed => execenv-ocp3}/manuela-stormshift-line-dashboard-application.yaml (100%)
- rename deployment/{undeployed => execenv-ocp3}/manuela-stormshift-line-dashboard-namespace.yaml (100%)
- rename deployment/{undeployed => execenv-ocp3}/manuela-stormshift-messaging-application.yaml (100%)
- rename deployment/{undeployed => execenv-ocp3}/manuela-stormshift-messaging-namespace.yaml (100%)
- rename deployment/{undeployed => execenv-ocp3}/manuela-stormshift-messaging-operatorgroup.yaml (100%)
- rename deployment/{undeployed => execenv-ocp4}/manuela-stormshift-machine-sensor-application.yaml (100%)
- rename deployment/{undeployed => execenv-ocp4}/manuela-stormshift-machine-sensor-namespace.yaml (100%)
-
+git commit -m "deploy manuela-stormshift application"
 git push
-
-Enumerating objects: 11, done.
-Counting objects: 100% (11/11), done.
-Delta compression using up to 4 threads
-Compressing objects: 100% (6/6), done.
-Writing objects: 100% (6/6), 800 bytes | 800.00 KiB/s, done.
-Total 6 (delta 4), reused 0 (delta 0)
-remote: Resolving deltas: 100% (4/4), completed with 3 local objects.
-To https://github.com/sa-mw-dach/manuela-gitops.git
-   03e0c62..882bd14  master -> master
 ```
 #### Wait or trigger ArgoCD sync / Explain GitOps Repo Structure
 
