@@ -11,7 +11,7 @@ This document describes how to prepare & execute the event streaming & data lake
   - [Show that the S3 bucket is empty (optional)](#show-that-the-s3-bucket-is-empty-optional)
   - [Copy Sensor Data to Kafka in the Factory](#copy-sensor-data-to-kafka-in-the-factory)
   - [Mirror Kafka to Central Data Center](#mirror-kafka-to-central-data-center)
-  - [View data persisted in S3 (optional)](#view-data-persisted-in-s3-optional)
+  - [Persist data in S3 (optional)](#persist-data-in-s3-optional)
 
 ## Prerequisites
 
@@ -157,7 +157,6 @@ cd ~/manuela-gitops/deployment/execenv-factorydatacenter
 ln -s ../../config/instances/manuela-data-lake/manuela-data-lake-factory-mirror-maker.yaml
 cd ~/manuela-gitops/deployment/execenv-centraldatacenter
 ln -s ../../config/instances/manuela-data-lake/manuela-data-lake-central-kafka-cluster.yaml
-ln -s ../../config/instances/manuela-data-lake/manuela-data-lake-central-s3-store.yaml
 git add .
 git commit -m "Deploy data lake application"
 git push
@@ -173,7 +172,18 @@ oc run -n manuela-data-lake-central-kafka-cluster kafka-consumer  -ti --image=re
 Note the topic prefix "manuela-factory", created by MirrorMaker2. 
 You should be able to see the sensor data arriving in Kafka. Exit the pod with ^C.
 
-### View data persisted in S3 (optional)
+### Persist data in S3 (optional)
+
+Configure the S3 secret key and deploy the S3 integration application:
+```bash
+cd ~/manuela-gitops
+sed -i '' "s/  application.properties:.*/  application.properties: $(echo -e "  s3.accessKey: $AWS_ACCESS_KEY_ID\n  s3.secretKey: $AWS_SECRET_ACCESS_KEY" | base64)/" config/instances/manuela-data-lake/central-s3-store/s3-secret.yaml
+ln -s ../../config/instances/manuela-data-lake/manuela-data-lake-central-s3-store.yaml deployment/execenv-factorydatacenter
+git add .
+git commit -m "Deploy S3 integration"
+git push
+```
+
 
 Use the following command to list the contents of the bucket:
 ```bash
