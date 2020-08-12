@@ -125,7 +125,7 @@ git checkout $(git tag -l "manuela-*" | sort --version-sort | tail -n 1)
 
 Unless you are using the stormshift environment, create a fork of https://github.com/sa-mw-dach/manuela-dev.git to your GitHub account. Each environment should have its own set of repositories, since running the demo will alter the manuela-dev contents during the coding demo and CI/CD runs.
 
-Then, clone the your manuela-dev repository into your home directory. This repo contains everything required to set up the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
+Then, clone the your manuela-dev repository into your home directory. This repo is the "in-storyline" repository of the dev team within the manuela demo. You can choose a different directory, but the subsequent docs assume it to reside in ~/manuela-dev .
 
 ```bash
 cd ~
@@ -162,13 +162,14 @@ git push -u origin master
 ```
 
 Adjust the GitOps repo to match your OCP clusters:
-1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name.
+1. For each (physical) cluster, create a directory in ```~/manuela-gitops/deployment``` based on the sample directory. Ensure that the name of the placeholder configmap name is adjusted in each directory to match the cluster name. You can also do the same for logical clusters (i.e. linedataserver, factorydatacenter, centraldatacenter, ..) if you prefer to deploy to those.
 2. If you intend to demonstrate the firewall operator, do the same for the network paths between the clusters.
 3. In the directory representing the cluster which hosts the CI/CD and Test environment, leave the manuela-tst-all symlink and delete it in the other directories. Adjust the ```spec.source.repoURL``` value to match the gitops repo url.
 4. For each (physical) cluster and for each network path between them, create an ArgoCD application in ```~/manuela-gitops/meta``` based on the sample. Remember to adjust it's ```metadata.name``` to match the cluster name, ```spec.source.repoURL``` to point to the GitHub URL and ```spec.source.path``` to point to the directory representing the cluster/networkpath in ```~/manuela-gitops/deployment```.
 5. Adjust the application configuration of the ```line-dashboard-configmap-config.json``` in ```~/manuela-gitops/config/instances/manuela-tst/``` and ```~/manuela-gitops/config/instances/manuela-prod``` to match your environment:
    - Messaging URL for the machine-sensors
    - Messaging URL for the line-dashboard
+   - Kafka bootstrap URLs for mirror-maker and S3 integration
 
 Push the changes to GitHub:
 ```bash
@@ -217,11 +218,12 @@ oc get secret argocd-secret -n argocd
 NAME            TYPE     DATA   AGE
 argocd-secret   Opaque   2      2m12s
 ```
-
+<!-- 
 Set the ArgoCD admin password to admin/admin
 ```bash
 oc -n argocd patch secret argocd-secret  -p '{"stringData": { "admin.password": "'$(htpasswd -nbBC 10 admin admin | awk '{print substr($0,7)}')'", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
+-->
 
 Check pods and routes to validate ArgoCD is running
 ```bash

@@ -58,7 +58,8 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - OpenShift V4
 - OpenShift Container Storage V4
 - AMQ (MQTT Message broker)
-- AMQ Streams (Kafka Event Broker, coming soon)
+- AMQ Streams (Kafka Event Broker)
+- Camel-K Integrations
 - Tekton Pipelines
 - ArgoCD for GitOps
 - Code Ready Workspaces (Development Environment)
