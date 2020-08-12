@@ -29,6 +29,8 @@ Clean up the old pipelineruns and keep only a smaller number, e.g. 15:
 oc get pipelineruns -n manuela-ci --sort-by=.metadata.creationTimestamp -o name | tail -n +2 | tail -r | tail -n +15 | xargs oc delete -n manuela-ci
 ```
 
+Uninstalling seldon-based workloads (e.g. anomaly detection) currently leaves WebHooks behind which cause subsequent deployments to fail. Check that all MutatingWebHooks and ValidatingWebHooks that are configured for seldon still work, or delete the WebHooks.
+
 ## Demo Execution
 
 Review the GitHub ops repository and show that currently, only the master branch exists. Explain the [staging concept](staging-concept.md) and the expected creation of a new branch + pull request during the pipeline run.

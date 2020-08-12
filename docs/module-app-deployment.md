@@ -8,6 +8,7 @@ This document describes how to prepare & execute the basic gitops app deployment
   - [Ensure that deployment dir is empty for target execution environments](#ensure-that-deployment-dir-is-empty-for-target-execution-environments)
   - [Sync ArgoCD](#sync-argocd)
   - [Validate Application Namespaces & Components no longer exist in OpenShift (and ArgoCD)](#validate-application-namespaces--components-no-longer-exist-in-openshift-and-argocd)
+  - [Clean Up Seldon WebHooks](#clean-up-seldon-webhooks)
 - [Demo Execution](#demo-execution)
   - [Show empty environment(s) & empty ArgoCD UI](#show-empty-environments--empty-argocd-ui)
   - [Optional: Show current Firewall configuration](#optional-show-current-firewall-configuration)
@@ -79,6 +80,11 @@ E.g. via UI or CLI (see Logins & URL Chapter for Links)
 **oc get projects | grep manu**
 ```
 ![image alt text](images/image_10.png)
+
+### Clean Up Seldon WebHooks
+
+Uninstalling seldon-based workloads (e.g. anomaly detection) currently leaves WebHooks behind which cause subsequent deployments to fail. Check that all MutatingWebHooks and ValidatingWebHooks that are configured for seldon still work, or delete the WebHooks.
+
 
 ## Demo Execution
 
