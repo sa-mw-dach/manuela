@@ -129,13 +129,22 @@ seldon-controller-manager-76d49f78b9-k7xc7                        1/1     Runnin
 
 **Test the anomaly detection service** 
 
+Make a test call:
 ```
 curl -k -X POST -H 'Content-Type: application/json' -d '{"data": { "ndarray": [[16.1,  15.40,  15.32,  13.47,  17.70]]}}' http://$(oc get route anomaly-detection -n manuela-stormshift-messaging -o jsonpath='{.spec.host}' -n manuela-stormshift-messaging )/api/v1.0/predictions
+```
+
+Output: 
+```
 {"data":{"names":[],"ndarray":[1]},"meta":{}}
+```
 
+Check the logs:
+```
+oc logs $(oc get pod -l seldon-app=anomaly-detection-anomaly-detection  -o jsonpath='{.items[0].metadata.name}' -n manuela-tst-all) -c anomaly-detection -n manuela-tst-all
+```
 
-```oc logs $(oc get pod -l seldon-app=anomaly-detection-anomaly-detection  -o jsonpath='{.items[0].metadata.name}' -n manuela-tst-all) -c anomaly-detection -n manuela-tst-all
-Expexted result:
+Expected result:
 ```
 {"data":{"names":[],"ndarray":[1]},"meta":{}}
 ```
@@ -146,7 +155,6 @@ Expexted result:
 Either on the OpenShift console or using oc
 ```
 oc logs $(oc get pod -l  seldon-app=anomaly-detection-predictor -o jsonpath='{.items[0].metadata.name}' -n manuela-stormshift-messaging) -c anomaly-detection -n manuela-stormshift-messaging
-
 ```
 
 Expexted result:
