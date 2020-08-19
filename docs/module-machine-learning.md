@@ -48,9 +48,11 @@ cd ~
 git clone https://github.com/sa-mw-dach/manuela.git
 ```
 
-**Deploy the OpenDataHub Operator in the Manuela-ML-Workspace namespace**
+**Deploy the OpenDataHub Operator **
+Starting with ODH V0.6, it is a global operator. To deploy it, use
+
 ```bash
-cd  ~/manuela/namespaces_and_operator_subscriptions/manuela-ml-workspace
+cd  ~/manuela/namespaces_and_operator_subscriptions/opendatahub
 oc apply -k .
 ```
 If ```oc apply -k .``` fails, please try ``` kustomize build . | oc apply -f - ```
