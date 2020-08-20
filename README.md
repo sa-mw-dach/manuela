@@ -18,8 +18,8 @@ Your feedback is welcome - enter your feedback, issues, and enhancement requests
 - You want to understand the concepts behind MANUela? Check out the [Concepts](./docs/concepts.md).
 - You want to set up a new demo environment from scratch? Check out the [BOOTSTRAP](./docs/BOOTSTRAP.md).
 
-### Use Cases 
-You want to run the demo on an existing environment? Check out the individual horizontal modules below.
+### Use Cases / Demo Modules
+You want to run the demo on an existing environment? Check out the individual horizontal modules below. Each module is indpendant of the others, i.e. only this module or any combination can be shown. Some modules also have different paths, e.g fast-path just briefly introducing the topic, or the deep-dive path really going to the bottom of things.
 - GitOps app deployment [preparation](./docs/module-app-deployment.md#Demo-preparation) - [demo execution](./docs/module-app-deployment.md#Demo-execution)
 - GitOps configuration management [preparation](./docs/module-configuration-management.md#Demo-preparation) - [demo execution](./docs/module-configuration-management.md#Demo-execution)
 - Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./docs/module-code-change.md#demo-execution)
