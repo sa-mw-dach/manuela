@@ -300,9 +300,10 @@ sed "s/\.dockerconfigjson:.*/.dockerconfigjson: $QUAY_BUILD_SECRET/" tekton/secr
 Adjust Tekton environment config map to match your environment. Unless you are deviating from the manuela-gitops repository structure and contents, you only need to change the values which begin with GIT_ or end with _REMOTE_IMAGE.
 
 #### Instantiate Pipelines
-Then instantiate the pipelines
+Then instantiate the pipelines and required secrets in the `manuela-ci` namespace
 ```bash
 cd ~/manuela-dev
+oc project manuela-ci
 oc apply -k tekton/secrets
 oc apply -k tekton
 ```
