@@ -41,6 +41,8 @@ We want to introduce a time series database.
   * Graphite
   * OpenTSDB
   * TimescaleDB
+  * Victoria Metrics
 * need to develop a mechanism to feed sensor data from Kafka into TSDB
 * need operational concept for Time Series DB (especially: backup/restore, data retention policy, etc...)
+* need funcational equivalent to OSISoft Asset Framework for device hierarchy and semantics
 * Application Architects need to be aware of the eventually consistent nature of data in Kafka vs. data in the TSDB (and other sinks feeding from the event log) 
