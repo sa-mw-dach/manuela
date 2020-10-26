@@ -48,7 +48,8 @@ cd ~
 git clone https://github.com/sa-mw-dach/manuela.git
 ```
 
-**Deploy the OpenDataHub Operator **
+**Deploy the OpenDataHub Operator**
+
 Starting with ODH V0.6, it is a global operator. To deploy it, use
 
 ```bash
@@ -67,7 +68,6 @@ opendatahub-operator-546d49d59b-qd8hz   1/1     Running   0          48s
 
 **Deploy a OpenDataHub instance with a JupyterHub in the Manuela-ML-Workspace namespace**
 ```bash
-oc project manuela-ml-workspace
 cd  ~/manuela/infrastructure/opendatahub
 oc apply -k . 
 ```
@@ -90,7 +90,7 @@ https://jupyterhub-manuela-ml-workspace.apps.ocp4.stormshift.coe.muc.redhat.com
 
 1. Login with OpenShift credentials
 2. Spwan a notebook ```s2i-minimal-notebook:3.6``` using the defaults
-3. Upload ```Data-Analyses.ipynb``` and ```raw-data.csv``` from ```~/manuela-dev/ml-models/anomaly-detection/```
+3. Upload ```Anomaly-Detection-simple-ML-Training.ipynb``` and ```raw-data.csv``` from ```~/manuela-dev/ml-models/anomaly-detection/```
    
 
 ![launch-jupyter](./images/launch-jupyter.png)
@@ -102,7 +102,7 @@ https://jupyterhub-manuela-ml-workspace.apps.ocp4.stormshift.coe.muc.redhat.com
 
 **Demo the notebook**
 
-Open the notebook ```Data-Analyses.ipynb```
+Open the notebook ```Anomaly-Detection-simple-ML-Training.ipynb```
 
 Option 1: Lightweigt demo
 - All output cells are populated. Don't run any cells. 
@@ -116,10 +116,10 @@ Option 2: Full demo
 
 For keeping the demo setup simple, lets use  for show the model serving.
 
-Show the running seldon pods in manuela-tst-all manuela-stormshift-messaging.
+Show the running seldon pods in manuela-stormshift-messaging.
 
 ```bash
-oc get pods -n  manuela-stormshift-messaging| grep 'seldon\|anomaly'
+oc get pods -n  manuela-stormshift-messaging | grep 'seldon\|anomaly'
 ```
 
 ```
@@ -139,15 +139,9 @@ Output:
 {"data":{"names":[],"ndarray":[1]},"meta":{}}
 ```
 
-Check the logs:
-```
-oc logs $(oc get pod -l seldon-app=anomaly-detection-anomaly-detection  -o jsonpath='{.items[0].metadata.name}' -n manuela-tst-all) -c anomaly-detection -n manuela-tst-all
-```
+The prediction is ```"ndarray":[1]```. This is an anomaly.
 
-Expected result:
-```
-{"data":{"names":[],"ndarray":[1]},"meta":{}}
-```
+
 
 
 **Show logs to see anomaly-detection-predictor in action**
