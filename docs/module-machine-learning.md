@@ -95,6 +95,13 @@ https://jupyterhub-manuela-ml-workspace.apps.ocp4.stormshift.coe.muc.redhat.com
 
 ![launch-jupyter](./images/launch-jupyter.png)
 
+Instead of uploading the files via the Jupyter UI from your local computer, you can start a Jupyter Terminal and download direclty from git:
+```
+curl -O https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/ml-models/anomaly-detection/Anomaly-Detection-simple-ML-Training.ipynb
+
+curl -O https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/ml-models/anomaly-detection/raw-data.csv
+
+```
 
 ## Demo Execution
 
