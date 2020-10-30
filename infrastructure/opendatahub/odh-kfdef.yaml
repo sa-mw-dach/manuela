@@ -7,138 +7,31 @@ metadata:
   namespace: manuela-ml-workspace
 spec:
   applications:
-# common config map - should probably always be present
-    - name: odh-common
-      kustomizeConfig:
+    - kustomizeConfig:
         repoRef:
           name: manifests
           path: odh-common
-
-# https://github.com/opendatahub-io/odh-manifests/tree/master/odhseldon
-    # - name: odhseldon
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: odhseldon/cluster
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/ai-library
-    # - name: ai-library-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: ai-library/cluster
-    # - name: ai-library-operator
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: ai-library/operator
-
-# https://github.com/opendatahub-io/odh-manifests/tree/master/superset
-    # - name: superset
-    #   kustomizeConfig:
-    #     parameters:
-    #       - name: SUPERSET_ADMIN_PASSWORD
-    #         value: admin
-    #     repoRef:
-    #       name: manifests
-    #       path: superset
-
-# https://github.com/opendatahub-io/odh-manifests/tree/master/kafka
-    # - name: strimzi-operator
-    #   kustomizeConfig:
-    #     parameters:
-    #       - name: namespace
-    #         value: openshift-operators
-    #     repoRef:
-    #       name: manifests
-    #       path: kafka/cluster
-    # - name: kafka-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: kafka/kafka
-
-# https://github.com/opendatahub-io/odh-manifests/tree/master/grafana
-    # - name: grafana-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: grafana/cluster
-    # - name: grafana-instance
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: grafana/grafana
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/radanalyticsio
-    # - name: radanalyticsio-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: radanalyticsio/spark/cluster
-    # - name: radanalyticsio-spark-operator
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: radanalyticsio/spark/operator
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/prometheus
-    # - name: prometheus-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: prometheus/cluster
-    # - name: prometheus-operator
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: prometheus/operator
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/jupyterhub
-    - name: jupyterhub
-      kustomizeConfig:
+      name: odh-common
+    - kustomizeConfig:
         parameters:
           - name: s3_endpoint_url
             value: s3.odh.com
         repoRef:
           name: manifests
           path: jupyterhub/jupyterhub
-    - name: notebook-images
-      kustomizeConfig:
+      name: jupyterhub
+    - kustomizeConfig:
         overlays:
           - additional
         repoRef:
           name: manifests
           path: jupyterhub/notebook-images
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/airflow
-    # - name: airflow-operator
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: airflow/operator
-    # - name: airflow-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: airflow/cluster
-
-# https://github.com/opendatahub-io/odh-manifests/blob/master/odhargo
-    # - name: odhargo-cluster
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: odhargo/cluster
-    # - name: odhargo
-    #   kustomizeConfig:
-    #     repoRef:
-    #       name: manifests
-    #       path: odhargo/odhargo
-      
+      name: notebook-images
   repos:
     - name: kf-manifests
-      uri:  https://github.com/opendatahub-io/manifests/tarball/v0.7-branch-openshift
+      uri: >-
+        https://github.com/opendatahub-io/manifests/tarball/v1.0-branch-openshift
     - name: manifests
-      uri: 'https://github.com/opendatahub-io/odh-manifests/tarball/v0.6.1'
-  version: v0.6.1
+      uri: 'https://github.com/opendatahub-io/odh-manifests/tarball/v0.8.0'
+  version: v0.8.0
 status: {}
