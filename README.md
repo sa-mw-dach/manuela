@@ -19,7 +19,7 @@ Your feedback is welcome - enter your feedback, issues, and enhancement requests
 - You want to set up a new demo environment from scratch? Check out the [BOOTSTRAP](./docs/BOOTSTRAP.md).
 
 ### Use Cases / Demo Modules
-You want to run the demo on an existing environment? Check out the individual horizontal modules below. Each module is indpendant of the others, i.e. only this module or any combination can be shown. Some modules also have different paths, e.g fast-path just briefly introducing the topic, or the deep-dive path really going to the bottom of things.
+You want to run the demo on an existing environment? Check out the individual horizontal modules below. Each module is independent of the others, i.e. only this module or any combination can be shown. Some modules also have different paths, e.g fast-path just briefly introducing the topic, or the deep-dive path really going to the bottom of things.
 - GitOps app deployment [preparation](./docs/module-app-deployment.md#Demo-preparation) - [demo execution](./docs/module-app-deployment.md#Demo-execution)
 - GitOps configuration management [preparation](./docs/module-configuration-management.md#Demo-preparation) - [demo execution](./docs/module-configuration-management.md#Demo-execution)
 - Code change [preparation](./docs/module-code-change.md#Demo-preparation) - [demo execution](./docs/module-code-change.md#demo-execution)
@@ -65,7 +65,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - Code Ready Workspaces (Development Environment)
 - Red Hat Virtualization (Optional, to provide multiple clusters)
 - Open Data Hub for machine learning use cases
-- cloud.redhat.com as preview to multi cluster managment capabilities
+- cloud.redhat.com as preview to multi cluster management capabilities
 - Runtimes, esp. Quarkus, NodeJS....
 
 CAVEAT: Some of the technologies involved are bleeding edge, and so implementation details might change if a better tool is found for a particular purpose.  
