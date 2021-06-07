@@ -8,8 +8,6 @@ This project is built and maintained by a group of solution architects at Red Ha
 
 Your feedback is welcome - enter your feedback, issues, and enhancement requests [here](https://github.com/sa-mw-dach/manuela/issues).
 
-**Red Hatters**: Please track any demo in the [spreadsheet](https://docs.google.com/spreadsheets/d/17846bqUPEbXUmJ2i6KUYJ_k0yiJWmVW4flhKb83WDA4/edit#gid=0) so we can understand how it is used.
-
 
 ## Documentation
 
