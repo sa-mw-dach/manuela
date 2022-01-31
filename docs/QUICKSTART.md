@@ -5,7 +5,7 @@ By following these steps you will create your own instance of the manuela gitops
 - [Prequisites](#prequisites)
 - [Quickstart deployment](#quickstart-deployment)
 - [Prepare your own instance of the gitops repository](#prepare-your-own-instance-of-the-gitops-repository)
-- [Prepare Cluster and deploy ArgoCD](#prepare-cluster-and-deploy-argocd)
+- [Prepare Cluster and deploy OpenShift GitOps (ArgoCD)](#prepare-cluster-and-deploy-openshift-gitops-argocd)
 - [Deploy the Application via GitOps](#deploy-the-application-via-gitops)
 - [Configure the Application via GitOps](#configure-the-application-via-gitops)
 - [Build the Application Components from Source](#build-the-application-components-from-source)
@@ -74,9 +74,9 @@ git commit -m "adapt base DNS names"
 git push
 ```
 
-## Prepare Cluster and deploy ArgoCD
+## Prepare Cluster and deploy OpenShift GitOps (ArgoCD)
 
-Create "iotdemo" and "argocd" namespaces and required operator subscriptions: 
+Create namespaces and required operator subscriptions: 
 ```bash
 oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/01_namespaces_and_operators.yaml
 ```
