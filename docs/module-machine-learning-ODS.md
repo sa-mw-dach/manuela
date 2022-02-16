@@ -36,6 +36,9 @@ curl -O https://raw.githubusercontent.com/sa-mw-dach/manuela-dev/master/ml-model
 
 Option 2: Load a Git repository
 
+- Load the epository: ```Git``` -> ```Add Remote Repository```
+- Enter this link: https://github.com/sa-mw-dach/manuela-dev.git
+
 ## Demo Execution
 
 ### Demo ML modeling on RHODS
