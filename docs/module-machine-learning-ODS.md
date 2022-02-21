@@ -1,6 +1,6 @@
 ![MANUela Logo](./images/logo.png)
 
-# Machine Learning in a Public Cloud on Red Hat OpenShift Date Science (RHODS)<!-- omit in toc -->
+# Machine Learning in a Public Cloud on Red Hat OpenShift Data Science (RHODS)<!-- omit in toc -->
 This document describes how to prepare & execute the machine learning demo on RHODS
 
 - [Demo Preparation/ or possible Demo Usecase](#demo-preparation-or-possible-demo-usecase)
