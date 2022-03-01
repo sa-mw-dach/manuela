@@ -1,6 +1,6 @@
 ![MANUela Logo](./images/logo.png)
 
-# Machine Learning in a Public Cloud on Red Hat OpenShift Date Science (RHODS)<!-- omit in toc -->
+# Machine Learning in a Public Cloud on Red Hat OpenShift Data Science (RHODS)<!-- omit in toc -->
 This document describes how to prepare & execute the machine learning demo on RHODS
 
 - [Demo Preparation/ or possible Demo Usecase](#demo-preparation-or-possible-demo-usecase)
@@ -23,7 +23,7 @@ The demo is based on the internal Red Hat OpenShift Data Science (https://source
 You should now see the Dashboard of the RHODS. Under the menu point "Applications -> Enabled" you see the all the applications that you can lunch. 
 In our case you have to look for "JupyterHub". Then press "Launch application"
 
-Option 1: Loade necessary data through a Terminal
+Option 1: Load necessary data through a Terminal
 
 In your newly created JupyterHub you know need to create a new tab. Click on blue button with the "+" in it and choose under the headline "Other" a "Terminal"
 
