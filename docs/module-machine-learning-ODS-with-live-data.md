@@ -6,14 +6,22 @@ This document describes how to prepare & execute the machine learning demo on RH
 - [Demo Preparation/ or possible Demo Usecase](#demo-preparation-or-possible-demo-usecase)
   - [Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)](#deploy-openshift-steams-for-apache-kafka-with-red-hat-openshift-data-science-rhods)
   - [Create a Kafka instance with Red Hat OpenShift Data Science (RHODS)](#create-a-kafka-instance-with-red-hat-openshift-data-science-rhods)
+  - [How to use MirrorMaker 2 with OpenShift Streams for Apache Kafka](#how-to-use-mirrormaker-2-with-openshift-streams-for-apache-kafka)
   - [Create a secret on StormShift for the connection between StormShift and RHODS](#create-a-secret-on-stormshift-for-the-connection-between-stormshift-and-rhods)
   - [Check if the Kafka instance on StormShift is working properly](#check-if-the-kafka-instance-on-stormshift-is-working-properly)
-  - [Modify KafkaMirrorMaker2 in Red Hat Integration - AMQ Steams on StormShift (ocp3)](#modify-kafkamirrormaker2-in-red-hat-integration---amq-steams-on-stormshift-ocp3)
+  - [Create a KafkaMirrorMaker2 instance in Red Hat Integration - AMQ Steams on StormShift (ocp3)](#create-a-kafkamirrormaker2-instance-in-red-hat-integration---amq-steams-on-stormshift-ocp3)
   - [Load the Data in a Jupiter Notebook on Red Hat Open Data Science (RHODS)](#load-the-data-in-a-jupiter-notebook-on-red-hat-open-data-science-rhods)
+- [Clean the system](#clean-the-system)
 
 ## Demo Preparation/ or possible Demo Usecase
 
 The demo is based on the internal Red Hat OpenShift Data Science (https://source.redhat.com/groups/public/rhodsinternal) and the internal StormShift cluster (ocp3). It is possible to doploy it on a customer specific OpenShift Data Science & OpenShift cluster, too.
+_____________
+
+![MANUela diagram public](./images/Diagram-manuela-goes-public.png)
+
+The approach of this demo is to extend the already existing parts of Manuela by a hybrid cloud approach. For this purpose, the sensor data recorded in the line data server level are to be transferred via Kafka Mirrormaker from the factory data center level to a public cloud, where they can also be analyzed.
+_____________
 
 ### Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)
 
@@ -51,6 +59,9 @@ Important: Save the following points for a later use:
 
 Note: In the guide section "Setting permissions for a service account in a Kafka instance in OpenShift Streams for Apache Kafka" you need to manage the access to the instance. For that you need to create ACL permissions. Just click the button "Add permission" and don't use the dropdown menue. In this way you can simply enter the information from the table of the guide in to the given form.
 
+### How to use MirrorMaker 2 with OpenShift Streams for Apache Kafka
+
+The fundament of this demo is the blog post of Pete Muir (https://developers.redhat.com/articles/2021/12/15/how-use-mirrormaker-2-openshift-streams-apache-kafka?source=sso#). There you can find all information that you need to fullfill this task. The following points are the neccessary steps you need to do.
 ### Create a secret on StormShift for the connection between StormShift and RHODS
 
 For this step you need to use a Terminal with internet access and sudo rights.
@@ -62,10 +73,7 @@ oc login -u admin -p "enter password here" --server=https://api.ocp3.stormshift.
 ```
 oc project manuela-data-lake-factory-mirror-maker
 ```
-- Delete the old secret from previews user
-```
-kubectl delete secret target-client-secret
-```
+
 - Create the secret - Enter your Client Secret at "Target Client Secret" 
 ```
 kubectl create secret generic target-client-secret --from-literal=client-secret="Target Client Secret"
@@ -80,52 +88,30 @@ After that you can end the connection.
 
 If no data is display, please contact the administrator of opc3.
 
-### Modify KafkaMirrorMaker2 in Red Hat Integration - AMQ Steams on StormShift (ocp3)
+### Create a KafkaMirrorMaker2 instance in Red Hat Integration - AMQ Steams on StormShift (ocp3)
 
-- Log in to ocp3 on StormShift - if you don't have the credetials look at the section before this one
-- Make sure you are on the administrator view of ocp3
-- On the left column open the dropdow menue of ```Operators``` and click on ```Installed Operators```
-- Click on ```Red Hat Integration - AMQ Steams```
-- Now go in the row that starts with ```Details YAML ...```
-- Look there for ```Kafka MirrorMaker 2``` and click on it
-  
-Under the mentioned row now appears a new space
-- Choose ```factory-to-rhods```
-- Go again in the row that starts with ```Details YAML ..```
-- Click on ```YAML```
-  
-You are now see the YAML File for that Kafka MirrorMaker 2. There we need to modify the information for the source of the MirrorMaker. If you need more information about the YAML, take a look at this blog: https://developers.redhat.com/articles/2021/12/15/how-use-mirrormaker-2-openshift-streams-apache-kafka?source=sso#set_up_strimzi. It is a specific explanation on how to use Kafka MirrorMaker 2.
+First get the YAML file to create the KafkaMirrorMaker2 instance.
+- Download it from Git:
+```
+curl -O https://raw.githubusercontent.com/sa-mw-dach/manuela-gitops/master/config/instances/manuela-data-lake/factory-mirror-maker/factory-to-rhods-mirror-maker2.yaml
+```
+- Insert your information from your created Kafka instance with RHODS to the YAML file
+- Save the changes in your file
 
-You need to adjust the following lines:
+- Connect your Terminal with ocp3 on StormShift, use the credentials that you got from the administrator and enter the passwort at "enter password here"(You need to install the neccessary packages for "oc")
 ```
-44    - alias: fpopp-kafka
-45      authentication:
-46        clientId: srvc-acct-81295f30-8136-411f-a3e0-acdb14d321f6
-47        clientSecret:
-48          key: client-secret
-49          secretName: target-client-secret
-50        tokenEndpointUri: >-
-51          https://identity.api.openshift.com/auth/realms/rhoas/protocol/openid-connect/token
-52        type: oauth
-53      bootstrapServers: 'fpopp-kafk-c-av-q-el-u-qt--b--a.bf2.kafka.rhcloud.com:443'
+oc login -u admin -p "enter password here" --server=https://api.ocp3.stormshift.coe.muc.redhat.com:6443
 ```
-- Line 44: Enter the name of your Kafka instance
-- Line 46: Enter your clientId
-- Line 50: Enter your tokenEndpointUri:
-- Line 53: Enter your bootstrapServers:
+- Make sure you are on the right project
+```
+oc project manuela-data-lake-factory-mirror-maker
+```
+- Apply your YAML file to create the KafkaMirrowMaker2 instance
+```
+oc apply -f factory-to-rhods-mirror-maker2.yaml -n manuela-data-lake-factory-mirror-maker
+```
 
-```
-60  connectCluster: fpopp-kafka
-```
-- Line 60: Enter the name of your Kafka instance
-```
-76        targetCluster: fpopp-kafka
-```
-- Line 76: Enter the name of your Kafka instance
-
-If you changed these lines, press "Save".
-
-After the creation process is finished you can check if data arrives in your Kafka instance. For that go back to you Kafka instance in the Red Hat Hybrid Cloud Plattform and choose "Topics". If there is data from a sensor you are successfull.
+After the creation process is finished (5 to 10 min) you can check if data arrives in your Kafka instance. For that go back to you Kafka instance in the Red Hat Hybrid Cloud Plattform and choose "Topics". If there is data from a sensor you are successfull.
 
 ### Load the Data in a Jupiter Notebook on Red Hat Open Data Science (RHODS)
 
@@ -142,15 +128,14 @@ In our case you have to look for ```JupyterHub```. Then press ```Launch applicat
 - Choose a ```Standard Data Science``` notebook server
 - Click ```Start Server```
  
-Now you need to upload a file to load the data in to a notebook:
-- Download that file: https://drive.google.com/file/d/1uZdVcIa8Cf087G7o7EDjpAL7uYTmcNNb/view?usp=sharing
-- Right next to the blue button with a white plus in the left upper corner you can see a ```upload symbol```, click on it
-- Choose the previous downloaded file and upload it
-- Open the file with a click on it in the left column
+Now you need to load a Git repository:
+- Load the repository: ```Git``` -> ```Add Remote Repository```
+- Enter this link: https://github.com/sa-mw-dach/manuela-dev.git
+- Open in the left column the folder ```manueladev``` -> ```ml-models``` -> ```anomaly-detection``` 
+- Open the file ```manuela-fetch-kafka-data.ipynb``` with a double click
 
-Adjustements in the file in the second section:
+It is neccessary to adjust the file in the second section:
 - kafka-bootstrap_server: Enter the bootstrap server adress from the Kafka instance you created
-- sasl_oauth_token_provider: Enter the Token endpoint URL from the Kafka instance you created
 - sasl_plain_username: Enter the Client ID from the Kafka instance you created
 - sasl_plain_password: Enter the Client secret from the Kafka instance you created
 
@@ -158,3 +143,23 @@ You are now able to load the data in to your notebook by running the cells:
 - Run each cell by clicking in the bash cell then press \[Shift]\[Enter] 
 
 The file "samples-manuela-factory.iot-sensor-sw-vibration-20220301-144807.csv" get created. There you can finde the sensor data from StormShift.
+
+## Clean the system
+
+After you have fun with this demo, please clean the system.
+
+- Delete the secret
+```
+kubectl delete secret target-client-secret
+```
+- Delet the KafkaMirrorMaker2 Operator
+  - Log in to the UI of ocp3 on StormShift: https://api.ocp3.stormshift.coe.muc.redhat.com:6443
+  - Make sure you are on the administrator view of ocp3
+  - On the left column open the dropdow menue of ```Operators``` and click on ```Installed Operators```
+  - Click on ```Red Hat Integration - AMQ Steams```
+  - Now go in the row that starts with ```Details YAML ...```
+  - Look there for ```Kafka MirrorMaker``` 2 and click on it
+  - Under the mentioned row now appears a new space
+  - Choose on the right the three points of ```factory-to-rhods```
+  - Click on ```Delete KafkaMirrorMaker2```
+  - Approve that command in the pop-up menue
