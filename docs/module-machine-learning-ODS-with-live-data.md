@@ -6,7 +6,7 @@ This document describes how to prepare & execute the machine learning demo on RH
 - [Demo Preparation/ or possible Demo Usecase](#demo-preparation-or-possible-demo-usecase)
   - [Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)](#deploy-openshift-steams-for-apache-kafka-with-red-hat-openshift-data-science-rhods)
   - [Create a Kafka instance with Red Hat OpenShift Data Science (RHODS)](#create-a-kafka-instance-with-red-hat-openshift-data-science-rhods)
-  - [How to use MirrorMaker 2 with OpenShift Streams for Apache Kafka](#how-to-use-mirrormaker-2-with-openshift-streams-for-apache-kafka)
+  - [How to use Kafka MirrorMaker 2 with OpenShift Streams for Apache Kafka](#how-to-use-kafka-mirrormaker-2-with-openshift-streams-for-apache-kafka)
   - [Create a secret on StormShift for the connection between StormShift and RHODS](#create-a-secret-on-stormshift-for-the-connection-between-stormshift-and-rhods)
   - [Check if the Kafka instance on StormShift is working properly](#check-if-the-kafka-instance-on-stormshift-is-working-properly)
   - [Create a KafkaMirrorMaker2 instance in Red Hat Integration - AMQ Steams on StormShift (ocp3)](#create-a-kafkamirrormaker2-instance-in-red-hat-integration---amq-steams-on-stormshift-ocp3)
@@ -20,7 +20,7 @@ _____________
 
 ![MANUela diagram public](./images/Diagram-manuela-goes-public.png)
 
-The approach of this demo is to extend the already existing parts of Manuela by a hybrid cloud approach. For this purpose, the sensor data recorded in the line data server level are to be transferred via Kafka Mirrormaker from the factory data center level to a public cloud, where they can also be analyzed.
+The approach of this demo is to extend the already existing parts of Manuela by a hybrid cloud approach. For this purpose, the sensor data recorded in the line data server level are to be transferred via Kafka Mirrormaker from the factory data center level to a public cloud, where they can be analyzed.
 _____________
 
 ### Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)
@@ -59,7 +59,7 @@ Important: Save the following points for a later use:
 
 Note: In the guide section "Setting permissions for a service account in a Kafka instance in OpenShift Streams for Apache Kafka" you need to manage the access to the instance. For that you need to create ACL permissions. Just click the button "Add permission" and don't use the dropdown menue. In this way you can simply enter the information from the table of the guide in to the given form.
 
-### How to use MirrorMaker 2 with OpenShift Streams for Apache Kafka
+### How to use Kafka MirrorMaker 2 with OpenShift Streams for Apache Kafka
 
 The fundament of this demo is the blog post of Pete Muir (https://developers.redhat.com/articles/2021/12/15/how-use-mirrormaker-2-openshift-streams-apache-kafka?source=sso#). There you can find all information that you need to fullfill this task. The following points are the neccessary steps you need to do.
 ### Create a secret on StormShift for the connection between StormShift and RHODS
@@ -73,7 +73,6 @@ oc login -u admin -p "enter password here" --server=https://api.ocp3.stormshift.
 ```
 oc project manuela-data-lake-factory-mirror-maker
 ```
-
 - Create the secret - Enter your Client Secret at "Target Client Secret" 
 ```
 kubectl create secret generic target-client-secret --from-literal=client-secret="Target Client Secret"
@@ -146,11 +145,11 @@ The file "samples-manuela-factory.iot-sensor-sw-vibration-20220301-144807.csv" g
 
 ## Clean the system
 
-After you have fun with this demo, please clean the system.
+After you had fun with this demo, please clean the system.
 
 - Delete the secret
 ```
-kubectl delete secret target-client-secret
+oc delete secret target-client-secret
 ```
 - Delet the KafkaMirrorMaker2 Operator
   - Log in to the UI of ocp3 on StormShift: https://api.ocp3.stormshift.coe.muc.redhat.com:6443
