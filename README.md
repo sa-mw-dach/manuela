@@ -8,6 +8,8 @@ This project is built and maintained by a group of solution architects at Red Ha
 
 Your feedback is welcome - enter your feedback, issues, and enhancement requests [here](https://github.com/sa-mw-dach/manuela/issues).
 
+**Attention**: This is the __upstream community__ development project of the Red Hat Validated Pattern for Industrial Edge. If you are looking for the Validated Pattern, please switch over to [docs](https://redhat-gitops-patterns.io/industrial-edge/) and [repo](https://github.com/hybrid-cloud-patterns/industrial-edge).
+
 
 ## Documentation
 
@@ -48,7 +50,7 @@ While you can setup your own demo environment, you can always ask the MANUela te
 - IoT Edge
 - See and experience Hybrid Cloud in action
 - OpenShift Multi-Cluster Management
-- IoT Data Ingest 
+- IoT Data Ingest
 - AI/ML- How to train models in the public cloud with data from the private cloud, and bring the executable model back to on prem.
 
 
