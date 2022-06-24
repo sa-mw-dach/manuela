@@ -1,12 +1,15 @@
 # Quick start and first steps <!-- omit in toc -->
 
-By following these steps you will create your own instance of the manuela gitops repository and use it to deploy and configure an application via GitOps to a single OpenShift cluster, such as CodeReady Containers (CRC).
+By following these steps you will create your own instance of the manuela gitops repository and use it to deploy and configure an application via GitOps to a single OpenShift cluster.
 
 - [Prequisites](#prequisites)
 - [Quickstart deployment](#quickstart-deployment)
 - [Prepare your own instance of the gitops repository](#prepare-your-own-instance-of-the-gitops-repository)
-- [Prepare Cluster and deploy ArgoCD](#prepare-cluster-and-deploy-argocd)
-- [Deploy the Application via GitOps](#deploy-the-application-via-gitops)
+- [Deploy the OpenShift GitOps (ArgoCD) Operator](#deploy-the-openshift-gitops-argocd-operator)
+- [Deploy the Applications via GitOps](#deploy-the-applications-via-gitops)
+  - [Install the messaging component inclusive the AMQ Broker Operator and instance](#install-the-messaging-component-inclusive-the-amq-broker-operator-and-instance)
+  - [Install the line dashboard component](#install-the-line-dashboard-component)
+  - [Install the Senor Simulators components](#install-the-senor-simulators-components)
 - [Configure the Application via GitOps](#configure-the-application-via-gitops)
 - [Build the Application Components from Source](#build-the-application-components-from-source)
 - [Modify GitOps repo to deploy your own application components](#modify-gitops-repo-to-deploy-your-own-application-components)
@@ -14,12 +17,12 @@ By following these steps you will create your own instance of the manuela gitops
 ## Prequisites
 
 - **Local Workstation**: You have the ```git``` and ```oc``` command line clients installed
-- **OpenShift Cluster**: You are logged into your cluster as cluster admin in via the ```oc```command line client
+- **OpenShift Cluster**: You are logged into your cluster as cluster admin in via the ```oc``` command line client
 - **GitHub Account**: You are logged into GitHub and can fork public repositories
 
 ## Quickstart deployment
 
-You are going to deploy two manuela instances:
+You have the option to deploy one or two Manuela instances:
 
 1. The simplified showcase for a production deployment.
 2. A development environment for building your own container images.
@@ -59,11 +62,11 @@ git push
 
 If you are NOT using CRC, adapt the gitops configuration to match your environment's base URL:
 ```
-export OCP_WILDCARD_DOMAIN=apps.my.openshift.cluster
+export OCP_WILDCARD_DOMAIN=apps.my.openshift.cluster.com
 
 cd ~/manuela-gitops/config/instances/manuela-quickstart
 
-sed -i  "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap.yaml \
+sed -i  "s|apps-crc.testing|$OCP_WILDCARD_DOMAIN|" line-dashboard/line-dashboard-configmap-config.json \
   line-dashboard/line-dashboard-route.yaml machine-sensor/machine-sensor-1-configmap.properties \
   machine-sensor/machine-sensor-2-configmap.properties messaging/route.yaml
 
@@ -74,79 +77,127 @@ git commit -m "adapt base DNS names"
 git push
 ```
 
-## Prepare Cluster and deploy ArgoCD
+## Deploy the OpenShift GitOps (ArgoCD) Operator
 
-Create "iotdemo" and "argocd" namespaces and required operator subscriptions: 
-```bash
-oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/01_namespaces_and_operators.yaml
+Installing the OpenShift GitOps Operator is a manual step in this quickstart guide.
+
+Follow the OpenShift Documentation. I.e. [Installing OpenShift GitOps Operator in web console](https://docs.openshift.com/container-platform/4.10/cicd/gitops/installing-openshift-gitops.html#installing-gitops-operator-in-web-console_installing-openshift-gitops) 
+
+Please select:
+- Latest update channel
+- Installation mode: All namespaces
+- Installed Namespaces: openshift-operators
+- Update approval: Automatic 
+
+
+Wait until the OpenShift GitOps operator is installed. This might take a short while. 
+
+After the Red Hat OpenShift GitOps Operator is installed, it automatically sets up a ready-to-use Argo CD instance that is available in the openshift-gitops namespace, and an Argo CD icon is displayed in the console toolbar. 
+
+
+After the installation is complete, ensure that all the pods in the openshift-gitops namespace are running:
+```
+oc get pods -n openshift-gitops
+
+```
+Example output:
+```
+NAME                                                      	READY   STATUS	RESTARTS   AGE
+cluster-b5798d6f9-zr576                                   	1/1 	Running   0      	65m
+kam-69866d7c48-8nsjv                                      	1/1 	Running   0      	65m
+openshift-gitops-application-controller-0                 	1/1 	Running   0      	53m
+openshift-gitops-applicationset-controller-6447b8dfdd-5ckgh 1/1 	Running   0      	65m
+openshift-gitops-redis-74bd8d7d96-49bjf                   	1/1 	Running   0      	65m
+openshift-gitops-repo-server-c999f75d5-l4rsg              	1/1 	Running   0      	65m
+openshift-gitops-server-5785f7668b-wj57t                  	1/1 	Running   0      	53m
 ```
 
-Wait until the argocd operator is installed. This might take a short while. You can check the output of the following command to validate which installplan and CSV is instantiated:
 
-```bash
-$ oc get Subscription.operators.coreos.com -n argocd -o jsonpath="{range .items[*]}{@.metadata.name}{'\t'}{@.status.installplan.name}{'\t'}{@.status.installedCSV}{'\n'}{end}"
 
-argocd-operator	install-29bkp	argocd-operator.v0.0.11
+Note, in this quickstart deployment, we will use the cluster Argo CD instance and won't deploy any Manuela specific Argo CD instance.
+
+Check that you can login into the Argo CD instance by using the Argo CD admin account:
+- Follow the instructions in the documentation: [Logging in to the Argo CD instance by using the Argo CD admin account](https://docs.openshift.com/container-platform/4.10/cicd/gitops/installing-openshift-gitops.html#logging-in-to-the-argo-cd-instance-by-using-the-argo-cd-admin-account_installing-openshift-gitops)
+
+
+## Deploy the Applications via GitOps
+
+We will deploy the three part of the core Manuele Applicatoion step by step:
+
+1. Messaging component inclusive the AMQ Broker Operator and instance
+2. Line Dashboard
+3. Senor Simulators 
+
+### Install the messaging component inclusive the AMQ Broker Operator and instance
+
+Deploy the Messaging component
+
+```
+$ oc apply -f config/instances/manuela-quickstart/manuela-quickstart-messaging-application.yaml 
+application.argoproj.io/manuela-quickstart-messaging created
+
 ```
 
-Create ArgoCD instance:
-```bash
-oc apply -f https://raw.githubusercontent.com/sa-mw-dach/manuela/master/quickstart/02_argocd.yaml
+Check the status:
+```
+$ oc get application -n openshift-gitops
+NAME                                SYNC STATUS   HEALTH STATUS
+manuela-quickstart-messaging        Synced        Progressing
+
 ```
 
-These two steps are performed separately due to the lifecycle of the operator and the custom resources it manages. The first step creates operator subscriptions which in turn advises the OLM to instantiate the operator, which then registers its CRD in the system. Only once the CRDs are registered, the custom resources can be created. This is why these two things cannot be done in a single transaction.
+Use the Argo CD UI to follow the installation.
 
-Wait for all ArgoCD pods to run. Depending on your network connection, this can take a couple of minutes until all images are pulled:
-```bash
-oc get pods -n argocd
+You might run into issues with the AMQ operator installation when this guide a a bit outdated. Check in the OpenShift Admin Ui ind the chancel, that is define in `config/templates/manuela/messaging/amq-operator-subscription.yaml` is still available.
 
-NAME                                             READY   STATUS    RESTARTS   AGE
-argocd-application-controller-657d65dc78-tczgh   1/1     Running   0          17m
-argocd-dex-server-76fb48bf6-4rmq2                1/1     Running   2          17m
-argocd-operator-65dcf99d75-p2r9x                 1/1     Running   0          21m
-argocd-redis-79ff859f65-9stcm                    1/1     Running   0          17m
-argocd-repo-server-7dd7d7f568-jtgp2              1/1     Running   0          17m
-argocd-server-85dff996b4-2vh6t                   1/1     Running   0          17m
+
+### Install the line dashboard component 
+
+Deploy the line dashboard component
+
+```
+$ oc apply -f config/instances/manuela-quickstart/manuela-quickstart-line-dashboard-application.yaml 
+application.argoproj.io/manuela-quickstart-line-dashboard created
+
 ```
 
-Create gitops deployment agent configuration for the quickstart environment:
-```bash
-cd ~/manuela-gitops
-
-oc apply -f meta/argocd-quickstart.yaml
+Check the status:
+```
+$ oc get application -n openshift-gitops
+NAME                                SYNC STATUS   HEALTH STATUS
+manuela-quickstart-line-dashboard   Synced        Progressing
+manuela-quickstart-messaging        Synced        Healthy
 ```
 
-Log into the ArgoCD WebUI (select OpenShift auth) and see only the quickstart deployment agent configuration is present. Retrieve the URL via:
-```bash
-echo https://$(oc -n argocd get route argocd-server -o jsonpath='{.spec.host}')
-```
-
-## Deploy the Application via GitOps
-
-Deploy the quickstart application by symlinking the component instance applications in the quickstart deployment folder of the gitops repo:
-```bash
-cd ~/manuela-gitops/deployment/execenv-quickstart
-
-ln -s ../../config/instances/manuela-quickstart/manuela-quickstart-line-dashboard-application.yaml
-
-ln -s ../../config/instances/manuela-quickstart/manuela-quickstart-machine-sensor-application.yaml
-
-ln -s ../../config/instances/manuela-quickstart/manuela-quickstart-messaging-application.yaml
-
-git add .
-
-git commit -m "deploy application"
-
-git push
-```
-
-Wait for ArgoCD to sync the changed configuration (you can also trigger a sync via the ArgoCD UI). 
+Wait until the application is `Healthy`.
 
 
 Open the Manuela line dashboard web application and view the sensor data by selecting the "Realtime Data" menu item. Retrieve the UI URL via:
 ```bash
 echo http://$(oc -n manuela-quickstart-line-dashboard get route line-dashboard -o jsonpath='{.spec.host}')/sensors
 ```
+
+Note, no sensor data is displayed , because the senor simulators are not deployed yet.
+
+### Install the Senor Simulators components 
+
+Deploy the line machine sensor application:
+
+```
+$ oc apply -f config/instances/manuela-quickstart/manuela-quickstart-machine-sensor-application.yaml 
+application.argoproj.io/manuela-quickstart-machine-sensor created
+```
+
+Wait until the application is `Healthy`.
+
+```
+$ oc get application -n openshift-gitops
+NAME                                SYNC STATUS   HEALTH STATUS
+manuela-quickstart-line-dashboard   Synced        Healthy
+manuela-quickstart-machine-sensor   Synced        Healthy
+manuela-quickstart-messaging        Synced        Healthy
+```
+
 
 ## Configure the Application via GitOps
 
@@ -165,6 +216,7 @@ git push
 ```
 
 Wait for ArgoCD to sync the changed configuration (you can also trigger a sync via the ArgoCD UI). The new sensor data will appear in the Web UI.
+
 
 
 ## Build the Application Components from Source
