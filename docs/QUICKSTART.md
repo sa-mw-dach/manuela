@@ -75,6 +75,8 @@ git add .
 git commit -m "adapt base DNS names"
 
 git push
+
+cd ~/manuela-gitops
 ```
 
 ## Deploy the OpenShift GitOps (ArgoCD) Operator
@@ -118,6 +120,11 @@ Note, in this quickstart deployment, we will use the cluster Argo CD instance an
 
 Check that you can login into the Argo CD instance by using the Argo CD admin account:
 - Follow the instructions in the documentation: [Logging in to the Argo CD instance by using the Argo CD admin account](https://docs.openshift.com/container-platform/4.10/cicd/gitops/installing-openshift-gitops.html#logging-in-to-the-argo-cd-instance-by-using-the-argo-cd-admin-account_installing-openshift-gitops)
+- Or, pull the `admin` password with 
+  
+```
+oc get secret openshift-gitops-cluster -o 'go-template={{index .data "admin.password"}}' |  base64 -d
+```
 
 
 ## Deploy the Applications via GitOps
@@ -148,7 +155,9 @@ manuela-quickstart-messaging        Synced        Progressing
 
 Use the Argo CD UI to follow the installation.
 
-You might run into issues with the AMQ operator installation when this guide a a bit outdated. Check in the OpenShift Admin Ui ind the chancel, that is define in `config/templates/manuela/messaging/amq-operator-subscription.yaml` is still available.
+You might run into issues with the AMQ operator installation when this guide a a bit outdated. Check with the OpenShift Administrator Console, if the update chancel, that is defined in `config/templates/manuela/messaging/amq-operator-subscription.yaml` is still available for the AMQ operator.
+
+
 
 
 ### Install the line dashboard component 
