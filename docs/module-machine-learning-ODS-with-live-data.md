@@ -4,7 +4,7 @@
 This document describes how to prepare & execute the machine learning demo on RHODS with live data
 
 - [Demo Preparation/ or possible Demo Usecase](#demo-preparation-or-possible-demo-usecase)
-  - [Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)](#deploy-openshift-steams-for-apache-kafka-with-red-hat-openshift-data-science-rhods)
+  - [Deploy OpenShift Streams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)](#deploy-openshift-streams-for-apache-kafka-with-red-hat-openshift-data-science-rhods)
   - [Create a Kafka instance with Red Hat OpenShift Data Science (RHODS)](#create-a-kafka-instance-with-red-hat-openshift-data-science-rhods)
   - [How to use Kafka MirrorMaker 2 with OpenShift Streams for Apache Kafka](#how-to-use-kafka-mirrormaker-2-with-openshift-streams-for-apache-kafka)
   - [Create a secret on StormShift for the connection between StormShift and RHODS](#create-a-secret-on-stormshift-for-the-connection-between-stormshift-and-rhods)
@@ -23,7 +23,7 @@ _____________
 The approach of this demo is to extend the already existing parts of Manuela by a hybrid cloud approach. For this purpose, the sensor data recorded in the line data server level are to be transferred via Kafka Mirrormaker from the factory data center level to a public cloud, where they can be analyzed.
 _____________
 
-### Deploy OpenShift Steams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)
+### Deploy OpenShift Streams for Apache Kafka with Red Hat OpenShift Data Science (RHODS)
 
 - Go to https://source.redhat.com/groups/public/rhodsinternal and find the place where you can get support on the internal offer of Red Hat OpenShift Data Science.
 

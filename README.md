@@ -29,6 +29,9 @@ You want to run the demo on an existing environment? Check out the individual ho
 - Infrastructure operator development [preparation](./docs/module-infrastructure-operator-development.md#Demo-preparation) - [demo execution](./docs/module-infrastructure-operator-development.md#Demo-execution)
 - Enterprise Container [preparation](./docs/module-enterprise-container.md#Demo-preparation) - [demo execution](./docs/module-enterprise-container.md#Demo-execution)
 - Multi Cluster Management [preparation](./docs/module-multicluster.md#Demo-preparation) - [demo execution](./docs/module-multicluster.md#Demo-execution)
+- [Machine Learning in a Public Cloud on Red Hat OpenShift Data Science (RHODS)](docs/module-machine-learning-ODS.md)
+- [Mirror factory runtime data to the pubic cloud with Red Hat OpenShift Streams for Apache Kafka](./docs/module-machine-learning-ODS-with-live-data.md)
+
 
 ### References
 - TODO: GitOps for large scale manufacturing
