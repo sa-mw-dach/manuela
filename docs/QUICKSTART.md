@@ -123,7 +123,7 @@ Check that you can login into the Argo CD instance by using the Argo CD admin ac
 - Or, pull the `admin` password with 
   
 ```
-oc get secret openshift-gitops-cluster -o 'go-template={{index .data "admin.password"}}' |  base64 -d
+oc get secret openshift-gitops-cluster -o 'go-template={{index .data "admin.password"}}' -n openshift-gitops |  base64 -d
 ```
 
 
